@@ -1,0 +1,28 @@
+{
+  "name": "finanzapp-functions",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": "20"
+  },
+  "dependencies": {
+    "@google-cloud/kms": "^5.5.0",
+    "axios": "^1.4.0",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "firebase-admin": "^13.10.0",
+    "firebase-functions": "^7.2.5",
+    "functions": "^1.0.9"
+  },
+  "overrides": {
+    "uuid": "11.1.1",
+    "gaxios": "7.1.4",
+    "google-gax": "5.0.6",
+    "retry-request": "8.0.2",
+    "teeny-request": "10.1.2"
+  }
+  ,
+  "scripts": {
+    "postinstall": "node ./scripts/patch-google-gax.js"
+  }
+}

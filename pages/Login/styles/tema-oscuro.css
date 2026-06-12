@@ -1,0 +1,18 @@
+[data-theme="dark"] {
+  --primary: #eb6f92;
+  --secondary: #31748f;
+  --dark: #191724;
+  --darker: #151320;
+  --light: #e0def4;
+  --gray: #6e6a86;
+  --card-bg: #1f1d2e;
+  --card-border: rgba(224, 222, 244, 0.10);
+  --success: #31748f;
+  --warning: #f6c177;
+  --danger: #eb6f92;
+}
+
+[data-theme="dark"] body {
+  background: linear-gradient(135deg, var(--darker), var(--dark));
+  color: var(--light);
+}

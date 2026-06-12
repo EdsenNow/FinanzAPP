@@ -1,0 +1,42 @@
+# Dependency directories
+node_modules/
+functions/node_modules/
+
+# Firebase Cache & Debug logs
+.firebase/
+.firebaserc
+*.log
+firebase-debug.log
+firestore-debug.log
+
+# Environment secrets
+.env
+.env.*
+!.env.example
+functions/.env
+functions/.env.*
+!functions/.env.example
+functions/.runtimeconfig.json
+*.pem
+*.key
+*.p12
+*-service-account*.json
+
+# Project logs
+logs.txt
+tmp_gmailPoller_logs.txt
+tmp_gmailPoller_logs_utf8.txt
+
+# Editor / IDE settings
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS metadata
+Thumbs.db
+ehthumbs.db
+Desktop.ini

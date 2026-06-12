@@ -1,0 +1,1418 @@
+{
+  "categories": [
+    {
+      "id": "cat_salario_2025",
+      "name": "Salario",
+      "fixedType": "income",
+      "transactions": [
+        {
+          "id": "tx_001",
+          "type": "income",
+          "amount": 45000,
+          "description": "Salario enero",
+          "date": "2025-01-15T00:00:00.000Z"
+        },
+        {
+          "id": "tx_002",
+          "type": "income",
+          "amount": 45000,
+          "description": "Salario febrero",
+          "date": "2025-02-15T00:00:00.000Z"
+        },
+        {
+          "id": "tx_003",
+          "type": "income",
+          "amount": 45000,
+          "description": "Salario marzo",
+          "date": "2025-03-15T00:00:00.000Z"
+        },
+        {
+          "id": "tx_004",
+          "type": "income",
+          "amount": 47000,
+          "description": "Salario abril con aumento",
+          "date": "2025-04-15T00:00:00.000Z"
+        },
+        {
+          "id": "tx_005",
+          "type": "income",
+          "amount": 47000,
+          "description": "Salario mayo",
+          "date": "2025-05-15T00:00:00.000Z"
+        },
+        {
+          "id": "tx_006",
+          "type": "income",
+          "amount": 47000,
+          "description": "Salario junio",
+          "date": "2025-06-15T00:00:00.000Z"
+        },
+        {
+          "id": "tx_007",
+          "type": "income",
+          "amount": 47000,
+          "description": "Salario julio",
+          "date": "2025-07-15T00:00:00.000Z"
+        },
+        {
+          "id": "tx_008",
+          "type": "income",
+          "amount": 47000,
+          "description": "Salario agosto",
+          "date": "2025-08-15T00:00:00.000Z"
+        }
+      ],
+      "isPinned": false
+    },
+    {
+      "id": "cat_freelance_2025",
+      "name": "Freelance",
+      "fixedType": "income",
+      "transactions": [
+        {
+          "id": "tx_009",
+          "type": "income",
+          "amount": 12500,
+          "description": "Proyecto web cliente A",
+          "date": "2025-01-08T00:00:00.000Z"
+        },
+        {
+          "id": "tx_010",
+          "type": "income",
+          "amount": 8750,
+          "description": "Diseño logo empresa B",
+          "date": "2025-02-22T00:00:00.000Z"
+        },
+        {
+          "id": "tx_011",
+          "type": "income",
+          "amount": 15000,
+          "description": "App móvil cliente C",
+          "date": "2025-03-30T00:00:00.000Z"
+        },
+        {
+          "id": "tx_012",
+          "type": "income",
+          "amount": 6200,
+          "description": "Consultoría IT",
+          "date": "2025-05-12T00:00:00.000Z"
+        },
+        {
+          "id": "tx_013",
+          "type": "income",
+          "amount": 18500,
+          "description": "Plataforma e-commerce",
+          "date": "2025-06-28T00:00:00.000Z"
+        },
+        {
+          "id": "tx_014",
+          "type": "income",
+          "amount": 9300,
+          "description": "Mantenimiento sistemas",
+          "date": "2025-07-14T00:00:00.000Z"
+        },
+        {
+          "id": "tx_015",
+          "type": "income",
+          "amount": 11800,
+          "description": "Dashboard analytics",
+          "date": "2025-08-25T00:00:00.000Z"
+        }
+      ],
+      "isPinned": false
+    },
+    {
+      "id": "cat_bonos_2025",
+      "name": "Bonos",
+      "fixedType": "income",
+      "transactions": [
+        {
+          "id": "tx_016",
+          "type": "income",
+          "amount": 25000,
+          "description": "Bono trimestral Q1",
+          "date": "2025-03-31T00:00:00.000Z"
+        },
+        {
+          "id": "tx_017",
+          "type": "income",
+          "amount": 15000,
+          "description": "Bono productividad",
+          "date": "2025-06-30T00:00:00.000Z"
+        },
+        {
+          "id": "tx_018",
+          "type": "income",
+          "amount": 8000,
+          "description": "Bono por referido",
+          "date": "2025-07-04T00:00:00.000Z"
+        },
+        {
+          "id": "tx_019",
+          "type": "income",
+          "amount": 30000,
+          "description": "Bono por objetivos",
+          "date": "2025-08-15T00:00:00.000Z"
+        },
+        {
+          "id": "tx_020",
+          "type": "income",
+          "amount": 12000,
+          "description": "Bono asistencia perfecta",
+          "date": "2025-09-10T00:00:00.000Z"
+        }
+      ],
+      "isPinned": false
+    },
+    {
+      "id": "cat_inversiones_2025",
+      "name": "Inversiones",
+      "fixedType": "income",
+      "transactions": [
+        {
+          "id": "tx_021",
+          "type": "income",
+          "amount": 3200,
+          "description": "Dividendos acciones",
+          "date": "2025-02-05T00:00:00.000Z"
+        },
+        {
+          "id": "tx_022",
+          "type": "income",
+          "amount": 1850,
+          "description": "Ganancias crypto",
+          "date": "2025-04-10T00:00:00.000Z"
+        },
+        {
+          "id": "tx_023",
+          "type": "income",
+          "amount": 2750,
+          "description": "Interés plazo fijo",
+          "date": "2025-05-20T00:00:00.000Z"
+        },
+        {
+          "id": "tx_024",
+          "type": "income",
+          "amount": 4100,
+          "description": "Rendimiento fondos",
+          "date": "2025-07-03T00:00:00.000Z"
+        },
+        {
+          "id": "tx_025",
+          "type": "income",
+          "amount": 2980,
+          "description": "Venta de bonos",
+          "date": "2025-08-18T00:00:00.000Z"
+        }
+      ],
+      "isPinned": false
+    },
+    {
+      "id": "cat_ventas_2025",
+      "name": "Ventas",
+      "fixedType": "income",
+      "transactions": [
+        {
+          "id": "tx_026",
+          "type": "income",
+          "amount": 5600,
+          "description": "Venta equipo usado",
+          "date": "2025-01-22T00:00:00.000Z"
+        },
+        {
+          "id": "tx_027",
+          "type": "income",
+          "amount": 12400,
+          "description": "Venta muebles",
+          "date": "2025-03-14T00:00:00.000Z"
+        },
+        {
+          "id": "tx_028",
+          "type": "income",
+          "amount": 3800,
+          "description": "Venta libros técnicos",
+          "date": "2025-04-28T00:00:00.000Z"
+        },
+        {
+          "id": "tx_029",
+          "type": "income",
+          "amount": 8900,
+          "description": "Venta bicicleta",
+          "date": "2025-06-15T00:00:00.000Z"
+        },
+        {
+          "id": "tx_030",
+          "type": "income",
+          "amount": 7200,
+          "description": "Venta instrumentos",
+          "date": "2025-08-08T00:00:00.000Z"
+        }
+      ],
+      "isPinned": false
+    },
+    {
+      "id": "cat_alquiler_prop_2025",
+      "name": "Alquiler de Propiedades",
+      "fixedType": "income",
+      "transactions": [
+        {
+          "id": "tx_031",
+          "type": "income",
+          "amount": 15000,
+          "description": "Alquiler departamento enero",
+          "date": "2025-01-01T00:00:00.000Z"
+        },
+        {
+          "id": "tx_032",
+          "type": "income",
+          "amount": 15000,
+          "description": "Alquiler departamento febrero",
+          "date": "2025-02-01T00:00:00.000Z"
+        },
+        {
+          "id": "tx_033",
+          "type": "income",
+          "amount": 16500,
+          "description": "Alquiler departamento marzo (ajuste)",
+          "date": "2025-03-01T00:00:00.000Z"
+        },
+        {
+          "id": "tx_034",
+          "type": "income",
+          "amount": 16500,
+          "description": "Alquiler departamento abril",
+          "date": "2025-04-01T00:00:00.000Z"
+        },
+        {
+          "id": "tx_035",
+          "type": "income",
+          "amount": 16500,
+          "description": "Alquiler departamento mayo",
+          "date": "2025-05-01T00:00:00.000Z"
+        }
+      ],
+      "isPinned": false
+    },
+    {
+      "id": "cat_comisiones_2025",
+      "name": "Comisiones",
+      "fixedType": "income",
+      "transactions": [
+        {
+          "id": "tx_036",
+          "type": "income",
+          "amount": 4200,
+          "description": "Comisión por venta referida",
+          "date": "2025-02-28T00:00:00.000Z"
+        },
+        {
+          "id": "tx_037",
+          "type": "income",
+          "amount": 6800,
+          "description": "Comisión afiliados",
+          "date": "2025-04-15T00:00:00.000Z"
+        },
+        {
+          "id": "tx_038",
+          "type": "income",
+          "amount": 3500,
+          "description": "Comisión marketplace",
+          "date": "2025-06-10T00:00:00.000Z"
+        },
+        {
+          "id": "tx_039",
+          "type": "income",
+          "amount": 5900,
+          "description": "Comisión por intermediación",
+          "date": "2025-07-25T00:00:00.000Z"
+        },
+        {
+          "id": "tx_040",
+          "type": "income",
+          "amount": 7600,
+          "description": "Comisión consulta especializada",
+          "date": "2025-09-12T00:00:00.000Z"
+        }
+      ],
+      "isPinned": false
+    },
+    {
+      "id": "cat_alimentacion_2025",
+      "name": "Alimentación",
+      "fixedType": "expense",
+      "transactions": [
+        {
+          "id": "tx_041",
+          "type": "expense",
+          "amount": 2800,
+          "description": "Supermercado semanal",
+          "date": "2025-01-05T00:00:00.000Z"
+        },
+        {
+          "id": "tx_042",
+          "type": "expense",
+          "amount": 3200,
+          "description": "Compras mensuales",
+          "date": "2025-02-12T00:00:00.000Z"
+        },
+        {
+          "id": "tx_043",
+          "type": "expense",
+          "amount": 2950,
+          "description": "Verdulería y carnicería",
+          "date": "2025-03-20T00:00:00.000Z"
+        },
+        {
+          "id": "tx_044",
+          "type": "expense",
+          "amount": 3400,
+          "description": "Supermercado + especias",
+          "date": "2025-04-18T00:00:00.000Z"
+        },
+        {
+          "id": "tx_045",
+          "type": "expense",
+          "amount": 2700,
+          "description": "Compras básicas",
+          "date": "2025-05-25T00:00:00.000Z"
+        },
+        {
+          "id": "tx_046",
+          "type": "expense",
+          "amount": 3800,
+          "description": "Supermercado + productos orgánicos",
+          "date": "2025-06-14T00:00:00.000Z"
+        },
+        {
+          "id": "tx_047",
+          "type": "expense",
+          "amount": 2600,
+          "description": "Frutas y verduras",
+          "date": "2025-07-22T00:00:00.000Z"
+        }
+      ],
+      "isPinned": false
+    },
+    {
+      "id": "cat_transporte_2025",
+      "name": "Transporte",
+      "fixedType": "expense",
+      "transactions": [
+        {
+          "id": "tx_048",
+          "type": "expense",
+          "amount": 1200,
+          "description": "Combustible enero",
+          "date": "2025-01-03T00:00:00.000Z"
+        },
+        {
+          "id": "tx_049",
+          "type": "expense",
+          "amount": 850,
+          "description": "Transporte público",
+          "date": "2025-01-15T00:00:00.000Z"
+        },
+        {
+          "id": "tx_050",
+          "type": "expense",
+          "amount": 1350,
+          "description": "Combustible febrero",
+          "date": "2025-02-08T00:00:00.000Z"
+        },
+        {
+          "id": "tx_051",
+          "type": "expense",
+          "amount": 2200,
+          "description": "Mantenimiento auto",
+          "date": "2025-03-12T00:00:00.000Z"
+        },
+        {
+          "id": "tx_052",
+          "type": "expense",
+          "amount": 1100,
+          "description": "Combustible abril",
+          "date": "2025-04-20T00:00:00.000Z"
+        },
+        {
+          "id": "tx_053",
+          "type": "expense",
+          "amount": 950,
+          "description": "Uber y taxis",
+          "date": "2025-05-18T00:00:00.000Z"
+        },
+        {
+          "id": "tx_054",
+          "type": "expense",
+          "amount": 1450,
+          "description": "Combustible junio",
+          "date": "2025-06-25T00:00:00.000Z"
+        }
+      ],
+      "isPinned": false
+    },
+    {
+      "id": "cat_vivienda_2025",
+      "name": "Vivienda",
+      "fixedType": "expense",
+      "transactions": [
+        {
+          "id": "tx_055",
+          "type": "expense",
+          "amount": 18000,
+          "description": "Alquiler enero",
+          "date": "2025-01-01T00:00:00.000Z"
+        },
+        {
+          "id": "tx_056",
+          "type": "expense",
+          "amount": 18000,
+          "description": "Alquiler febrero",
+          "date": "2025-02-01T00:00:00.000Z"
+        },
+        {
+          "id": "tx_057",
+          "type": "expense",
+          "amount": 18000,
+          "description": "Alquiler marzo",
+          "date": "2025-03-01T00:00:00.000Z"
+        },
+        {
+          "id": "tx_058",
+          "type": "expense",
+          "amount": 19500,
+          "description": "Alquiler abril (aumento)",
+          "date": "2025-04-01T00:00:00.000Z"
+        },
+        {
+          "id": "tx_059",
+          "type": "expense",
+          "amount": 19500,
+          "description": "Alquiler mayo",
+          "date": "2025-05-01T00:00:00.000Z"
+        },
+        {
+          "id": "tx_060",
+          "type": "expense",
+          "amount": 19500,
+          "description": "Alquiler junio",
+          "date": "2025-06-01T00:00:00.000Z"
+        },
+        {
+          "id": "tx_061",
+          "type": "expense",
+          "amount": 4200,
+          "description": "Reparación techo",
+          "date": "2025-07-15T00:00:00.000Z"
+        }
+      ],
+      "isPinned": false
+    },
+    {
+      "id": "cat_servicios_2025",
+      "name": "Servicios Públicos",
+      "fixedType": "expense",
+      "transactions": [
+        {
+          "id": "tx_062",
+          "type": "expense",
+          "amount": 2800,
+          "description": "Electricidad enero",
+          "date": "2025-01-10T00:00:00.000Z"
+        },
+        {
+          "id": "tx_063",
+          "type": "expense",
+          "amount": 1500,
+          "description": "Gas enero",
+          "date": "2025-01-15T00:00:00.000Z"
+        },
+        {
+          "id": "tx_064",
+          "type": "expense",
+          "amount": 1200,
+          "description": "Agua enero",
+          "date": "2025-01-20T00:00:00.000Z"
+        },
+        {
+          "id": "tx_065",
+          "type": "expense",
+          "amount": 3200,
+          "description": "Electricidad febrero",
+          "date": "2025-02-10T00:00:00.000Z"
+        },
+        {
+          "id": "tx_066",
+          "type": "expense",
+          "amount": 2100,
+          "description": "Internet fibra",
+          "date": "2025-03-12T00:00:00.000Z"
+        },
+        {
+          "id": "tx_067",
+          "type": "expense",
+          "amount": 2950,
+          "description": "Electricidad abril",
+          "date": "2025-04-08T00:00:00.000Z"
+        },
+        {
+          "id": "tx_068",
+          "type": "expense",
+          "amount": 1800,
+          "description": "Gas mayo",
+          "date": "2025-05-15T00:00:00.000Z"
+        }
+      ],
+      "isPinned": false
+    },
+    {
+      "id": "cat_salud_2025",
+      "name": "Salud",
+      "fixedType": "expense",
+      "transactions": [
+        {
+          "id": "tx_069",
+          "type": "expense",
+          "amount": 1500,
+          "description": "Consulta médica",
+          "date": "2025-01-18T00:00:00.000Z"
+        },
+        {
+          "id": "tx_070",
+          "type": "expense",
+          "amount": 3200,
+          "description": "Análisis clínicos",
+          "date": "2025-02-25T00:00:00.000Z"
+        },
+        {
+          "id": "tx_071",
+          "type": "expense",
+          "amount": 850,
+          "description": "Medicamentos",
+          "date": "2025-03-15T00:00:00.000Z"
+        },
+        {
+          "id": "tx_072",
+          "type": "expense",
+          "amount": 2400,
+          "description": "Dentista limpieza",
+          "date": "2025-04-22T00:00:00.000Z"
+        },
+        {
+          "id": "tx_073",
+          "type": "expense",
+          "amount": 1200,
+          "description": "Vacunas",
+          "date": "2025-05-30T00:00:00.000Z"
+        },
+        {
+          "id": "tx_074",
+          "type": "expense",
+          "amount": 4500,
+          "description": "Resonancia magnética",
+          "date": "2025-06-18T00:00:00.000Z"
+        },
+        {
+          "id": "tx_075",
+          "type": "expense",
+          "amount": 950,
+          "description": "Vitaminas",
+          "date": "2025-07-12T00:00:00.000Z"
+        }
+      ],
+      "isPinned": false
+    },
+    {
+      "id": "cat_educacion_2025",
+      "name": "Educación",
+      "fixedType": "expense",
+      "transactions": [
+        {
+          "id": "tx_076",
+          "type": "expense",
+          "amount": 8500,
+          "description": "Curso programación",
+          "date": "2025-02-01T00:00:00.000Z"
+        },
+        {
+          "id": "tx_077",
+          "type": "expense",
+          "amount": 1200,
+          "description": "Libros técnicos",
+          "date": "2025-03-08T00:00:00.000Z"
+        },
+        {
+          "id": "tx_078",
+          "type": "expense",
+          "amount": 4500,
+          "description": "Seminario marketing",
+          "date": "2025-04-15T00:00:00.000Z"
+        },
+        {
+          "id": "tx_079",
+          "type": "expense",
+          "amount": 12000,
+          "description": "Diplomado MBA",
+          "date": "2025-05-22T00:00:00.000Z"
+        },
+        {
+          "id": "tx_080",
+          "type": "expense",
+          "amount": 2800,
+          "description": "Certificación Cloud",
+          "date": "2025-06-30T00:00:00.000Z"
+        },
+        {
+          "id": "tx_081",
+          "type": "expense",
+          "amount": 950,
+          "description": "Suscripción plataforma cursos",
+          "date": "2025-07-18T00:00:00.000Z"
+        },
+        {
+          "id": "tx_082",
+          "type": "expense",
+          "amount": 6200,
+          "description": "Workshop diseño UX",
+          "date": "2025-08-10T00:00:00.000Z"
+        }
+      ],
+      "isPinned": false
+    },
+    {
+      "id": "cat_entretenimiento_2025",
+      "name": "Entretenimiento",
+      "fixedType": "expense",
+      "transactions": [
+        {
+          "id": "tx_083",
+          "type": "expense",
+          "amount": 1800,
+          "description": "Cinema + snacks",
+          "date": "2025-01-12T00:00:00.000Z"
+        },
+        {
+          "id": "tx_084",
+          "type": "expense",
+          "amount": 3500,
+          "description": "Cena romántica",
+          "date": "2025-02-14T00:00:00.000Z"
+        },
+        {
+          "id": "tx_085",
+          "type": "expense",
+          "amount": 2200,
+          "description": "Concierto",
+          "date": "2025-03-25T00:00:00.000Z"
+        },
+        {
+          "id": "tx_086",
+          "type": "expense",
+          "amount": 950,
+          "description": "Juegos video",
+          "date": "2025-04-08T00:00:00.000Z"
+        },
+        {
+          "id": "tx_087",
+          "type": "expense",
+          "amount": 4200,
+          "description": "Escapada fin de semana",
+          "date": "2025-05-15T00:00:00.000Z"
+        },
+        {
+          "id": "tx_088",
+          "type": "expense",
+          "amount": 1600,
+          "description": "Teatro + cena",
+          "date": "2025-06-20T00:00:00.000Z"
+        },
+        {
+          "id": "tx_089",
+          "type": "expense",
+          "amount": 2800,
+          "description": "Festival música",
+          "date": "2025-07-28T00:00:00.000Z"
+        }
+      ],
+      "isPinned": false
+    },
+    {
+      "id": "cat_ropa_2025",
+      "name": "Ropa y Accesorios",
+      "fixedType": "expense",
+      "transactions": [
+        {
+          "id": "tx_090",
+          "type": "expense",
+          "amount": 3200,
+          "description": "Ropa formal trabajo",
+          "date": "2025-01-28T00:00:00.000Z"
+        },
+        {
+          "id": "tx_091",
+          "type": "expense",
+          "amount": 1800,
+          "description": "Zapatos deportivos",
+          "date": "2025-03-18T00:00:00.000Z"
+        },
+        {
+          "id": "tx_092",
+          "type": "expense",
+          "amount": 2500,
+          "description": "Ropa casual primavera",
+          "date": "2025-04-12T00:00:00.000Z"
+        },
+        {
+          "id": "tx_093",
+          "type": "expense",
+          "amount": 950,
+          "description": "Accesorios",
+          "date": "2025-05-08T00:00:00.000Z"
+        },
+        {
+          "id": "tx_094",
+          "type": "expense",
+          "amount": 4200,
+          "description": "Traje para evento",
+          "date": "2025-06-25T00:00:00.000Z"
+        },
+        {
+          "id": "tx_095",
+          "type": "expense",
+          "amount": 1200,
+          "description": "Ropa deportiva",
+          "date": "2025-07-15T00:00:00.000Z"
+        },
+        {
+          "id": "tx_096",
+          "type": "expense",
+          "amount": 2800,
+          "description": "Ropa verano",
+          "date": "2025-08-20T00:00:00.000Z"
+        }
+      ],
+      "isPinned": false
+    },
+    {
+      "id": "cat_tecnologia_2025",
+      "name": "Tecnología",
+      "fixedType": "expense",
+      "transactions": [
+        {
+          "id": "tx_097",
+          "type": "expense",
+          "amount": 45000,
+          "description": "Laptop nueva trabajo",
+          "date": "2025-01-25T00:00:00.000Z"
+        },
+        {
+          "id": "tx_098",
+          "type": "expense",
+          "amount": 12000,
+          "description": "Smartphone",
+          "date": "2025-03-10T00:00:00.000Z"
+        },
+        {
+          "id": "tx_099",
+          "type": "expense",
+          "amount": 3500,
+          "description": "Monitor 4K",
+          "date": "2025-04-18T00:00:00.000Z"
+        },
+        {
+          "id": "tx_100",
+          "type": "expense",
+          "amount": 1800,
+          "description": "Teclado mecánico",
+          "date": "2025-05-12T00:00:00.000Z"
+        },
+        {
+          "id": "tx_101",
+          "type": "expense",
+          "amount": 2200,
+          "description": "Webcam profesional",
+          "date": "2025-06-08T00:00:00.000Z"
+        },
+        {
+          "id": "tx_102",
+          "type": "expense",
+          "amount": 8500,
+          "description": "Tablet para diseño",
+          "date": "2025-07-20T00:00:00.000Z"
+        },
+        {
+          "id": "tx_103",
+          "type": "expense",
+          "amount": 1200,
+          "description": "Auriculares bluetooth",
+          "date": "2025-08-14T00:00:00.000Z"
+        }
+      ],
+      "isPinned": false
+    },
+    {
+      "id": "cat_seguros_2025",
+      "name": "Seguros",
+      "fixedType": "expense",
+      "transactions": [
+        {
+          "id": "tx_104",
+          "type": "expense",
+          "amount": 15000,
+          "description": "Seguro auto anual",
+          "date": "2025-01-15T00:00:00.000Z"
+        },
+        {
+          "id": "tx_105",
+          "type": "expense",
+          "amount": 8500,
+          "description": "Seguro médico",
+          "date": "2025-02-20T00:00:00.000Z"
+        },
+        {
+          "id": "tx_106",
+          "type": "expense",
+          "amount": 4200,
+          "description": "Seguro hogar",
+          "date": "2025-04-10T00:00:00.000Z"
+        },
+        {
+          "id": "tx_107",
+          "type": "expense",
+          "amount": 6800,
+          "description": "Seguro vida",
+          "date": "2025-06-15T00:00:00.000Z"
+        },
+        {
+          "id": "tx_108",
+          "type": "expense",
+          "amount": 2500,
+          "description": "Seguro equipos",
+          "date": "2025-08-05T00:00:00.000Z"
+        }
+      ],
+      "isPinned": false
+    },
+    {
+      "id": "cat_gimnasio_2025",
+      "name": "Gimnasio",
+      "fixedType": "expense",
+      "transactions": [
+        {
+          "id": "tx_109",
+          "type": "expense",
+          "amount": 2800,
+          "description": "Mensualidad enero",
+          "date": "2025-01-05T00:00:00.000Z"
+        },
+        {
+          "id": "tx_110",
+          "type": "expense",
+          "amount": 2800,
+          "description": "Mensualidad febrero",
+          "date": "2025-02-05T00:00:00.000Z"
+        },
+        {
+          "id": "tx_111",
+          "type": "expense",
+          "amount": 2800,
+          "description": "Mensualidad marzo",
+          "date": "2025-03-05T00:00:00.000Z"
+        },
+        {
+          "id": "tx_112",
+          "type": "expense",
+          "amount": 3200,
+          "description": "Mensualidad + entrenador",
+          "date": "2025-04-05T00:00:00.000Z"
+        },
+        {
+          "id": "tx_113",
+          "type": "expense",
+          "amount": 3200,
+          "description": "Mensualidad + entrenador",
+          "date": "2025-05-05T00:00:00.000Z"
+        },
+        {
+          "id": "tx_114",
+          "type": "expense",
+          "amount": 1500,
+          "description": "Suplementos proteína",
+          "date": "2025-06-18T00:00:00.000Z"
+        },
+        {
+          "id": "tx_115",
+          "type": "expense",
+          "amount": 3200,
+          "description": "Mensualidad + entrenador",
+          "date": "2025-07-05T00:00:00.000Z"
+        }
+      ],
+      "isPinned": false
+    },
+    {
+      "id": "cat_mascotas_2025",
+      "name": "Mascotas",
+      "fixedType": "expense",
+      "transactions": [
+        {
+          "id": "tx_116",
+          "type": "expense",
+          "amount": 1200,
+          "description": "Alimento perro",
+          "date": "2025-01-20T00:00:00.000Z"
+        },
+        {
+          "id": "tx_117",
+          "type": "expense",
+          "amount": 3500,
+          "description": "Veterinario vacunas",
+          "date": "2025-02-15T00:00:00.000Z"
+        },
+        {
+          "id": "tx_118",
+          "type": "expense",
+          "amount": 800,
+          "description": "Juguetes y accesorios",
+          "date": "2025-03-22T00:00:00.000Z"
+        },
+        {
+          "id": "tx_119",
+          "type": "expense",
+          "amount": 1400,
+          "description": "Alimento + arena gato",
+          "date": "2025-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "tx_120",
+          "type": "expense",
+          "amount": 2200,
+          "description": "Peluquería canina",
+          "date": "2025-05-12T00:00:00.000Z"
+        },
+        {
+          "id": "tx_121",
+          "type": "expense",
+          "amount": 950,
+          "description": "Medicamentos",
+          "date": "2025-06-28T00:00:00.000Z"
+        },
+        {
+          "id": "tx_122",
+          "type": "expense",
+          "amount": 1600,
+          "description": "Alimento premium",
+          "date": "2025-07-18T00:00:00.000Z"
+        }
+      ],
+      "isPinned": false
+    },
+    {
+      "id": "cat_hogar_2025",
+      "name": "Artículos del Hogar",
+      "fixedType": "expense",
+      "transactions": [
+        {
+          "id": "tx_123",
+          "type": "expense",
+          "amount": 2500,
+          "description": "Electrodomésticos menores",
+          "date": "2025-02-08T00:00:00.000Z"
+        },
+        {
+          "id": "tx_124",
+          "type": "expense",
+          "amount": 1800,
+          "description": "Productos limpieza",
+          "date": "2025-03-15T00:00:00.000Z"
+        },
+        {
+          "id": "tx_125",
+          "type": "expense",
+          "amount": 4200,
+          "description": "Muebles sala",
+          "date": "2025-04-20T00:00:00.000Z"
+        },
+        {
+          "id": "tx_126",
+          "type": "expense",
+          "amount": 1200,
+          "description": "Decoración",
+          "date": "2025-05-18T00:00:00.000Z"
+        },
+        {
+          "id": "tx_127",
+          "type": "expense",
+          "amount": 3500,
+          "description": "Cortinas y alfombras",
+          "date": "2025-06-12T00:00:00.000Z"
+        },
+        {
+          "id": "tx_128",
+          "type": "expense",
+          "amount": 950,
+          "description": "Plantas y macetas",
+          "date": "2025-07-25T00:00:00.000Z"
+        },
+        {
+          "id": "tx_129",
+          "type": "expense",
+          "amount": 2200,
+          "description": "Herramientas jardín",
+          "date": "2025-08-15T00:00:00.000Z"
+        }
+      ],
+      "isPinned": false
+    },
+    {
+      "id": "cat_combustible_2025",
+      "name": "Combustible",
+      "fixedType": "expense",
+      "transactions": [
+        {
+          "id": "tx_130",
+          "type": "expense",
+          "amount": 1500,
+          "description": "Gasolina semana 1",
+          "date": "2025-01-08T00:00:00.000Z"
+        },
+        {
+          "id": "tx_131",
+          "type": "expense",
+          "amount": 1400,
+          "description": "Gasolina semana 3",
+          "date": "2025-01-22T00:00:00.000Z"
+        },
+        {
+          "id": "tx_132",
+          "type": "expense",
+          "amount": 1600,
+          "description": "Gasolina febrero",
+          "date": "2025-02-12T00:00:00.000Z"
+        },
+        {
+          "id": "tx_133",
+          "type": "expense",
+          "amount": 1350,
+          "description": "Gasolina marzo",
+          "date": "2025-03-18T00:00:00.000Z"
+        },
+        {
+          "id": "tx_134",
+          "type": "expense",
+          "amount": 1750,
+          "description": "Gasolina + aditivos",
+          "date": "2025-04-15T00:00:00.000Z"
+        },
+        {
+          "id": "tx_135",
+          "type": "expense",
+          "amount": 1200,
+          "description": "Gasolina mayo",
+          "date": "2025-05-20T00:00:00.000Z"
+        },
+        {
+          "id": "tx_136",
+          "type": "expense",
+          "amount": 1650,
+          "description": "Gasolina viaje",
+          "date": "2025-06-22T00:00:00.000Z"
+        }
+      ],
+      "isPinned": false
+    },
+    {
+      "id": "cat_farmacia_2025",
+      "name": "Farmacia",
+      "fixedType": "expense",
+      "transactions": [
+        {
+          "id": "tx_137",
+          "type": "expense",
+          "amount": 850,
+          "description": "Medicamentos gripe",
+          "date": "2025-01-18T00:00:00.000Z"
+        },
+        {
+          "id": "tx_138",
+          "type": "expense",
+          "amount": 1200,
+          "description": "Vitaminas y minerales",
+          "date": "2025-02-25T00:00:00.000Z"
+        },
+        {
+          "id": "tx_139",
+          "type": "expense",
+          "amount": 650,
+          "description": "Productos higiene",
+          "date": "2025-03-12T00:00:00.000Z"
+        },
+        {
+          "id": "tx_140",
+          "type": "expense",
+          "amount": 950,
+          "description": "Medicamentos alergia",
+          "date": "2025-04-28T00:00:00.000Z"
+        },
+        {
+          "id": "tx_141",
+          "type": "expense",
+          "amount": 1400,
+          "description": "Botiquín completo",
+          "date": "2025-05-15T00:00:00.000Z"
+        },
+        {
+          "id": "tx_142",
+          "type": "expense",
+          "amount": 750,
+          "description": "Protector solar",
+          "date": "2025-06-30T00:00:00.000Z"
+        },
+        {
+          "id": "tx_143",
+          "type": "expense",
+          "amount": 1100,
+          "description": "Suplementos deporte",
+          "date": "2025-07-22T00:00:00.000Z"
+        }
+      ],
+      "isPinned": false
+    },
+    {
+      "id": "cat_belleza_2025",
+      "name": "Belleza y Cuidado Personal",
+      "fixedType": "expense",
+      "transactions": [
+        {
+          "id": "tx_144",
+          "type": "expense",
+          "amount": 1200,
+          "description": "Corte de cabello",
+          "date": "2025-01-15T00:00:00.000Z"
+        },
+        {
+          "id": "tx_145",
+          "type": "expense",
+          "amount": 2500,
+          "description": "Tratamiento facial",
+          "date": "2025-02-20T00:00:00.000Z"
+        },
+        {
+          "id": "tx_146",
+          "type": "expense",
+          "amount": 800,
+          "description": "Productos cuidado piel",
+          "date": "2025-03-28T00:00:00.000Z"
+        },
+        {
+          "id": "tx_147",
+          "type": "expense",
+          "amount": 1500,
+          "description": "Manicure y pedicure",
+          "date": "2025-04-18T00:00:00.000Z"
+        },
+        {
+          "id": "tx_148",
+          "type": "expense",
+          "amount": 3200,
+          "description": "Spa día completo",
+          "date": "2025-05-25T00:00:00.000Z"
+        },
+        {
+          "id": "tx_149",
+          "type": "expense",
+          "amount": 950,
+          "description": "Productos cabello",
+          "date": "2025-06-15T00:00:00.000Z"
+        },
+        {
+          "id": "tx_150",
+          "type": "expense",
+          "amount": 1800,
+          "description": "Masaje relajante",
+          "date": "2025-07-10T00:00:00.000Z"
+        }
+      ],
+      "isPinned": false
+    },
+    {
+      "id": "cat_suscripciones_2025",
+      "name": "Suscripciones",
+      "fixedType": "expense",
+      "transactions": [
+        {
+          "id": "tx_151",
+          "type": "expense",
+          "amount": 450,
+          "description": "Netflix mensual",
+          "date": "2025-01-05T00:00:00.000Z"
+        },
+        {
+          "id": "tx_152",
+          "type": "expense",
+          "amount": 850,
+          "description": "Spotify premium",
+          "date": "2025-01-08T00:00:00.000Z"
+        },
+        {
+          "id": "tx_153",
+          "type": "expense",
+          "amount": 1200,
+          "description": "Adobe Creative Suite",
+          "date": "2025-01-15T00:00:00.000Z"
+        },
+        {
+          "id": "tx_154",
+          "type": "expense",
+          "amount": 300,
+          "description": "YouTube Premium",
+          "date": "2025-02-01T00:00:00.000Z"
+        },
+        {
+          "id": "tx_155",
+          "type": "expense",
+          "amount": 650,
+          "description": "Dropbox Pro",
+          "date": "2025-03-10T00:00:00.000Z"
+        },
+        {
+          "id": "tx_156",
+          "type": "expense",
+          "amount": 950,
+          "description": "Microsoft Office 365",
+          "date": "2025-04-18T00:00:00.000Z"
+        },
+        {
+          "id": "tx_157",
+          "type": "expense",
+          "amount": 400,
+          "description": "Disney Plus",
+          "date": "2025-05-22T00:00:00.000Z"
+        }
+      ],
+      "isPinned": false
+    },
+    {
+      "id": "cat_restaurantes_2025",
+      "name": "Restaurantes",
+      "fixedType": "expense",
+      "transactions": [
+        {
+          "id": "tx_158",
+          "type": "expense",
+          "amount": 2800,
+          "description": "Almuerzo ejecutivo x5",
+          "date": "2025-01-12T00:00:00.000Z"
+        },
+        {
+          "id": "tx_159",
+          "type": "expense",
+          "amount": 3500,
+          "description": "Cena San Valentín",
+          "date": "2025-02-14T00:00:00.000Z"
+        },
+        {
+          "id": "tx_160",
+          "type": "expense",
+          "amount": 1800,
+          "description": "Brunch domingo",
+          "date": "2025-03-20T00:00:00.000Z"
+        },
+        {
+          "id": "tx_161",
+          "type": "expense",
+          "amount": 4200,
+          "description": "Cena cumpleaños",
+          "date": "2025-04-25T00:00:00.000Z"
+        },
+        {
+          "id": "tx_162",
+          "type": "expense",
+          "amount": 2200,
+          "description": "Almuerzo familiar",
+          "date": "2025-05-18T00:00:00.000Z"
+        },
+        {
+          "id": "tx_163",
+          "type": "expense",
+          "amount": 3800,
+          "description": "Cena celebración trabajo",
+          "date": "2025-06-30T00:00:00.000Z"
+        },
+        {
+          "id": "tx_164",
+          "type": "expense",
+          "amount": 1500,
+          "description": "Desayuno reunión",
+          "date": "2025-07-15T00:00:00.000Z"
+        }
+      ],
+      "isPinned": false
+    },
+    {
+      "id": "cat_viajes_2025",
+      "name": "Viajes",
+      "fixedType": "expense",
+      "transactions": [
+        {
+          "id": "tx_165",
+          "type": "expense",
+          "amount": 25000,
+          "description": "Vuelos vacaciones Semana Santa",
+          "date": "2025-03-15T00:00:00.000Z"
+        },
+        {
+          "id": "tx_166",
+          "type": "expense",
+          "amount": 15000,
+          "description": "Hotel 7 noches",
+          "date": "2025-03-20T00:00:00.000Z"
+        },
+        {
+          "id": "tx_167",
+          "type": "expense",
+          "amount": 8500,
+          "description": "Actividades turísticas",
+          "date": "2025-03-25T00:00:00.000Z"
+        },
+        {
+          "id": "tx_168",
+          "type": "expense",
+          "amount": 12000,
+          "description": "Fin de semana largo",
+          "date": "2025-06-10T00:00:00.000Z"
+        },
+        {
+          "id": "tx_169",
+          "type": "expense",
+          "amount": 35000,
+          "description": "Vacaciones verano (vuelos)",
+          "date": "2025-07-20T00:00:00.000Z"
+        },
+        {
+          "id": "tx_170",
+          "type": "expense",
+          "amount": 22000,
+          "description": "Alojamiento 10 días",
+          "date": "2025-07-25T00:00:00.000Z"
+        },
+        {
+          "id": "tx_171",
+          "type": "expense",
+          "amount": 6500,
+          "description": "Excursiones y tours",
+          "date": "2025-08-05T00:00:00.000Z"
+        }
+      ],
+      "isPinned": false
+    }
+  ],
+  "monthlyData": {
+    "labels": ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"],
+    "income": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    "expenses": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  },
+  "user": {
+    "name": "Usuario Demo",
+    "email": "usuario@demo.com"
+  }
+}
