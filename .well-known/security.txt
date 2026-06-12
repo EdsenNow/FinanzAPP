@@ -1,0 +1,5 @@
+Contact: mailto:peluchito281@gmail.com
+Expires: 2027-06-01T00:00:00.000Z
+Preferred-Languages: es, en
+Canonical: https://finanzapp-fb.web.app/.well-known/security.txt
+Policy: https://finanzapp-fb.web.app/privacy/privacy.html
