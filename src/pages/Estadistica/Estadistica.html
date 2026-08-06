@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FinanzApp - Estadísticas</title>
+
+  <link rel="manifest" href="/Icons/site.webmanifest" />
+  <link rel="icon" href="/Icons/favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/Icons/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/Icons/favicon-16x16.png" />
+  <link rel="apple-touch-icon" href="/Icons/apple-touch-icon.png" />
+
+  
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" crossorigin="anonymous">
+  <link rel="stylesheet" href="/lib/fonts.css">
+  <link rel="stylesheet" href="/lib/fontawesome/v5/css/all.min.css">
+
+  <link rel="stylesheet" href="/pages/Dashboard/Dashboard.css?v=202511120001">
+  <link rel="stylesheet" href="/lib/UI.css?v=20260505">
+  <link rel="stylesheet" href="/pages/Estadistica/Estadistica.css?v=20260510b">
+  <link rel="stylesheet" href="/pages/Estadistica/styles/tema-oscuro.css?v=20260118" id="dark-css">
+  <link rel="stylesheet" href="/pages/Estadistica/styles/tema-claro.css?v=20260118" id="light-css">
+  <link rel="stylesheet" href="/pages/Estadistica/styles/mobile-nav.css?v=2026051001">
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" crossorigin="anonymous"></script>
+  
+  <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-app-compat.js" crossorigin="anonymous"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-app-check-compat.js" crossorigin="anonymous"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-auth-compat.js" crossorigin="anonymous"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore-compat.js" crossorigin="anonymous"></script>
+  <script src="/__config.js"></script>
+  <script src="/lib/FirestoreDB.js?v=202511120001"></script>
+  
+  <script>try{localStorage.setItem('finanzapp:debug','off');}catch(e){}</script>
+  <script src="/lib/Debug.js?v=202511120001"></script>
+  <script src="/lib/Events.js?v=202511120001"></script>
+  <script src="/lib/UI.js?v=20260505"></script>
+  <script src="/lib/Helpers.js?v=202605170002"></script>
+  <script src="/lib/DataStore.js?v=202511120001"></script>
+  <script src="/lib/BasePage.js?v=20260601"></script>
+</head>
+<body class="estadistica-page">
+  <div class="app-container">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <div class="logo-icon"><i class="fas fa-wallet"></i></div>
+          <span class="logo-text">FinanzApp</span>
+        </div>
+      </div>
+      <nav class="nav-links">
+        <a href="../Dashboard/Dashboard.html" class="nav-item">
+          <i class="fas fa-home"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="../Presupuestos/Presupuestos.html" class="nav-item">
+          <i class="fas fa-wallet"></i>
+          <span>Presupuestos</span>
+        </a>
+        <a href="Estadistica.html" class="nav-item active">
+          <i class="fas fa-chart-pie"></i>
+          <span>Estadísticas</span>
+        </a>
+        <a href="../Configuracion/Configuracion.html" class="nav-item">
+          <i class="fas fa-cog"></i>
+          <span>Configuración</span>
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-profile">
+          <div class="user-avatar">U</div>
+          <div class="user-info" id="userInfoHover">
+            <div class="user-name">Usuario</div>
+            <div class="user-email"></div>
+          </div>
+          <button class="btn btn-icon app-tooltip" id="themeToggle" data-tooltip="Cambiar tema">
+            <i class="fas fa-sun"></i>
+          </button>
+          <button class="btn btn-icon app-tooltip" id="logoutButton" data-tooltip="Cerrar sesión">
+            <i class="fas fa-sign-out-alt"></i>
+          </button>
+        </div>
+        
+        <div id="profileTooltip" class="profile-tooltip">
+          <div class="tooltip-name"></div>
+          <div class="tooltip-email"></div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="page-header">
+        <div class="mobile-actions-dropdown" id="mobileActionsDropdown">
+          <button class="mobile-actions-toggle" id="mobileActionsToggle" type="button" aria-expanded="false" aria-controls="mobileActionsPanel">
+            <i class="fas fa-bars"></i>
+          </button>
+          <div class="mobile-actions-panel" id="mobileActionsPanel" role="menu">
+            <button class="mobile-actions-close" id="mobileActionsClose" type="button" aria-label="Cerrar menú">
+              <i class="fas fa-times" aria-hidden="true"></i>
+            </button>
+            <div class="mobile-drawer-profile">
+              <div class="mobile-drawer-avatar" id="mobileDrawerAvatar">U</div>
+              <div class="mobile-drawer-user">
+                <div class="mobile-drawer-name" id="mobileDrawerName">Usuario</div>
+                <div class="mobile-drawer-email" id="mobileDrawerEmail">Ver perfil</div>
+              </div>
+            </div>
+
+            <div class="mobile-drawer-divider"></div>
+
+            <div class="mobile-drawer-section">
+              <button class="mobile-actions-btn" type="button" data-action="year"><i class="fas fa-calendar" aria-hidden="true"></i> Filtrar año</button>
+              <button class="mobile-actions-btn" type="button" data-action="month"><i class="fas fa-calendar-alt" aria-hidden="true"></i> Filtrar mes</button>
+              <button class="mobile-actions-btn" type="button" data-action="clear"><i class="fas fa-broom" aria-hidden="true"></i> Limpiar filtros</button>
+            </div>
+
+            <div class="mobile-drawer-divider"></div>
+
+            <div class="mobile-drawer-section mobile-drawer-section-footer">
+              <button class="mobile-actions-btn" type="button" data-action="theme"><i class="fas fa-adjust" aria-hidden="true"></i> Cambiar tema</button>
+              <button class="mobile-actions-btn danger" type="button" data-action="logout"><i class="fas fa-sign-out-alt" aria-hidden="true"></i> Cerrar sesión</button>
+            </div>
+          </div>
+        </div>
+        <div class="filter-controls">
+          <div class="filter-group">
+            <label for="yearFilter">Año:</label>
+            <div class="custom-dropdown" id="yearFilter">
+              <div class="custom-dropdown-selected" data-value="">
+                <span>Todos los años</span>
+                <i class="fas fa-chevron-down"></i>
+              </div>
+              <div class="custom-dropdown-options">
+                
+              </div>
+            </div>
+          </div>
+          <div class="filter-group">
+            <label for="monthFilter">Mes:</label>
+            <div class="custom-dropdown" id="monthFilter">
+              <div class="custom-dropdown-selected" data-value="">
+                <span>Todos los meses</span>
+                <i class="fas fa-chevron-down"></i>
+              </div>
+              <div class="custom-dropdown-options">
+                <div class="custom-dropdown-option" data-value="">Todos los meses</div>
+                <div class="custom-dropdown-option" data-value="0">Enero</div>
+                <div class="custom-dropdown-option" data-value="1">Febrero</div>
+                <div class="custom-dropdown-option" data-value="2">Marzo</div>
+                <div class="custom-dropdown-option" data-value="3">Abril</div>
+                <div class="custom-dropdown-option" data-value="4">Mayo</div>
+                <div class="custom-dropdown-option" data-value="5">Junio</div>
+                <div class="custom-dropdown-option" data-value="6">Julio</div>
+                <div class="custom-dropdown-option" data-value="7">Agosto</div>
+                <div class="custom-dropdown-option" data-value="8">Septiembre</div>
+                <div class="custom-dropdown-option" data-value="9">Octubre</div>
+                <div class="custom-dropdown-option" data-value="10">Noviembre</div>
+                <div class="custom-dropdown-option" data-value="11">Diciembre</div>
+              </div>
+            </div>
+          </div>
+          <button class="btn btn-secondary" id="clearFiltersBtn">
+            <i class="fas fa-times"></i> Limpiar Filtros
+          </button>
+        </div>
+      </header>
+
+      <section class="stats-summary-cards">
+        <div class="summary-card stats-summary-card income">
+          <div class="card-title"><i class="fas fa-arrow-up"></i> Ingresos Totales</div>
+          <div class="card-value" id="sumIncome">0.00</div>
+          <div class="card-change" id="avgIncome">Promedio Mensual: 0.00</div>
+        </div>
+        <div class="summary-card stats-summary-card expenses">
+          <div class="card-title"><i class="fas fa-arrow-down"></i> Gastos Totales</div>
+          <div class="card-value" id="sumExpenses">0.00</div>
+          <div class="card-change" id="avgExpenses">Promedio Mensual: 0.00</div>
+        </div>
+        <div class="summary-card stats-summary-card balance">
+          <div class="card-title"><i class="fas fa-balance-scale"></i> Balance Total</div>
+          <div class="card-value" id="sumBalance">0.00</div>
+          <div class="card-change" id="avgBalance">Promedio Mensual: 0.00</div>
+        </div>
+        <div class="summary-card stats-summary-card misc">
+          <div class="card-title"><i class="fas fa-receipt"></i> Transacciones Totales</div>
+          <div class="card-value" id="txCount">0</div>
+          <div class="card-change" id="avgTicket">Ticket Promedio: 0.00</div>
+        </div>
+      </section>
+
+      
+      <section class="stats-summary-cards" id="dailyStats">
+        <div class="summary-card stats-summary-card income">
+          <div class="card-title"><i class="fas fa-sun"></i> Ingresos diarios</div>
+          <div class="card-value" id="dailyIncome">0.00</div>
+          <div class="card-change">Actualizado al día de hoy</div>
+        </div>
+        <div class="summary-card stats-summary-card expenses">
+          <div class="card-title"><i class="fas fa-moon"></i> Gastos diarios</div>
+          <div class="card-value" id="dailyExpenses">0.00</div>
+          <div class="card-change">Actualizado al día de hoy</div>
+        </div>
+        <div class="summary-card stats-summary-card balance">
+          <div class="card-title"><i class="fas fa-chart-line"></i> Promedio diario</div>
+          <div class="card-value" id="dailyAverage">0.00</div>
+          <div class="card-change">Promedio neto diario</div>
+        </div>
+      </section>
+      <section class="stats-insights">
+        <div class="summary-card stats-summary-card">
+          <div class="card-title">
+            <span class="insight-icon accent">
+              <i class="fas fa-trophy"></i>
+            </span>
+            Mejor mes
+          </div>
+          <div id="insightBestMonthValue" class="card-value">Sin datos</div>
+          <div id="insightBestMonthDetail" class="card-change">Agrega más movimientos para medir el desempeño.</div>
+        </div>
+        <div class="summary-card stats-summary-card">
+          <div class="card-title">
+            <span class="insight-icon primary">
+              <i class="fas fa-fire"></i>
+            </span>
+            Gasto dominante
+          </div>
+          <div id="insightTopCategoryValue" class="card-value">—</div>
+          <div id="insightTopCategoryDetail" class="card-change">Aún no hay datos para mostrar.</div>
+        </div>
+        <div class="summary-card stats-summary-card">
+          <div class="card-title">
+            <span class="insight-icon success">
+              <i class="fas fa-chart-line"></i>
+            </span>
+            Balance neto
+          </div>
+          <div id="insightSavingsValue" class="card-value">—</div>
+          <div id="insightSavingsDetail" class="card-change">Registra ingresos para calcular tu ahorro.</div>
+        </div>
+      </section>
+
+      <section class="stats-charts-grid">
+        <div class="stats-chart-card chart-full">
+          <h3 class="chart-title-center"><i class="fas fa-wave-square"></i> Flujo Mensual</h3>
+          <div id="cashflowSummary" class="chart-subtitle"></div>
+          <div class="chart-wrap"><canvas id="chartCashflowArea"></canvas></div>
+        </div>
+
+        <div class="stats-chart-card chart-half">
+          <h3 class="chart-title-center"><i class="fas fa-arrow-up"></i> Ingresos por categoría</h3>
+          <div class="chart-wrap"><canvas id="chartIncomeByCategory"></canvas></div>
+        </div>
+
+        <div class="stats-chart-card chart-half">
+          <h3 class="chart-title-center"><i class="fas fa-arrow-down"></i> Gastos por categoría</h3>
+          <div class="chart-wrap"><canvas id="chartExpenseByCategory"></canvas></div>
+        </div>
+
+        <div class="stats-chart-card chart-full">
+          <h3 class="chart-title-center"><i class="fas fa-calendar-day" style="color: var(--success);"></i> Ingresos por día del mes</h3>
+          <div class="chart-wrap chart-heatmap-wrap"><canvas id="chartIncomeByDay"></canvas></div>
+        </div>
+
+        <div class="stats-chart-card chart-full">
+          <h3 class="chart-title-center"><i class="fas fa-calendar-alt" style="color: var(--primary);"></i> Gastos por día del mes</h3>
+          <div class="chart-wrap chart-heatmap-wrap"><canvas id="chartHeatmap"></canvas></div>
+        </div>
+
+      </section>
+    </main>
+  </div>
+  
+  <div class="alert-overlay hidden" id="alertOverlay"></div>
+  <div class="custom-alert hidden" id="customAlert" role="alertdialog" aria-modal="true" aria-labelledby="alertTitle" aria-describedby="alertMessage" tabindex="-1">
+    <h3 class="custom-alert-title" id="alertTitle">Advertencia</h3>
+    <p class="custom-alert-message" id="alertMessage"></p>
+    <div class="custom-alert-buttons" id="alertButtons">
+      <button class="btn btn-primary" id="alertConfirm">Aceptar</button>
+    </div>
+  </div>
+
+  <nav class="mobile-bottom-nav" aria-label="Navegación móvil">
+    <a href="../Dashboard/Dashboard.html" class="mobile-nav-item">
+      <i class="fas fa-home" aria-hidden="true"></i>
+      <span class="mobile-nav-label">Dashboard</span>
+    </a>
+    <a href="../Presupuestos/Presupuestos.html" class="mobile-nav-item">
+      <i class="fas fa-wallet" aria-hidden="true"></i>
+      <span class="mobile-nav-label">Presupuesto</span>
+    </a>
+    <a href="../Estadistica/Estadistica.html" class="mobile-nav-item active" aria-current="page">
+      <i class="fas fa-chart-pie" aria-hidden="true"></i>
+      <span class="mobile-nav-label">Estadística</span>
+    </a>
+    <a href="../Configuracion/Configuracion.html" class="mobile-nav-item">
+      <i class="fas fa-cog" aria-hidden="true"></i>
+      <span class="mobile-nav-label">Configuración</span>
+    </a>
+  </nav>
+
+
+  
+
+  <script src="/pages/Estadistica/Estadistica.js?v=20260325g"></script>
+</body>
+</html>
+

@@ -55,7 +55,7 @@ const API_RATE_LIMIT_WINDOW_MS = Number(process.env.API_RATE_LIMIT_WINDOW_MS || 
 const API_RATE_LIMIT_MAX = Number(process.env.API_RATE_LIMIT_MAX || 120);
 const RATE_LIMITED_PATHS = new Set(['/exchangeCode', '/refreshAccessToken', '/gmail/startWatch', '/gmail/stopWatch', '/admin/reprocess']);
 const APPCHECK_PROTECTED_PATHS = new Set(['/exchangeCode', '/refreshAccessToken', '/gmail/startWatch', '/gmail/stopWatch']);
-const ENFORCE_APPCHECK = String(process.env.ENFORCE_APPCHECK || '').toLowerCase() === 'true';
+const ENFORCE_APPCHECK = String(process.env.ENFORCE_APPCHECK || 'true').toLowerCase() === 'true';
 const rateLimitBuckets = new Map();
 
 function normalizeOrigin(origin) {

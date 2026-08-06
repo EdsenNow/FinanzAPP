@@ -1,6 +1,14 @@
 {
-  "dependencies": {
-    "dotenv": "^17.4.2",
-    "nodemailer": "^8.0.10"
+  "name": "finanzapp",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.js",
+    "serve": "npm run build && firebase emulators:start",
+    "deploy": "npm run build && firebase deploy"
+  },
+  "devDependencies": {
+    "dotenv": "^16.4.5"
   }
 }

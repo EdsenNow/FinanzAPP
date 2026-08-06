@@ -1,0 +1,168 @@
+/**
+ * graficos.css
+ * Estilos específicos para gráficos
+ */
+
+.estadistica-page .stats-chart-card {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 28px 24px 40px 24px;
+  box-shadow: 0 18px 45px -30px rgba(15, 23, 42, 0.66);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.estadistica-page .stats-chart-card.chart-full { 
+  grid-column: span 12;
+  padding-bottom: 48px;
+}
+
+.estadistica-page .stats-chart-card.chart-half { 
+  grid-column: span 6; 
+}
+
+.estadistica-page .stats-chart-card.chart-third { 
+  grid-column: span 4; 
+}
+
+/* Títulos de gráficos */
+.estadistica-page .chart-title-center {
+  text-align: center;
+  margin: 0 0 4px 0;
+  padding: 8px 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.estadistica-page .chart-title-center i {
+  font-size: 1rem;
+  color: var(--primary-color);
+}
+
+.estadistica-page .chart-title-center i.fa-wave-square {
+  font-size: 1.25rem;
+  color: #c4a7e7;
+}
+
+.estadistica-page .chart-title-center i.fa-arrow-up {
+  color: #2D957B; /* Verde para ingresos */
+}
+
+.estadistica-page .chart-title-center i.fa-arrow-down {
+  color: #eb6f92; /* Rosa para gastos */
+}
+
+.estadistica-page .stats-chart-card h3 {
+  padding-top: 30px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Contenedor del canvas */
+.estadistica-page .chart-wrap {
+  position: relative;
+  width: 100%;
+  height: 320px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.estadistica-page .chart-wrap.compact {
+  height: 280px;
+}
+
+.estadistica-page .chart-wrap.gauge-wrap {
+  height: 260px;
+}
+
+.estadistica-page .chart-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  pointer-events: none;
+}
+
+#savingsGaugeLabel.negative {
+  color: #ef4444;
+}
+
+.estadistica-page .chart-wrap canvas {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Fallback si las gráficas no cargan */
+.estadistica-page .chart-wrap:empty::after {
+  content: "⏳ Cargando gráfica...";
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Loading state para gráficos */
+.chart-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  color: var(--text-secondary);
+}
+
+.chart-loading::before {
+  content: "";
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(108, 99, 255, 0.2);
+  border-top-color: var(--primary-color);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Ajustes responsive para gráficos */
+@media (max-width: 992px) {
+  .estadistica-page .chart-wrap {
+    height: 280px;
+  }
+  .estadistica-page .chart-wrap.gauge-wrap {
+    height: 240px;
+  }
+}
+
+@media (max-width: 768px) {
+  .estadistica-page .chart-wrap {
+    height: 320px;
+  }
+  .estadistica-page .chart-wrap.compact {
+    height: 280px;
+  }
+  .estadistica-page .chart-wrap.gauge-wrap {
+    height: 260px;
+  }
+}
+
