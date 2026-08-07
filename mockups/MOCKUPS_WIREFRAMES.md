@@ -51,7 +51,7 @@ graph TD
 #### Mockup Visual (Layout ASCII)
 ```text
 +------------------------------------------------------------------+
-|                     💰 FinanzApp Personal                        |
+|                         FinanzApp Personal                        |
 |             "Toma el control de tu salud financiera"              |
 +------------------------------------------------------------------+
 |                                                                  |
