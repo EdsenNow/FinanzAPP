@@ -77,9 +77,9 @@ graph TD
 
 ---
 
-### 🟢 Pantalla 2: Dashboard Principal (Balance y Transacciones)
+### Pantalla 2: Dashboard Principal (Balance y Transacciones)
 
-#### 📐 Diagrama de Estructura / Wireframe
+#### Diagrama de Estructura / Wireframe
 ```mermaid
 graph TD
     Nav["[ Navbar: Logo | Dashboard | Presupuestos | Estadísticas | Perfil ]"]
