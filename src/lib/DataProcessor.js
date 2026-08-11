@@ -13,7 +13,12 @@ class DataProcessor {
    * @returns {Date}
    */
   _parseFecha(date) {
-    return date instanceof Date ? date : new Date(date);
+    if (date instanceof Date) return date;
+    if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      const [y, m, d] = date.split('-').map(Number);
+      return new Date(y, m - 1, d);
+    }
+    return new Date(date);
   }
 
   /**
