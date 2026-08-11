@@ -30,7 +30,7 @@ class FirebaseAuth {
         projectId: "finanzapp-fb",
         storageBucket: "finanzapp-fb.firebasestorage.app",
         messagingSenderId: "YOUR_PROJECT_NUMBER",
-        appId: "1:YOUR_PROJECT_NUMBER:web:705bef3d333be927a9735a",
+        appId: "YOUR_APP_ID",
         measurementId: "YOUR_MEASUREMENT_ID"
       };
       const config = (window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.apiKey) 

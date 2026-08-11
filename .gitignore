@@ -2,6 +2,11 @@
 node_modules/
 functions/node_modules/
 
+# Generated build output & runtime secrets
+public/
+__config.js
+.sri-cache.json
+
 # Firebase Cache & Debug logs
 .firebase/
 .firebaserc

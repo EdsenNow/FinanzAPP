@@ -6,9 +6,12 @@
   "scripts": {
     "build": "node scripts/build.js",
     "serve": "npm run build && firebase emulators:start",
-    "deploy": "npm run build && firebase deploy"
+    "deploy": "npm run build && firebase deploy",
+    "test": "vitest run"
   },
   "devDependencies": {
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.4.5",
+    "happy-dom": "^15.11.7",
+    "vitest": "^2.1.9"
   }
 }
