@@ -1,13 +1,19 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider } from 'firebase/auth';
+import { 
+  getAuth, 
+  initializeAuth, 
+  browserLocalPersistence, 
+  browserPopupRedirectResolver, 
+  GoogleAuthProvider 
+} from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
-import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check';
+import { initializeAppCheck, ReCaptchaV3Provider, CustomProvider } from 'firebase/app-check';
 
-const isLocalhost = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
-
-if (isLocalhost && typeof self !== 'undefined') {
-  self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
-}
+const isLocalhost = typeof window !== 'undefined' && (
+  window.location.hostname === 'localhost' || 
+  window.location.hostname === '127.0.0.1' ||
+  window.location.hostname === '0.0.0.0'
+);
 
 const firebaseConfig = {
   apiKey: "AIzaSyCrOwLwoJlXyMloxNoaq13J3fvRFJcQcjg",
@@ -21,20 +27,43 @@ const firebaseConfig = {
 
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
-// Initialize App Check (required by backend security enforcement)
+// Initialize Auth with explicit local persistence and popup redirect resolver
+// This avoids Firefox third-party iframe blocking and file:/// security warnings
+let authInstance;
+try {
+  authInstance = initializeAuth(app, {
+    persistence: browserLocalPersistence,
+    popupRedirectResolver: browserPopupRedirectResolver
+  });
+} catch (_) {
+  authInstance = getAuth(app);
+}
+
+export const auth = authInstance;
+export const db = getFirestore(app);
+
+// Initialize App Check: in production use reCAPTCHA v3, in localhost use debug provider
 if (typeof window !== 'undefined') {
   try {
-    initializeAppCheck(app, {
-      provider: new ReCaptchaV3Provider("6Lc0XnItAAAAAPBtdMopqdHuT3U5Q2Td8Bx5SErI"),
-      isTokenAutoRefreshEnabled: true
-    });
+    if (isLocalhost) {
+      self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+      initializeAppCheck(app, {
+        provider: new CustomProvider({
+          getToken: () => Promise.resolve({ token: 'debug-token', expireTimeMillis: Date.now() + 3600000 })
+        }),
+        isTokenAutoRefreshEnabled: true
+      });
+    } else {
+      initializeAppCheck(app, {
+        provider: new ReCaptchaV3Provider("6Lc0XnItAAAAAPBtdMopqdHuT3U5Q2Td8Bx5SErI"),
+        isTokenAutoRefreshEnabled: true
+      });
+    }
   } catch (err) {
     console.warn('App Check initialization notice:', err);
   }
 }
 
-export const auth = getAuth(app);
-export const db = getFirestore(app);
 export const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: 'select_account' });
 
