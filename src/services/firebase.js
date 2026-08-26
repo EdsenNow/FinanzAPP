@@ -31,8 +31,12 @@ export const auth = getAuth(app);
 auth.languageCode = 'es';
 export const db = getFirestore(app);
 
-// Initialize App Check: in production use reCAPTCHA v3
-if (typeof window !== 'undefined' && !isLocalhost) {
+const DEBUG_APP_CHECK_TOKEN = "e8c5d9a1-7b2f-4c3e-9a1d-8f5b4c3e2a1d";
+
+if (typeof window !== 'undefined') {
+  if (isLocalhost) {
+    self.FIREBASE_APPCHECK_DEBUG_TOKEN = DEBUG_APP_CHECK_TOKEN;
+  }
   try {
     initializeAppCheck(app, {
       provider: new ReCaptchaV3Provider("6Lc0XnItAAAAAPBtdMopqdHuT3U5Q2Td8Bx5SErI"),
