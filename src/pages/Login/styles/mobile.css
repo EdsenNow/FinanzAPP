@@ -1,0 +1,177 @@
+@media (max-width: 768px) {
+  /* Ajustes para orbes animados en móvil */
+  .orb {
+    filter: blur(42px);
+    opacity: 0.78;
+  }
+
+  .orb-1 { width: 340px; height: 340px; }
+  .orb-2 { width: 360px; height: 360px; }
+  .orb-3 { width: 290px; height: 290px; }
+  .orb-4 { width: 260px; height: 260px; }
+  .orb-5 { width: 300px; height: 300px; }
+
+  body,
+  html {
+    height: 100dvh;
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  #authScreens,
+  .auth-container {
+    height: 100dvh;
+    height: 100dvh;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .auth-container {
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .auth-card {
+    max-width: 100%;
+    width: 100%;
+    min-height: 100dvh;
+    min-height: 100dvh;
+    border-radius: 0;
+    padding: calc(40px + env(safe-area-inset-top)) 24px calc(32px + env(safe-area-inset-bottom));
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: transparent; /* Fundirse de forma nativa con el fondo animado de la app */
+    box-shadow: none;
+  }
+
+  .auth-header {
+    margin-bottom: 36px;
+  }
+
+  .logo-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    margin: 0 auto;
+  }
+
+  .logo-icon i {
+    font-size: 32px;
+  }
+
+  .auth-title {
+    font-size: 28px;
+  }
+
+  .auth-subtitle {
+    font-size: 16px;
+  }
+
+  .auth-options {
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .btn {
+    min-height: 52px;
+    padding: 14px 20px;
+    font-size: 15px;
+    border-radius: 14px; /* Botones más redondeados, aspecto moderno móvil */
+  }
+
+  .btn-google {
+    background: #e0def4;
+  }
+
+  /* Efecto glassmorphism para los inputs al estar sobre fondo transparente */
+  .form-control {
+    padding: 16px;
+    font-size: 16px; /* Prevenir auto-zoom en iOS al enfocar */
+    border-radius: 14px;
+    background: rgba(25, 23, 36, 0.6);
+    border: 1px solid rgba(224, 222, 244, 0.08);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  
+  .form-control:focus {
+    background: rgba(25, 23, 36, 0.85);
+    border-color: rgba(235, 111, 146, 0.5); /* Color primario más visible en móvil */
+    box-shadow: 0 0 0 3px rgba(235, 111, 146, 0.15);
+  }
+
+  .auth-form {
+    margin-top: 10px;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-group:last-of-type {
+    margin-bottom: 36px;
+  }
+
+  .password-wrapper .form-control {
+    padding-right: 50px;
+  }
+
+  .toggle-password {
+    right: 14px;
+    padding: 12px;
+  }
+
+  .form-footer {
+    margin-top: 32px;
+  }
+
+  .legal-footer {
+    margin-top: 24px;
+    padding-top: 20px;
+    line-height: 1.6;
+    border-top: 1px solid rgba(224, 222, 244, 0.05); /* Separador sutil */
+  }
+}
+
+@media (max-width: 380px) {
+  .auth-card {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .auth-title {
+    font-size: 24px;
+  }
+
+  .btn {
+    font-size: 14px;
+    min-height: 48px;
+  }
+}
+
+@media (max-height: 700px) {
+  .auth-header {
+    margin-bottom: 20px;
+  }
+  
+  .logo-icon {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 8px;
+  }
+  
+  .logo-icon i {
+    font-size: 24px;
+  }
+
+  .auth-title {
+    font-size: 24px;
+  }
+
+  .auth-options {
+    margin-bottom: 24px;
+  }
+}
