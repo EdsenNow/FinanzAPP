@@ -3,6 +3,7 @@ node_modules/
 functions/node_modules/
 
 # Generated build output & runtime secrets
+dist/
 public/
 __config.js
 src/__config.js
