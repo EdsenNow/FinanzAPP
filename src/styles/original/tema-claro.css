@@ -1,0 +1,484 @@
+[data-theme="light"] {
+--primary: #b4637a;
+--primary-dark: #d7827e;
+--secondary: #286983;
+--secondary-light: #56949f;
+--accent: #9c6bd7;
+--accent-light: #bfa6e6;
+--dark: #faf4ed;
+--darker: #fffaf3;
+--card-bg: #fffaf3;
+--card-border: #f2e9e1;
+--card-hover: #f4ede8;
+--light: #575279;
+--gray: #9893a5;
+--gray-light: #797593;
+--gray-dark: #6e6a86;
+--success: #2D957B;
+--success-light: #46a987;
+--warning: #ea9d34;
+--warning-light: #d7827e;
+--danger: #b4637a;
+--danger-light: #d7827e;
+--card-shadow-hover: 0 0 20px rgba(180, 99, 122, 0.50);
+--btn-shadow-hover: 0 0 20px rgba(180, 99, 122, 0.50);
+--scrollbar-accent: #B4637A;
+}
+
+[data-theme="light"] .card {
+border: 3px solid #f2e9e1;
+}
+
+[data-theme="light"] .summary-card .card-title {
+font-size: 14px;
+color: #575279;
+margin-bottom: 16px;
+display: flex;
+align-items: center;
+gap: 10px;
+font-weight: 600;
+text-transform: uppercase;
+letter-spacing: 0.5px;
+}
+
+[data-theme="light"] .card-change {
+background: #F5EFEA;
+color: var(--gray);
+font-size: 13px;
+font-weight: 400;
+}
+
+[data-theme="light"] .summary-card .card-title i {
+color: var(--gray-light);
+}
+
+[data-theme="light"] .summary-card:hover {
+border-color: var(--primary);
+box-shadow: var(--card-shadow-hover);
+}
+
+[data-theme="light"] .summary-card.income .card-title i {
+color: var(--success);
+}
+
+[data-theme="light"] .summary-card.expenses .card-title i {
+color: var(--danger);
+}
+
+[data-theme="light"] .summary-card.balance .card-title i {
+color: var(--accent);
+}
+
+[data-theme="light"] .sidebar {
+background: #FAF4ED;
+}
+
+[data-theme="light"] .main-content {
+background: #FAF4ED;
+}
+
+[data-theme="light"] .user-avatar {
+  background: linear-gradient(135deg, #d7827e 0%, #b4637a 100%);
+  color: #ffffff;
+}
+
+[data-theme="light"] .user-email {
+  color: #b4637a;
+}
+
+[data-theme="light"] .logo-icon {
+background: var(--primary);
+}
+
+[data-theme="light"] .logo-icon i {
+color: #e0def4 !important;
+}
+
+[data-theme="light"] .category-card {
+  background: var(--card-bg, #FAF4ED);
+  border-radius: 22px;
+  padding: 18px;
+  border: none;
+  box-shadow: none;
+}
+
+[data-theme="light"] .category-card.pinned {
+  border: 3px solid var(--primary);
+}
+
+[data-theme="light"] .category-card:hover {
+  border: 3px solid var(--primary);
+  background: var(--card-bg, #FAF4ED);
+  transform: translateY(-2px);
+  box-shadow: 
+    0 20px 40px -8px rgba(0, 0, 0, 0.08), 
+    0 0 15px rgba(180, 99, 122, 0.25), 
+    0 2px 8px rgba(180, 99, 122, 0.1);
+  z-index: 20;
+}
+
+[data-theme="light"] .category-card.pinned:hover {
+  box-shadow:
+    0 15px 30px -5px rgba(180, 99, 122, 0.3),
+    0 0 18px rgba(180, 99, 122, 0.4),
+    0 2px 12px rgba(180, 99, 122, 0.15);
+  z-index: 20;
+}
+
+[data-theme="light"] .category-card.drag-over {
+border-color: var(--primary);
+box-shadow: 0 0 0 1px color-mix(in srgb, var(--primary) 60%, transparent) inset;
+}
+
+[data-theme="light"] .form-group label {
+color: #575279;
+}
+
+[data-theme="light"] .filter-group {
+background: #fffaf3;  
+border: 3px solid #f2e9e1;
+}
+
+[data-theme="light"] .filter-group:has(.custom-dropdown.open) {
+border-color: var(--primary);
+box-shadow: none;
+}
+
+[data-theme="light"] .filter-group:focus-within {
+border-color: var(--primary);
+box-shadow: none;
+}
+
+[data-theme="light"] #clearFiltersBtn.btn.btn-secondary {
+  border: 3px solid #f2e9e1;
+}
+
+
+
+
+[data-theme="light"] .btn-secondary {
+background: #fffaf3;
+color: var(--light);
+border: none;
+}
+
+[data-theme="light"] .btn-secondary:hover{
+border-color: var(--danger);
+background: color-mix(in srgb, var(--danger) 10%, var(--card-bg));
+color: var(--danger);
+box-shadow: 0 0 0 2px color-mix(in srgb, var(--danger) 25%, transparent);
+}
+
+[data-theme="light"] .category-type-btn,
+.transaction-type-btn {
+background: #f5efea;
+border: none;
+}
+
+[data-theme="light"] .modal-footer .btn:first-child {
+background: #F5EFEA;
+color: var(--light);
+border: none;
+box-shadow: none;
+
+}
+
+[data-theme="light"] .modal-footer .btn:first-child:hover {
+border-color: var(--danger);
+background: color-mix(in srgb, var(--danger) 10%, var(--card-bg));
+color: var(--danger);
+box-shadow: 0 0 0 2px color-mix(in srgb, var(--danger) 25%, transparent);
+}
+
+[data-theme="light"] .btn-primary {
+color: #ffffff;
+}
+
+[data-theme="light"] .btn-primary:hover {
+color: #ffffff;
+box-shadow: var(--btn-shadow-hover);
+}
+
+[data-theme="light"] .btn-danger {
+color: #ffffff;
+}
+
+[data-theme="light"] .btn-danger:hover {
+color: #ffffff;
+box-shadow: var(--btn-shadow-hover);
+}
+
+[data-theme="light"] .transaction-amount.income {
+color: var(--success);
+}
+
+[data-theme="light"] .transaction-amount.expense {
+color: var(--danger);
+}
+
+
+[data-theme="light"] .transaction-item {
+background: #F5EFEA;
+border: none;
+box-shadow: none;
+}
+
+[data-theme="light"] .transaction-item:hover {
+transform: translateY(-4px) scale(1.01);
+background: #F5EFEA;
+border: 2px solid #b4637a;
+}
+
+[data-theme="light"] .date-picker-input {
+background: #f5efea;
+color: var(--gray);
+border: none;
+}
+
+[data-theme="light"] .form-control {
+background: #f5efea;
+color: var(--gray);
+border: none;
+}
+
+[data-theme="light"] .date-picker-input:focus {
+outline: none;
+background: #f5efea;
+}
+
+[data-theme="light"] .form-control:focus {
+outline: none;
+background: #f5efea;
+}
+
+[data-theme="light"] .form-control.search-input,
+[data-theme="light"] .search-input {
+background: transparent;
+}
+
+[data-theme="light"] .form-control.search-input:focus,
+[data-theme="light"] .search-input:focus {
+background: transparent;
+}
+
+[data-theme="light"] .custom-dropdown .custom-dropdown-selected {
+background: var(--card-bg);
+border: none;
+color: var(--gray);
+}
+
+[data-theme="light"] .custom-dropdown-options {
+background: var(--card-bg);
+border: 2px solid var(--gray);
+scrollbar-color: #b4637a transparent;
+}
+
+[data-theme="light"] .dropdown-menu {
+background: var(--card-bg);
+border: 2px solid var(--gray);
+border-radius: 12x;
+}
+
+[data-theme="light"] .dropdown-item,
+[data-theme="light"] .dropdown-item+.dropdown-item {
+border: none;
+box-shadow: none;
+}
+
+[data-theme="light"] .modal-content {
+background: var(--card-bg);
+}
+
+[data-theme="light"] #txn-tooltip {
+background: #fffaf3;
+color: #575279;
+border: 2px solid #B4637A;
+font-weight: 600;
+}
+
+
+[data-theme="light"] .category-menu {
+background: #fffaf3;
+border: 2px solid var (--gray);
+}
+
+[data-theme="light"] .category-menu-item {
+background: #fffaf3;
+}
+
+[data-theme="light"] .transaction-type-btn[data-value="expense"] {
+background: color-mix(in srgb, var(--danger) 15%, var(--card-bg));
+;
+color: var(--primary);
+}
+
+[data-theme="light"] .transaction-type-btn[data-value="income"] {
+background: color-mix(in srgb, var(--success) 15%, var(--card-bg));
+color: var(--success);
+}
+
+[data-theme="light"] .profile-tooltip {
+background: #fffaf3;
+border: 3px solid #b4637a;
+}
+
+[data-theme="light"] .profile-tooltip::before {
+border-top-color: var(--primary);
+}
+
+[data-theme="light"] .tooltip-name {
+color: #575279;
+}
+
+[data-theme="light"] .dropdown-item:first-child,
+[data-theme="light"] .dropdown-item:last-child {
+background: var(--card-bg);
+border: none;
+border-radius: 12px;
+}
+
+[data-theme="light"] .nav-item:hover {
+background: #D9A2B1;
+color: #ffffff;
+transform: translateX(4px);
+border-color: #D9A2B1;
+}
+
+[data-theme="light"] .nav-item.active {
+background: #B4637A;
+color: #ffffff;
+border-color: #B4637A;
+}
+
+[data-theme="light"] .summary-card.expenses .card-value {
+color: #B4637A;
+}
+
+[data-theme="light"] th,
+[data-theme="light"] td {
+background: #F4EDE8;
+border-color: rgba(180, 99, 122, 0.1);
+}
+
+[data-theme="light"] #mobileFiltersToggle {
+border: none;
+}
+
+[data-theme="light"] .filter-group label {
+color: var(--primary);
+}
+
+[data-theme="light"] .custom-dropdown-option.selected {
+color: #f3f3f3;
+}
+
+[data-theme="light"] body.dashboard-page .main-content {
+  scrollbar-color: #b4637a transparent;
+}
+
+[data-theme="light"] body.dashboard-page .main-content::-webkit-scrollbar-thumb {
+  background: #b4637a;
+}
+
+[data-theme="light"] body.dashboard-page .main-content::-webkit-scrollbar-thumb:hover {
+  background: #964f62;
+}
+
+[data-theme="light"] body.dashboard-page .transaction-list,
+[data-theme="light"] .transaction-list {
+  scrollbar-width: thin;
+  scrollbar-color: #b4637a transparent;
+  --scrollbar-accent: #b4637a;
+  --scrollbar-accent-hover: #964f62;
+}
+
+[data-theme="light"] .transaction-list::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+  background: transparent;
+}
+
+[data-theme="light"] .transaction-list::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 12px;
+}
+
+[data-theme="light"] .transaction-list::-webkit-scrollbar-thumb {
+  background: #b4637a;
+  border-radius: 12px;
+}
+
+[data-theme="light"] .transaction-list::-webkit-scrollbar-thumb:hover {
+  background: #964f62;
+}	
+
+[data-theme="light"] .undo-notification.active {
+background: #fffaf3;
+border: 3px solid #b4637a;
+}
+
+[data-theme="light"] .undo-btn {
+color: #fffaf3;
+}
+
+[data-theme="light"] .gmail-notif-panel {
+  background: #fffaf3;
+  color: #575279;
+  border: 2px solid var(--gray);
+}
+
+[data-theme="light"] .gmail-notif-item:hover {
+  background: #f5efea;
+}
+
+[data-theme="light"] .gmail-notif-amount {
+  color: #b4637a;
+}
+
+[data-theme="light"] .gmail-notif-date,
+[data-theme="light"] .gmail-notif-empty {
+  color: #797593;
+  opacity: 1;
+}
+
+[data-theme="light"] #gmailTxCategory .custom-dropdown-selected {
+  background: #f5efea;
+  color: #575279;
+  border: none;
+}
+
+[data-theme="light"] .tx-page-btn:hover:not(:disabled) {
+  color: var(--dark);
+  background: var(--primary);
+}
+
+[data-theme="light"] .gmail-notif-list {
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary) transparent;
+}
+
+[data-theme="light"] .mobile-actions-subpanel-input {
+  background: #faf4ed;
+}
+
+[data-theme="light"] .mobile-actions-subpanel-input:focus {
+  background: #faf4ed;
+  border-color: var(--primary);
+}
+
+/* Desactivar efectos hover/active en dispositivos móviles */
+@media (hover: none) and (pointer: coarse), (max-width: 768px) {
+  [data-theme="light"] body.dashboard-page .summary-card:hover,
+  [data-theme="light"] body.dashboard-page .category-card:hover,
+  [data-theme="light"] body.dashboard-page .category-card.pinned:hover,
+  [data-theme="light"] body.dashboard-page .btn-primary:hover,
+  [data-theme="light"] body.dashboard-page .btn-secondary:hover,
+  [data-theme="light"] body.dashboard-page .btn-danger:hover,
+  [data-theme="light"] body.dashboard-page .modal-footer .btn:first-child:hover,
+  [data-theme="light"] body.dashboard-page .date-picker-modal .modal-footer .btn-primary:hover,
+  [data-theme="light"] body.dashboard-page #todayBtn:hover,
+  [data-theme="light"] body.dashboard-page .confirm-drawer-confirm-danger:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}

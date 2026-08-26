@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import Modal from '../common/Modal';
-import { Wallet, Edit2, Calendar } from 'lucide-react';
 
 export default function BudgetModal({ isOpen, onClose, onSave, budget = null, categories = [] }) {
   const [name, setName] = useState('');
@@ -28,6 +26,8 @@ export default function BudgetModal({ isOpen, onClose, onSave, budget = null, ca
     }
   }, [budget, categories, isOpen]);
 
+  if (!isOpen) return null;
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!name.trim() || !amount || Number(amount) <= 0) return;
@@ -45,119 +45,126 @@ export default function BudgetModal({ isOpen, onClose, onSave, budget = null, ca
   const isEditing = Boolean(budget);
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      title={
-        <>
-          {isEditing ? <Edit2 className="w-5 h-5 text-accent" /> : <Wallet className="w-5 h-5 text-primary" />}
-          {isEditing ? 'Editar Presupuesto' : 'Crear Presupuesto'}
-        </>
-      }
+    <div
+      className="modal show"
+      id="budgetModal"
+      role="dialog"
+      aria-modal="true"
+      style={{ display: 'flex' }}
+      onClick={(e) => {
+        if (e.target.classList.contains('modal')) onClose();
+      }}
     >
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Name */}
-        <div>
-          <label className="block text-xs font-semibold text-gray uppercase tracking-wider mb-2">
-            Nombre del Presupuesto
-          </label>
-          <input
-            type="text"
-            required
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Ej. Límite Alimentación Mensual"
-            className="w-full bg-input-bg border border-white/10 rounded-xl px-4 py-2.5 text-sm text-light focus:outline-none focus:border-primary"
-          />
+      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-header">
+          <h2 className="modal-title">
+            <i className={`fas ${isEditing ? 'fa-edit' : 'fa-wallet'}`}></i>
+            {' '}{isEditing ? 'Editar Presupuesto' : 'Crear Presupuesto'}
+          </h2>
         </div>
 
-        {/* Amount */}
-        <div>
-          <label className="block text-xs font-semibold text-gray uppercase tracking-wider mb-2">
-            Monto Límite
-          </label>
-          <input
-            type="number"
-            step="0.01"
-            required
-            min="0.01"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            placeholder="0.00"
-            className="w-full bg-input-bg border border-white/10 rounded-xl px-4 py-2.5 text-sm text-light focus:outline-none focus:border-primary"
-          />
-        </div>
-
-        {/* Category */}
-        <div>
-          <label className="block text-xs font-semibold text-gray uppercase tracking-wider mb-2">
-            Categoría Asociada
-          </label>
-          <select
-            value={categoryId}
-            onChange={(e) => setCategoryId(e.target.value)}
-            className="w-full bg-input-bg border border-white/10 rounded-xl px-4 py-2.5 text-sm text-light focus:outline-none focus:border-primary cursor-pointer"
-          >
-            <option value="">Todas las categorías</option>
-            {categories.map((c) => (
-              <option key={c.id} value={c.id}>{c.name}</option>
-            ))}
-          </select>
-        </div>
-
-        {/* Period */}
-        <div>
-          <label className="block text-xs font-semibold text-gray uppercase tracking-wider mb-2">
-            Frecuencia
-          </label>
-          <select
-            value={period}
-            onChange={(e) => setPeriod(e.target.value)}
-            className="w-full bg-input-bg border border-white/10 rounded-xl px-4 py-2.5 text-sm text-light focus:outline-none focus:border-primary cursor-pointer"
-          >
-            <option value="monthly">Mensual</option>
-            <option value="weekly">Semanal</option>
-            <option value="biweekly">Quincenal</option>
-            <option value="yearly">Anual</option>
-            <option value="custom">Rango Personalizado</option>
-          </select>
-        </div>
-
-        {/* Custom Date Range if applicable */}
-        {period === 'custom' && (
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <label className="block text-[11px] text-gray mb-1">Fecha Inicio</label>
+        <form onSubmit={handleSubmit}>
+          <div className="modal-body">
+            {/* Name */}
+            <div className="form-group">
+              <label htmlFor="budgetName">Nombre del Presupuesto</label>
               <input
-                type="date"
+                type="text"
+                id="budgetName"
                 required
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                className="w-full bg-input-bg border border-white/10 rounded-xl px-3 py-2 text-xs text-light"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Ej. Límite Alimentación Mensual"
+                className="form-control"
               />
             </div>
-            <div>
-              <label className="block text-[11px] text-gray mb-1">Fecha Fin</label>
+
+            {/* Amount */}
+            <div className="form-group">
+              <label htmlFor="budgetAmount">Monto Límite</label>
               <input
-                type="date"
+                type="number"
+                id="budgetAmount"
+                step="0.01"
                 required
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                className="w-full bg-input-bg border border-white/10 rounded-xl px-3 py-2 text-xs text-light"
+                min="0.01"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder="0.00"
+                className="form-control"
               />
             </div>
+
+            {/* Category */}
+            <div className="form-group">
+              <label htmlFor="budgetCategory">Categoría Asociada</label>
+              <select
+                id="budgetCategory"
+                value={categoryId}
+                onChange={(e) => setCategoryId(e.target.value)}
+                className="form-control"
+              >
+                <option value="">Todas las categorías</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Period */}
+            <div className="form-group">
+              <label htmlFor="budgetPeriod">Frecuencia</label>
+              <select
+                id="budgetPeriod"
+                value={period}
+                onChange={(e) => setPeriod(e.target.value)}
+                className="form-control"
+              >
+                <option value="monthly">Mensual</option>
+                <option value="weekly">Semanal</option>
+                <option value="biweekly">Quincenal</option>
+                <option value="yearly">Anual</option>
+                <option value="custom">Rango Personalizado</option>
+              </select>
+            </div>
+
+            {/* Custom Date Range if applicable */}
+            {period === 'custom' && (
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                <div className="form-group">
+                  <label>Fecha Inicio</label>
+                  <input
+                    type="date"
+                    required
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="form-control"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Fecha Fin</label>
+                  <input
+                    type="date"
+                    required
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="form-control"
+                  />
+                </div>
+              </div>
+            )}
           </div>
-        )}
 
-        <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/5">
-          <button type="button" onClick={onClose} className="btn-secondary-custom text-sm">
-            Cancelar
-          </button>
-          <button type="submit" className="btn-neon-primary text-sm">
-            {isEditing ? 'Guardar Cambios' : 'Crear Presupuesto'}
-          </button>
-        </div>
-      </form>
-    </Modal>
+          <div className="modal-footer">
+            <button type="button" onClick={onClose} className="btn btn-secondary">
+              Cancelar
+            </button>
+            <button type="submit" className="btn btn-primary">
+              {isEditing ? 'Guardar Cambios' : 'Crear Presupuesto'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }

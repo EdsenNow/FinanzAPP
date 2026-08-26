@@ -1,6 +1,4 @@
 import React from 'react';
-import Modal from './Modal';
-import { AlertTriangle, Info, CheckCircle2 } from 'lucide-react';
 
 export default function CustomAlert({ 
   isOpen, 
@@ -13,45 +11,51 @@ export default function CustomAlert({
   cancelText = 'Cancelar',
   showCancel = false 
 }) {
-  const getIcon = () => {
-    switch (type) {
-      case 'danger':
-      case 'warning':
-        return <AlertTriangle className="w-5 h-5 text-warning" />;
-      case 'success':
-        return <CheckCircle2 className="w-5 h-5 text-success" />;
-      default:
-        return <Info className="w-5 h-5 text-secondary" />;
-    }
-  };
+  if (!isOpen) return null;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={<>{getIcon()} {title}</>} maxWidth="max-w-sm">
-      <p className="text-sm text-gray mb-6 leading-relaxed">
-        {message}
-      </p>
+    <div
+      className="modal show"
+      id="customAlertModal"
+      role="dialog"
+      aria-modal="true"
+      style={{ display: 'flex' }}
+      onClick={(e) => {
+        if (e.target.classList.contains('modal')) onClose();
+      }}
+    >
+      <div className="modal-content" style={{ maxWidth: '420px' }} onClick={(e) => e.stopPropagation()}>
+        <div className="modal-header">
+          <h2 className="modal-title">
+            <i className={`fas ${type === 'danger' ? 'fa-exclamation-triangle' : type === 'success' ? 'fa-check-circle' : 'fa-info-circle'}`}></i>
+            {' '}{title}
+          </h2>
+        </div>
 
-      <div className="flex items-center justify-end gap-3">
-        {showCancel && (
+        <div className="modal-body">
+          <p style={{ margin: '8px 0 16px 0', lineHeight: 1.5, opacity: 0.9 }}>
+            {message}
+          </p>
+        </div>
+
+        <div className="modal-footer">
+          {showCancel && (
+            <button type="button" className="btn btn-secondary" onClick={onClose}>
+              {cancelText}
+            </button>
+          )}
           <button
             type="button"
-            onClick={onClose}
-            className="btn-secondary-custom text-sm"
+            className={`btn ${type === 'danger' ? 'btn-danger' : 'btn-primary'}`}
+            onClick={() => {
+              if (onConfirm) onConfirm();
+              onClose();
+            }}
           >
-            {cancelText}
+            {confirmText}
           </button>
-        )}
-        <button
-          type="button"
-          onClick={() => {
-            if (onConfirm) onConfirm();
-            onClose();
-          }}
-          className={`${type === 'danger' ? 'bg-danger text-white hover:bg-danger/90' : 'btn-neon-primary'} text-sm`}
-        >
-          {confirmText}
-        </button>
+        </div>
       </div>
-    </Modal>
+    </div>
   );
 }

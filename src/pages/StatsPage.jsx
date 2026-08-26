@@ -38,33 +38,35 @@ export default function StatsPage() {
   const topExpense = breakdown.expenses[0] || null;
 
   return (
-    <div className="min-h-screen bg-dark text-light flex">
-      <Sidebar />
+    <div className="estadistica-page">
+      <div className="app-container">
+        <Sidebar />
 
-      <main className="flex-1 md:ml-64 p-4 md:p-8 pb-24 md:pb-8 max-w-7xl mx-auto w-full">
-        <Header
-          title="Estadísticas y Análisis"
-          onOpenDrawer={() => setIsDrawerOpen(true)}
-        />
+        <div className="main-content">
+          <Header
+            title="Estadísticas y Análisis"
+            onOpenDrawer={() => setIsDrawerOpen(true)}
+          />
 
-        {/* Insight KPI Cards */}
-        <InsightCards
-          incomeToday={dailyStats.incomeToday}
-          expensesToday={dailyStats.expensesToday}
-          dailyAverage={dailyStats.dailyAverage}
-          topExpenseCategory={topExpense}
-          currencySymbol={currencySymbol}
-        />
+          {/* Insight KPI Cards */}
+          <InsightCards
+            incomeToday={dailyStats.incomeToday}
+            expensesToday={dailyStats.expensesToday}
+            dailyAverage={dailyStats.dailyAverage}
+            topExpenseCategory={topExpense}
+            currencySymbol={currencySymbol}
+          />
 
-        {/* Cashflow Line Chart */}
-        <CashflowChart data={cashflowData} currencySymbol={currencySymbol} />
+          {/* Cashflow Line Chart */}
+          <CashflowChart data={cashflowData} currencySymbol={currencySymbol} />
 
-        {/* Category Breakdown Charts */}
-        <CategoryCharts breakdown={breakdown} currencySymbol={currencySymbol} />
+          {/* Category Breakdown Charts */}
+          <CategoryCharts breakdown={breakdown} currencySymbol={currencySymbol} />
 
-        {/* Daily Heatmap Activity */}
-        <HeatmapChart heatmapData={heatmapData} currencySymbol={currencySymbol} />
-      </main>
+          {/* Daily Heatmap Activity */}
+          <HeatmapChart heatmapData={heatmapData} currencySymbol={currencySymbol} />
+        </div>
+      </div>
 
       <MobileNav />
       <MobileDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />

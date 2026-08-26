@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useFinanceStore } from '../stores/useFinanceStore';
 import { useAuthStore } from '../stores/useAuthStore';
 import SummaryCards from '../components/dashboard/SummaryCards';
@@ -12,7 +12,6 @@ import MobileNav from '../components/layout/MobileNav';
 import MobileDrawer from '../components/layout/MobileDrawer';
 import Toast from '../components/common/Toast';
 import CustomAlert from '../components/common/CustomAlert';
-import { Plus, Download, Bell } from 'lucide-react';
 import { calculateSummary } from '../services/dataCalculations';
 import { exportToJSON, exportToPDF } from '../services/exportService';
 
@@ -42,7 +41,10 @@ export default function DashboardPage() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
   const [confirmDeleteCatId, setConfirmDeleteCatId] = useState(null);
+  const [confirmDeleteAll, setConfirmDeleteAll] = useState(false);
+  const [showExportMenu, setShowExportMenu] = useState(false);
   const [gmailNotifs, setGmailNotifs] = useState([]);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     if (user?.uid) {
@@ -95,6 +97,23 @@ export default function DashboardPage() {
     }
   };
 
+  const handleImportFile = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const data = JSON.parse(event.target.result);
+          importData(data, user?.uid, isGuest);
+          setToastMessage('Datos importados correctamente');
+        } catch (_) {
+          setToastMessage('Error al leer archivo JSON');
+        }
+      };
+      reader.readAsText(file);
+    }
+  };
+
   // Sort categories: pinned first
   const sortedCategories = [...categories].sort((a, b) => {
     if (a.isPinned && !b.isPinned) return -1;
@@ -103,90 +122,136 @@ export default function DashboardPage() {
   });
 
   return (
-    <div className="min-h-screen bg-dark text-light flex">
-      {/* Desktop Sidebar */}
-      <Sidebar />
+    <div className="dashboard-page">
+      <div className="app-container">
+        {/* Desktop Sidebar */}
+        <Sidebar />
 
-      {/* Main Container */}
-      <main className="flex-1 md:ml-64 p-4 md:p-8 pb-24 md:pb-8 max-w-7xl mx-auto w-full">
-        {/* Header & Filter Bar */}
-        <Header
-          title="Dashboard"
-          onOpenDrawer={() => setIsDrawerOpen(true)}
-          onOpenNotifs={() => setIsGmailPanelOpen(true)}
-          pendingNotifsCount={gmailNotifs.length}
-          actions={
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => exportToPDF(categories, settings)}
-                className="btn-secondary-custom text-xs px-3 py-2"
-                title="Descargar Reporte PDF"
-              >
-                <Download className="w-4 h-4" />
-                <span className="hidden sm:inline">PDF</span>
-              </button>
+        {/* Main Content Area */}
+        <div className="main-content">
+          {/* Header & Filter Controls */}
+          <Header
+            title="Dashboard"
+            onOpenDrawer={() => setIsDrawerOpen(true)}
+            onOpenNotifs={() => setIsGmailPanelOpen(true)}
+            pendingNotifsCount={gmailNotifs.length}
+          />
 
-              <button
-                type="button"
-                onClick={() => {
-                  setEditingCategory(null);
-                  setIsCategoryModalOpen(true);
-                }}
-                className="btn-neon-primary text-xs px-3.5 py-2"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Nueva Categoría</span>
-              </button>
+          {/* Summary Cards */}
+          <SummaryCards
+            totalIncome={summary.totalIncome}
+            totalExpenses={summary.totalExpenses}
+            netBalance={summary.netBalance}
+            currencySymbol={currencySymbol}
+          />
+
+          <div id="filter-period-label" className="filter-period-label" aria-live="polite"></div>
+
+          {/* Main Card Container */}
+          <div className="card">
+            <div className="card-header">
+              <h2 className="card-title">Mis Categorías</h2>
+              <div className="header-actions">
+                <div className="export-dropdown" style={{ position: 'relative' }}>
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    id="exportDropdownBtn"
+                    onClick={() => setShowExportMenu(!showExportMenu)}
+                  >
+                    <i className="fas fa-file-export"></i> Exportar <i className="fas fa-chevron-down"></i>
+                  </button>
+                  {showExportMenu && (
+                    <div className="dropdown-menu show" style={{ display: 'block', position: 'absolute', top: '100%', right: 0, zIndex: 100 }}>
+                      <button
+                        type="button"
+                        className="dropdown-item"
+                        onClick={() => { setShowExportMenu(false); exportToJSON(categories, budgets, settings); }}
+                      >
+                        <i className="fas fa-file-code"></i> JSON
+                      </button>
+                      <button
+                        type="button"
+                        className="dropdown-item"
+                        onClick={() => { setShowExportMenu(false); exportToPDF(categories, settings); }}
+                      >
+                        <i className="fas fa-file-pdf"></i> PDF
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  id="importStateBtn"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <i className="fas fa-file-import"></i> Importar
+                </button>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleImportFile}
+                  accept=".json,application/json"
+                  style={{ display: 'none' }}
+                />
+
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  id="clearAllCategoriesBtn"
+                  onClick={() => setConfirmDeleteAll(true)}
+                >
+                  <i className="fas fa-trash"></i> Eliminar categorías
+                </button>
+
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  id="addCategoryBtn"
+                  onClick={() => {
+                    setEditingCategory(null);
+                    setIsCategoryModalOpen(true);
+                  }}
+                >
+                  <i className="fas fa-plus"></i> Nueva Categoría
+                </button>
+              </div>
             </div>
-          }
-        />
 
-        {/* Financial KPI Summary Cards */}
-        <SummaryCards
-          totalIncome={summary.totalIncome}
-          totalExpenses={summary.totalExpenses}
-          netBalance={summary.netBalance}
-          currencySymbol={currencySymbol}
-        />
-
-        {/* Categories Grid */}
-        {sortedCategories.length === 0 ? (
-          <div className="card-glass p-12 text-center text-gray space-y-3">
-            <p className="text-sm font-medium">Aún no tienes categorías creadas.</p>
-            <button
-              type="button"
-              onClick={() => setIsCategoryModalOpen(true)}
-              className="btn-neon-primary text-xs px-4 py-2"
-            >
-              Crear mi primera categoría
-            </button>
+            {/* Categories Grid */}
+            <div className="categories-grid" id="categoriesContainer">
+              {sortedCategories.length === 0 ? (
+                <div className="empty-state">
+                  <p>No hay categorías creadas. Agrega tu primera categoría.</p>
+                </div>
+              ) : (
+                sortedCategories.map((category) => (
+                  <CategoryCard
+                    key={category.id}
+                    category={category}
+                    currencySymbol={currencySymbol}
+                    filterYear={filters.year}
+                    filterMonth={filters.month}
+                    filterSearch={filters.search}
+                    onAddTransaction={handleAddTransaction}
+                    onEditTransaction={(catId, tx) => setEditingTx({ categoryId: catId, transaction: tx })}
+                    onDeleteTransaction={handleDeleteTransaction}
+                    onEditCategory={(cat) => {
+                      setEditingCategory(cat);
+                      setIsCategoryModalOpen(true);
+                    }}
+                    onDeleteCategory={(catId) => setConfirmDeleteCatId(catId)}
+                    onClearTransactions={(catId) => clearCategoryTransactions(catId, user?.uid, isGuest)}
+                    onTogglePin={handleTogglePin}
+                  />
+                ))
+              )}
+            </div>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {sortedCategories.map((category) => (
-              <CategoryCard
-                key={category.id}
-                category={category}
-                currencySymbol={currencySymbol}
-                filterYear={filters.year}
-                filterMonth={filters.month}
-                filterSearch={filters.search}
-                onAddTransaction={handleAddTransaction}
-                onEditTransaction={(catId, tx) => setEditingTx({ categoryId: catId, transaction: tx })}
-                onDeleteTransaction={handleDeleteTransaction}
-                onEditCategory={(cat) => {
-                  setEditingCategory(cat);
-                  setIsCategoryModalOpen(true);
-                }}
-                onDeleteCategory={(catId) => setConfirmDeleteCatId(catId)}
-                onClearTransactions={(catId) => clearCategoryTransactions(catId, user?.uid, isGuest)}
-                onTogglePin={handleTogglePin}
-              />
-            ))}
-          </div>
-        )}
-      </main>
+        </div>
+      </div>
 
       {/* Mobile Navigation */}
       <MobileNav onOpenCreateModal={() => setIsCategoryModalOpen(true)} />
@@ -197,25 +262,7 @@ export default function DashboardPage() {
         onClose={() => setIsDrawerOpen(false)}
         onOpenNotifications={() => setIsGmailPanelOpen(true)}
         onExport={() => exportToJSON(categories, budgets, settings)}
-        onImport={() => {
-          const input = document.createElement('input');
-          input.type = 'file';
-          input.accept = '.json';
-          input.onchange = (e) => {
-            const file = e.target.files[0];
-            if (file) {
-              const reader = new FileReader();
-              reader.onload = (event) => {
-                try {
-                  const data = JSON.parse(event.target.result);
-                  importData(data, user?.uid, isGuest);
-                } catch (_) {}
-              };
-              reader.readAsText(file);
-            }
-          };
-          input.click();
-        }}
+        onImport={() => fileInputRef.current?.click()}
       />
 
       {/* Category Create/Edit Modal */}
@@ -273,6 +320,21 @@ export default function DashboardPage() {
             deleteCategory(confirmDeleteCatId, user?.uid, isGuest);
             setConfirmDeleteCatId(null);
           }
+        }}
+      />
+
+      {/* Delete All Categories Confirmation Dialog */}
+      <CustomAlert
+        isOpen={confirmDeleteAll}
+        onClose={() => setConfirmDeleteAll(false)}
+        type="danger"
+        title="¿Eliminar todas las categorías?"
+        message="Esta acción eliminará todas tus categorías y movimientos de forma irreversible."
+        confirmText="Eliminar Todo"
+        showCancel={true}
+        onConfirm={() => {
+          categories.forEach((c) => deleteCategory(c.id, user?.uid, isGuest));
+          setConfirmDeleteAll(false);
         }}
       />
 

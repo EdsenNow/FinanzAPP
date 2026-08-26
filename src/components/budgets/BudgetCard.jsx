@@ -1,5 +1,4 @@
-import React from 'react';
-import { Edit2, Trash2, Calendar, AlertCircle, CheckCircle2 } from 'lucide-react';
+import React, { useState } from 'react';
 import { formatCurrency, calculateBudgetStatus } from '../../services/dataCalculations';
 
 export default function BudgetCard({
@@ -9,20 +8,9 @@ export default function BudgetCard({
   onEdit,
   onDelete
 }) {
+  const [showMenu, setShowMenu] = useState(false);
   const { spent, remaining, percent, status } = calculateBudgetStatus(budget, categories);
   const cat = categories.find((c) => String(c.id) === String(budget.categoryId));
-
-  const getStatusColor = () => {
-    if (status === 'danger') return 'text-danger bg-danger/15 border-danger/30';
-    if (status === 'warning') return 'text-warning bg-warning/15 border-warning/30';
-    return 'text-success bg-success/15 border-success/30';
-  };
-
-  const getProgressBarColor = () => {
-    if (status === 'danger') return 'bg-danger shadow-[0_0_12px_rgba(235,111,146,0.6)]';
-    if (status === 'warning') return 'bg-warning shadow-[0_0_12px_rgba(246,193,119,0.6)]';
-    return 'bg-success shadow-[0_0_12px_rgba(45,149,123,0.6)]';
-  };
 
   const periodLabel = {
     monthly: 'Mensual',
@@ -33,70 +21,83 @@ export default function BudgetCard({
   }[budget.period] || 'Mensual';
 
   return (
-    <div className="card-glass p-5 flex flex-col justify-between group hover:border-primary/40 transition-all">
+    <div className="category-card fade-in">
       {/* Header */}
-      <div className="flex items-start justify-between gap-3 pb-3 border-b border-white/5">
-        <div>
-          <div className="flex items-center gap-2">
-            <h3 className="font-bold text-sm text-light">{budget.name}</h3>
-            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${getStatusColor()}`}>
-              {percent.toFixed(0)}%
-            </span>
-          </div>
-          <span className="text-xs text-gray">{cat ? cat.name : 'Todas las categorías'} • {periodLabel}</span>
+      <div className="category-header">
+        <div className="category-name" title={budget.name}>
+          {budget.name}
         </div>
 
-        <div className="flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
+        <div className="category-menu-wrapper">
           <button
+            className="category-menu-btn btn-icon"
             type="button"
-            onClick={() => onEdit(budget)}
-            className="p-1 text-gray hover:text-accent rounded"
-            title="Editar presupuesto"
+            title="Opciones"
+            onClick={() => setShowMenu(!showMenu)}
           >
-            <Edit2 className="w-3.5 h-3.5" />
+            <i className="fas fa-ellipsis-v"></i>
           </button>
-          <button
-            type="button"
-            onClick={() => onDelete(budget.id)}
-            className="p-1 text-gray hover:text-danger rounded"
-            title="Eliminar presupuesto"
-          >
-            <Trash2 className="w-3.5 h-3.5 icon-trash" />
-          </button>
-        </div>
-      </div>
 
-      {/* Progress Meter */}
-      <div className="my-5">
-        <div className="flex items-center justify-between text-xs mb-1.5">
-          <span className="text-gray">Gastado: <b className="text-light">{formatCurrency(spent, currencySymbol)}</b></span>
-          <span className="text-gray">Límite: <b className="text-light">{formatCurrency(budget.amount, currencySymbol)}</b></span>
-        </div>
-
-        {/* Progress Bar Track */}
-        <div className="w-full h-3 bg-white/5 rounded-full overflow-hidden p-0.5 border border-white/10">
-          <div
-            className={`h-full rounded-full transition-all duration-500 ${getProgressBarColor()}`}
-            style={{ width: `${Math.min(100, percent)}%` }}
-          />
-        </div>
-      </div>
-
-      {/* Status Footer */}
-      <div className="flex items-center justify-between pt-3 border-t border-white/5 text-xs">
-        <div className="flex items-center gap-1.5">
-          {status === 'danger' ? (
-            <AlertCircle className="w-4 h-4 text-danger" />
-          ) : (
-            <CheckCircle2 className="w-4 h-4 text-success" />
+          {showMenu && (
+            <div className="category-menu active" style={{ display: 'block' }}>
+              <button
+                className="category-menu-item"
+                type="button"
+                onClick={() => { setShowMenu(false); onEdit(budget); }}
+              >
+                <i className="fas fa-edit"></i> Editar
+              </button>
+              <button
+                className="category-menu-item danger"
+                type="button"
+                onClick={() => { setShowMenu(false); onDelete(budget.id); }}
+              >
+                <i className="fas fa-trash"></i> Eliminar
+              </button>
+            </div>
           )}
-          <span className={status === 'danger' ? 'text-danger font-medium' : 'text-gray'}>
-            {remaining >= 0 ? 'Disponible' : 'Excedido'}
+        </div>
+      </div>
+
+      <div style={{ padding: '0 16px', fontSize: '0.8rem', opacity: 0.7, marginBottom: '8px' }}>
+        {cat ? cat.name : 'Todas las categorías'} • {periodLabel}
+      </div>
+
+      {/* Stats Summary */}
+      <div className="category-stats alt">
+        <div className="ie-summary">
+          <div className="amount-chip expense" title="Gastado">
+            <i className="fas fa-arrow-down"></i>
+            <span>{formatCurrency(spent, currencySymbol)}</span>
+          </div>
+          <div className="amount-chip income" title="Límite">
+            <i className="fas fa-bullseye"></i>
+            <span>{formatCurrency(budget.amount, currencySymbol)}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Progress Bar and Details */}
+      <div className="category-details" style={{ padding: '16px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', marginBottom: '6px' }}>
+          <span>Progreso: <b>{percent.toFixed(0)}%</b></span>
+          <span style={{ color: remaining >= 0 ? 'var(--success, #2D957B)' : 'var(--danger, #eb6f92)', fontWeight: 'bold' }}>
+            {remaining >= 0 ? `Restante: ${formatCurrency(remaining, currencySymbol)}` : `Excedido: ${formatCurrency(Math.abs(remaining), currencySymbol)}`}
           </span>
         </div>
-        <span className={`font-bold ${remaining >= 0 ? 'text-success' : 'text-danger'}`}>
-          {formatCurrency(Math.abs(remaining), currencySymbol)}
-        </span>
+
+        {/* Progress bar */}
+        <div style={{ width: '100%', height: '8px', background: 'rgba(255,255,255,0.08)', borderRadius: '4px', overflow: 'hidden' }}>
+          <div
+            style={{
+              height: '100%',
+              width: `${Math.min(100, percent)}%`,
+              backgroundColor: status === 'danger' ? 'var(--danger, #eb6f92)' : status === 'warning' ? 'var(--warning, #f6c177)' : 'var(--success, #2D957B)',
+              borderRadius: '4px',
+              transition: 'width 0.4s ease'
+            }}
+          />
+        </div>
       </div>
     </div>
   );

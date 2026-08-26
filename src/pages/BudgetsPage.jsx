@@ -8,7 +8,6 @@ import Sidebar from '../components/layout/Sidebar';
 import MobileNav from '../components/layout/MobileNav';
 import MobileDrawer from '../components/layout/MobileDrawer';
 import CustomAlert from '../components/common/CustomAlert';
-import { Plus, Wallet, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { formatCurrency, calculateBudgetStatus } from '../services/dataCalculations';
 
 export default function BudgetsPage() {
@@ -40,15 +39,17 @@ export default function BudgetsPage() {
   // Calculate Overall Budget Totals
   let totalBudgeted = 0;
   let totalSpent = 0;
+  let withinLimitCount = 0;
 
   budgets.forEach((b) => {
     totalBudgeted += Number(b.amount) || 0;
-    const { spent } = calculateBudgetStatus(b, categories);
+    const { spent, status } = calculateBudgetStatus(b, categories);
     totalSpent += spent;
+    if (status !== 'danger') withinLimitCount += 1;
   });
 
   const totalRemaining = totalBudgeted - totalSpent;
-  const overallPercent = totalBudgeted > 0 ? (totalSpent / totalBudgeted) * 100 : 0;
+  const complianceRate = budgets.length > 0 ? ((withinLimitCount / budgets.length) * 100).toFixed(0) : '0';
 
   const handleSaveBudget = (budgetData) => {
     if (editingBudget) {
@@ -60,86 +61,102 @@ export default function BudgetsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-dark text-light flex">
-      <Sidebar />
+    <div className="budgets-page">
+      <div className="app-container">
+        <Sidebar />
 
-      <main className="flex-1 md:ml-64 p-4 md:p-8 pb-24 md:pb-8 max-w-7xl mx-auto w-full">
-        <Header
-          title="Presupuestos"
-          onOpenDrawer={() => setIsDrawerOpen(true)}
-          actions={
-            <button
-              type="button"
-              onClick={() => {
-                setEditingBudget(null);
-                setIsModalOpen(true);
-              }}
-              className="btn-neon-primary text-xs px-3.5 py-2"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Nuevo Presupuesto</span>
-            </button>
-          }
-        />
-
-        {/* Budget KPI Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8 select-none">
-          <div className="card-glass p-5 flex flex-col justify-between">
-            <span className="text-xs font-bold uppercase text-gray">Total Presupuestado</span>
-            <p className="text-2xl font-extrabold text-light my-2">
-              {formatCurrency(totalBudgeted, currencySymbol)}
-            </p>
-            <span className="text-[11px] text-gray">{budgets.length} presupuestos activos</span>
-          </div>
-
-          <div className="card-glass p-5 flex flex-col justify-between">
-            <span className="text-xs font-bold uppercase text-gray">Total Gastado</span>
-            <p className="text-2xl font-extrabold text-danger my-2">
-              {formatCurrency(totalSpent, currencySymbol)}
-            </p>
-            <span className="text-[11px] text-gray">{overallPercent.toFixed(1)}% del límite total</span>
-          </div>
-
-          <div className="card-glass p-5 flex flex-col justify-between">
-            <span className="text-xs font-bold uppercase text-gray">Monto Disponible</span>
-            <p className={`text-2xl font-extrabold my-2 ${totalRemaining >= 0 ? 'text-success' : 'text-danger'}`}>
-              {formatCurrency(totalRemaining, currencySymbol)}
-            </p>
-            <span className="text-[11px] text-gray">Margen restante general</span>
-          </div>
-        </div>
-
-        {/* Budgets Grid */}
-        {budgets.length === 0 ? (
-          <div className="card-glass p-12 text-center text-gray space-y-3">
-            <Wallet className="w-10 h-10 mx-auto opacity-30 text-primary" />
-            <p className="text-sm font-medium">No has definido límites de presupuesto todavía.</p>
-            <button
-              type="button"
-              onClick={() => setIsModalOpen(true)}
-              className="btn-neon-primary text-xs px-4 py-2"
-            >
-              Crear Presupuesto
-            </button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {budgets.map((budget) => (
-              <BudgetCard
-                key={budget.id}
-                budget={budget}
-                categories={categories}
-                currencySymbol={currencySymbol}
-                onEdit={(b) => {
-                  setEditingBudget(b);
+        <div className="main-content">
+          <Header
+            title="Presupuestos"
+            onOpenDrawer={() => setIsDrawerOpen(true)}
+            actions={
+              <button
+                type="button"
+                className="btn btn-primary"
+                id="addBudgetBtn"
+                onClick={() => {
+                  setEditingBudget(null);
                   setIsModalOpen(true);
                 }}
-                onDelete={(id) => setConfirmDeleteId(id)}
-              />
-            ))}
+              >
+                <i className="fas fa-plus"></i> Crear Presupuesto
+              </button>
+            }
+          />
+
+          {/* Budget KPI Cards */}
+          <div className="summary-cards budget-summary">
+            <div className="summary-card income">
+              <div className="card-title">
+                <i className="fas fa-dollar-sign"></i> Total Presupuestado
+              </div>
+              <div className="card-value large-number">
+                {formatCurrency(totalBudgeted, currencySymbol)}
+              </div>
+              <div className="card-change">{budgets.length} presupuestos activos</div>
+            </div>
+
+            <div className="summary-card expenses">
+              <div className="card-title">
+                <i className="fas fa-shopping-cart"></i> Total Gastado
+              </div>
+              <div className="card-value large-number">
+                {formatCurrency(totalSpent, currencySymbol)}
+              </div>
+              <div className="card-change">Suma de gastos realizados</div>
+            </div>
+
+            <div className="summary-card balance">
+              <div className="card-title">
+                <i className="fas fa-piggy-bank"></i> Disponible
+              </div>
+              <div className="card-value large-number">
+                {formatCurrency(totalRemaining, currencySymbol)}
+              </div>
+              <div className="card-change">Presupuesto restante</div>
+            </div>
+
+            <div className="summary-card misc">
+              <div className="card-title">
+                <i className="fas fa-percentage"></i> Cumplimiento
+              </div>
+              <div className="card-value large-number">{complianceRate}%</div>
+              <div className="card-change">Presupuestos dentro del límite</div>
+            </div>
           </div>
-        )}
-      </main>
+
+          {/* Budgets Container Card */}
+          <div className="budget-list-card card">
+            <div className="card-header">
+              <h2 className="card-title">Mis Presupuestos</h2>
+            </div>
+            <div className="card-body">
+              <div className="categories-grid" id="budgetsContainer">
+                {budgets.length === 0 ? (
+                  <div className="empty-state">
+                    <i className="fas fa-file-invoice-dollar" style={{ fontSize: '2rem', marginBottom: '12px' }}></i>
+                    <p>No hay presupuestos creados</p>
+                  </div>
+                ) : (
+                  budgets.map((budget) => (
+                    <BudgetCard
+                      key={budget.id}
+                      budget={budget}
+                      categories={categories}
+                      currencySymbol={currencySymbol}
+                      onEdit={(b) => {
+                        setEditingBudget(b);
+                        setIsModalOpen(true);
+                      }}
+                      onDelete={(id) => setConfirmDeleteId(id)}
+                    />
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <MobileNav onOpenCreateModal={() => setIsModalOpen(true)} />
       <MobileDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />

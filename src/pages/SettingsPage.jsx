@@ -7,20 +7,6 @@ import Sidebar from '../components/layout/Sidebar';
 import MobileNav from '../components/layout/MobileNav';
 import MobileDrawer from '../components/layout/MobileDrawer';
 import CustomAlert from '../components/common/CustomAlert';
-import { 
-  User, 
-  Settings, 
-  Sun, 
-  Moon, 
-  Download, 
-  Upload, 
-  Trash2, 
-  ShieldCheck, 
-  Mail, 
-  Check, 
-  FileText,
-  DollarSign
-} from 'lucide-react';
 import { exportToJSON, exportToPDF } from '../services/exportService';
 import { checkGmailStatus, disconnectGmail, getGmailAuthUrl } from '../services/gmailService';
 
@@ -83,244 +69,184 @@ export default function SettingsPage() {
   const displayEmail = isGuest ? 'Sin cuenta registrada (Modo Invitado)' : user?.email || '';
 
   return (
-    <div className="min-h-screen bg-dark text-light flex">
-      <Sidebar />
+    <div className="settings-page">
+      <div className="app-container">
+        <Sidebar />
 
-      <main className="flex-1 md:ml-64 p-4 md:p-8 pb-24 md:pb-8 max-w-4xl mx-auto w-full">
-        <Header
-          title="Configuración"
-          onOpenDrawer={() => setIsDrawerOpen(true)}
-        />
+        <div className="main-content">
+          <Header
+            title="Configuración"
+            onOpenDrawer={() => setIsDrawerOpen(true)}
+          />
 
-        <div className="space-y-6">
-          {/* Profile Card */}
-          <div className="card-glass p-6 flex items-center gap-4">
-            <div className="w-16 h-16 rounded-2xl bg-primary/20 text-primary flex items-center justify-center text-2xl font-bold">
-              {displayName.charAt(0).toUpperCase()}
-            </div>
-            <div className="min-w-0 flex-1">
-              <h2 className="font-bold text-base text-light">{displayName}</h2>
-              <p className="text-xs text-gray">{displayEmail}</p>
-              <div className="flex items-center gap-2 mt-2">
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-success/15 text-success">
-                  {isGuest ? 'Invitado Local' : 'Cuenta Activa'}
-                </span>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-secondary/15 text-secondary flex items-center gap-1">
-                  <ShieldCheck className="w-3 h-3" /> CASA AL1 Protegido
-                </span>
+          <div className="config-grid">
+            {/* Profile Card */}
+            <article className="config-card profile-card">
+              <div className="profile-main" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <div className="profile-avatar-large" id="profileAvatarLarge" style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'var(--primary)', color: '#191724', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '1.4rem' }}>
+                  {displayName.charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <p className="profile-name" id="profileName" style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>{displayName}</p>
+                  <p className="profile-email" id="profileEmail" style={{ color: 'var(--gray)', fontSize: '0.85rem' }}>{displayEmail}</p>
+                  <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+                    <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '12px', background: 'rgba(45,149,123,0.15)', color: '#2D957B', fontWeight: 'bold' }}>
+                      {isGuest ? 'Invitado Local' : 'Cuenta Activa'}
+                    </span>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
+            </article>
 
-          {/* Preferences Form */}
-          <form onSubmit={handleSavePreferences} className="card-glass p-6 space-y-5">
-            <h3 className="font-bold text-sm text-light flex items-center gap-2 border-b border-white/5 pb-3">
-              <Settings className="w-4 h-4 text-primary" />
-              <span>Preferencias de Moneda y Formato</span>
-            </h3>
+            {/* Preferences Form */}
+            <article className="config-card preferences-card">
+              <h2 className="card-title">Preferencias Generales</h2>
+              <form onSubmit={handleSavePreferences} className="settings-form" style={{ marginTop: '16px' }}>
+                <div className="settings-section">
+                  <div className="settings-section-header" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold', marginBottom: '16px' }}>
+                    <i className="fas fa-palette" style={{ color: 'var(--primary)' }}></i>
+                    <span>Visualización y Formato</span>
+                  </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-semibold text-gray uppercase mb-2">
-                  Moneda Principal
-                </label>
-                <select
-                  value={selectedCurrency}
-                  onChange={(e) => {
-                    setSelectedCurrency(e.target.value);
-                    const found = CURRENCIES.find((c) => c.code === e.target.value);
-                    if (found) setCurrencySymbol(found.symbol);
+                  <div className="form-group" style={{ marginBottom: '16px' }}>
+                    <label>Moneda Principal</label>
+                    <select
+                      className="form-control"
+                      value={selectedCurrency}
+                      onChange={(e) => {
+                        setSelectedCurrency(e.target.value);
+                        const found = CURRENCIES.find((c) => c.code === e.target.value);
+                        if (found) setCurrencySymbol(found.symbol);
+                      }}
+                    >
+                      {CURRENCIES.map((c) => (
+                        <option key={c.code} value={c.code}>{c.label}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="form-group" style={{ marginBottom: '16px' }}>
+                    <label>Símbolo de Moneda</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={currencySymbol}
+                      onChange={(e) => setCurrencySymbol(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="form-group" style={{ marginBottom: '16px' }}>
+                    <label>Tema Visual</label>
+                    <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
+                      <button
+                        type="button"
+                        className={`btn ${theme === 'dark' ? 'btn-primary' : 'btn-secondary'}`}
+                        onClick={() => setTheme('dark')}
+                      >
+                        <i className="fas fa-moon"></i> Oscuro (Rosé Pine)
+                      </button>
+                      <button
+                        type="button"
+                        className={`btn ${theme === 'light' ? 'btn-primary' : 'btn-secondary'}`}
+                        onClick={() => setTheme('light')}
+                      >
+                        <i className="fas fa-sun"></i> Claro
+                      </button>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '20px' }}>
+                    {saveSuccess && (
+                      <span style={{ color: '#2D957B', fontSize: '0.85rem', fontWeight: 'bold' }}>
+                        <i className="fas fa-check"></i> Preferencias guardadas
+                      </span>
+                    )}
+                    <button type="submit" className="btn btn-primary" style={{ marginLeft: 'auto' }}>
+                      Guardar Preferencias
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </article>
+
+            {/* Integrations (Gmail) */}
+            <article className="config-card">
+              <h2 className="card-title">
+                <i className="fas fa-envelope" style={{ color: '#f6c177' }}></i> Sincronización Bancaria con Gmail
+              </h2>
+              <p style={{ fontSize: '0.85rem', color: 'var(--gray)', margin: '12px 0', lineHeight: 1.5 }}>
+                Detecta automáticamente transferencias y compras en tus correos de notificaciones bancarias de forma privada y segura.
+              </p>
+
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: gmailConnected ? '#2D957B' : 'var(--gray)' }}></span>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>
+                    {gmailConnected ? 'Conectado a Gmail' : 'No vinculado'}
+                  </span>
+                </div>
+
+                {gmailConnected ? (
+                  <button type="button" onClick={handleDisconnectGmail} className="btn btn-danger">
+                    Desconectar
+                  </button>
+                ) : (
+                  <button type="button" disabled={isGuest} onClick={handleConnectGmail} className="btn btn-primary">
+                    {isGuest ? 'Requiere cuenta' : 'Vincular Gmail'}
+                  </button>
+                )}
+              </div>
+            </article>
+
+            {/* Respaldo y Datos */}
+            <article className="config-card">
+              <h2 className="card-title">
+                <i className="fas fa-database" style={{ color: 'var(--secondary)' }}></i> Respaldo y Datos
+              </h2>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginTop: '16px' }}>
+                <button type="button" onClick={() => exportToJSON(categories, budgets, settings)} className="btn btn-secondary">
+                  <i className="fas fa-file-code"></i> Exportar JSON
+                </button>
+                <button type="button" onClick={() => exportToPDF(categories, settings)} className="btn btn-secondary">
+                  <i className="fas fa-file-pdf"></i> Reporte PDF
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const input = document.createElement('input');
+                    input.type = 'file';
+                    input.accept = '.json';
+                    input.onchange = (e) => {
+                      const file = e.target.files[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (ev) => {
+                          try {
+                            const data = JSON.parse(ev.target.result);
+                            importData(data, user?.uid, isGuest);
+                            alert('Respaldo restaurado con éxito');
+                          } catch (_) {
+                            alert('Archivo JSON inválido');
+                          }
+                        };
+                        reader.readAsText(file);
+                      }
+                    };
+                    input.click();
                   }}
-                  className="w-full bg-input-bg border border-white/10 rounded-xl px-4 py-2.5 text-sm text-light focus:outline-none focus:border-primary cursor-pointer"
+                  className="btn btn-secondary"
                 >
-                  {CURRENCIES.map((c) => (
-                    <option key={c.code} value={c.code}>{c.label}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-gray uppercase mb-2">
-                  Símbolo de Moneda
-                </label>
-                <input
-                  type="text"
-                  value={currencySymbol}
-                  onChange={(e) => setCurrencySymbol(e.target.value)}
-                  className="w-full bg-input-bg border border-white/10 rounded-xl px-4 py-2.5 text-sm text-light focus:outline-none focus:border-primary"
-                />
-              </div>
-            </div>
-
-            {/* Theme Selector */}
-            <div>
-              <label className="block text-xs font-semibold text-gray uppercase mb-2">
-                Tema Visual
-              </label>
-              <div className="grid grid-cols-2 gap-3 max-w-sm">
-                <button
-                  type="button"
-                  onClick={() => setTheme('dark')}
-                  className={`flex items-center justify-center gap-2 p-3 rounded-xl border text-xs font-medium transition-all ${
-                    theme === 'dark'
-                      ? 'border-primary bg-primary/10 text-primary font-bold shadow-neon-primary'
-                      : 'border-white/5 bg-white/5 text-gray hover:text-light'
-                  }`}
-                >
-                  <Moon className="w-4 h-4 icon-moon" />
-                  <span>Oscuro (Rosé Pine)</span>
+                  <i className="fas fa-file-import"></i> Importar Respaldo
                 </button>
-
-                <button
-                  type="button"
-                  onClick={() => setTheme('light')}
-                  className={`flex items-center justify-center gap-2 p-3 rounded-xl border text-xs font-medium transition-all ${
-                    theme === 'light'
-                      ? 'border-primary bg-primary/10 text-primary font-bold shadow-neon-primary'
-                      : 'border-white/5 bg-white/5 text-gray hover:text-light'
-                  }`}
-                >
-                  <Sun className="w-4 h-4 icon-sun" />
-                  <span>Claro</span>
+                <button type="button" onClick={() => setIsConfirmResetOpen(true)} className="btn btn-danger">
+                  <i className="fas fa-trash"></i> Borrar Todo
                 </button>
               </div>
-            </div>
-
-            <div className="flex items-center justify-between pt-4 border-t border-white/5">
-              {saveSuccess && (
-                <span className="text-xs text-success flex items-center gap-1.5 font-medium animate-fade-in">
-                  <Check className="w-4 h-4" /> Preferencias guardadas
-                </span>
-              )}
-              <div className="ml-auto">
-                <button type="submit" className="btn-neon-primary text-xs px-4 py-2">
-                  Guardar Preferencias
-                </button>
-              </div>
-            </div>
-          </form>
-
-          {/* Integrations (Gmail) */}
-          <div className="card-glass p-6 space-y-4">
-            <h3 className="font-bold text-sm text-light flex items-center gap-2 border-b border-white/5 pb-3">
-              <Mail className="w-4 h-4 text-warning" />
-              <span>Sincronización Bancaria con Gmail</span>
-            </h3>
-
-            <p className="text-xs text-gray leading-relaxed">
-              Detecta automáticamente transferencias y compras en tus correos de notificaciones bancarias de forma privada y encriptada (CASA AL1).
-            </p>
-
-            <div className="flex items-center justify-between pt-2">
-              <div className="flex items-center gap-2">
-                <span className={`w-2.5 h-2.5 rounded-full ${gmailConnected ? 'bg-success' : 'bg-gray'}`} />
-                <span className="text-xs font-semibold text-light">
-                  {gmailConnected ? 'Conectado a Gmail' : 'No vinculado'}
-                </span>
-              </div>
-
-              {gmailConnected ? (
-                <button
-                  type="button"
-                  onClick={handleDisconnectGmail}
-                  className="btn-secondary-custom text-xs text-danger hover:border-danger px-3 py-1.5"
-                >
-                  Desconectar
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  disabled={isGuest}
-                  onClick={handleConnectGmail}
-                  className="btn-neon-primary text-xs px-3 py-1.5 disabled:opacity-50"
-                  title={isGuest ? 'Inicia sesión para vincular Gmail' : ''}
-                >
-                  {isGuest ? 'Requiere cuenta' : 'Vincular Gmail'}
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Backup and Data Management */}
-          <div className="card-glass p-6 space-y-4">
-            <h3 className="font-bold text-sm text-light flex items-center gap-2 border-b border-white/5 pb-3">
-              <Download className="w-4 h-4 text-secondary" />
-              <span>Respaldo y Seguridad de Datos</span>
-            </h3>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={() => exportToJSON(categories, budgets, settings)}
-                className="btn-secondary-custom text-xs justify-start p-3"
-              >
-                <Download className="w-4 h-4 text-secondary" />
-                <div className="text-left">
-                  <p className="font-semibold text-light">Exportar JSON</p>
-                  <p className="text-[10px] text-gray">Copia de seguridad completa</p>
-                </div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => exportToPDF(categories, settings)}
-                className="btn-secondary-custom text-xs justify-start p-3"
-              >
-                <FileText className="w-4 h-4 text-primary" />
-                <div className="text-left">
-                  <p className="font-semibold text-light">Reporte PDF</p>
-                  <p className="text-[10px] text-gray">Documento imprimible con tablas</p>
-                </div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  const input = document.createElement('input');
-                  input.type = 'file';
-                  input.accept = '.json';
-                  input.onchange = (e) => {
-                    const file = e.target.files[0];
-                    if (file) {
-                      const reader = new FileReader();
-                      reader.onload = (ev) => {
-                        try {
-                          const data = JSON.parse(ev.target.result);
-                          importData(data, user?.uid, isGuest);
-                          alert('Respaldo restaurado con éxito');
-                        } catch (_) {
-                          alert('Archivo JSON inválido');
-                        }
-                      };
-                      reader.readAsText(file);
-                    }
-                  };
-                  input.click();
-                }}
-                className="btn-secondary-custom text-xs justify-start p-3"
-              >
-                <Upload className="w-4 h-4 text-accent" />
-                <div className="text-left">
-                  <p className="font-semibold text-light">Importar Respaldo</p>
-                  <p className="text-[10px] text-gray">Restaurar datos desde archivo</p>
-                </div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setIsConfirmResetOpen(true)}
-                className="btn-secondary-custom text-xs justify-start p-3 text-danger hover:border-danger"
-              >
-                <Trash2 className="w-4 h-4 icon-trash" />
-                <div className="text-left">
-                  <p className="font-semibold text-danger">Borrar Todos los Datos</p>
-                  <p className="text-[10px] text-gray">Limpieza completa de cuenta</p>
-                </div>
-              </button>
-            </div>
+            </article>
           </div>
         </div>
-      </main>
+      </div>
 
       <MobileNav />
       <MobileDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />

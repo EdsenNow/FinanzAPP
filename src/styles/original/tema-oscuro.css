@@ -1,0 +1,13 @@
+[data-theme="dark"] {
+  --card-bg: #1f1d2e;
+}
+
+[data-theme="dark"] .gmail-notif-panel {
+  background: #1f1d2e;
+}
+
+[data-theme="dark"] .gmail-notif-empty,
+[data-theme="dark"] .gmail-notif-detail,
+[data-theme="dark"] .gmail-notif-date {
+  color: #908caa;
+}

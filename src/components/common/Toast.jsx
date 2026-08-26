@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import { RotateCcw } from 'lucide-react';
 
 export default function Toast({ message, onUndo, onClose, duration = 6000 }) {
   useEffect(() => {
@@ -13,8 +12,8 @@ export default function Toast({ message, onUndo, onClose, duration = 6000 }) {
   if (!message) return null;
 
   return (
-    <div className="fixed bottom-20 md:bottom-6 right-6 z-50 flex items-center gap-4 bg-[#26233a] border border-primary/30 text-light px-4 py-3 rounded-xl shadow-2xl animate-slide-up">
-      <span className="text-sm font-medium">{message}</span>
+    <div className="toast-notification show" id="toastNotification" style={{ display: 'flex' }}>
+      <span className="toast-message">{message}</span>
       {onUndo && (
         <button
           type="button"
@@ -22,10 +21,17 @@ export default function Toast({ message, onUndo, onClose, duration = 6000 }) {
             onUndo();
             if (onClose) onClose();
           }}
-          className="text-xs font-semibold text-primary hover:text-primary-light flex items-center gap-1.5 transition-colors uppercase tracking-wider"
+          className="toast-undo-btn"
+          style={{
+            background: 'none',
+            border: 'none',
+            color: 'var(--primary)',
+            fontWeight: 'bold',
+            cursor: 'pointer',
+            marginLeft: '12px'
+          }}
         >
-          <RotateCcw className="w-3.5 h-3.5" />
-          Deshacer
+          <i className="fas fa-undo"></i> Deshacer
         </button>
       )}
     </div>

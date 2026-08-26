@@ -1,15 +1,5 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  Wallet, 
-  PieChart, 
-  Settings, 
-  Sun, 
-  Moon, 
-  LogOut,
-  Sparkles
-} from 'lucide-react';
 import { useAuthStore } from '../../stores/useAuthStore';
 import { useThemeStore } from '../../stores/useThemeStore';
 
@@ -23,90 +13,85 @@ export default function Sidebar() {
     navigate('/login');
   };
 
-  const navItems = [
-    { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { to: '/presupuestos', label: 'Presupuesto', icon: Wallet },
-    { to: '/estadisticas', label: 'Estadística', icon: PieChart },
-    { to: '/configuracion', label: 'Configuración', icon: Settings },
-  ];
-
   const displayName = isGuest ? 'Invitado' : user?.displayName || user?.email?.split('@')[0] || 'Usuario';
   const displayEmail = isGuest ? 'Modo sin cuenta' : user?.email || '';
   const initial = displayName.charAt(0).toUpperCase();
 
   return (
-    <aside className="hidden md:flex flex-col w-64 h-screen fixed left-0 top-0 bg-sidebar-bg border-r border-white/5 z-30 select-none">
-      {/* Brand Header */}
-      <div className="flex items-center gap-3 px-6 py-6 border-b border-white/5">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary to-accent flex items-center justify-center text-dark shadow-neon-primary">
-          <Sparkles className="w-5 h-5 text-dark" />
-        </div>
-        <div>
-          <h1 className="font-bold text-base tracking-tight text-light">FinanzApp</h1>
-          <span className="text-[11px] text-gray uppercase tracking-widest font-medium">Finanzas</span>
+    <div className="sidebar" id="sidebar">
+      <div className="sidebar-header">
+        <div className="logo">
+          <div className="logo-icon">
+            <i className="fas fa-wallet"></i>
+          </div>
+          <span className="logo-text">FinanzApp</span>
         </div>
       </div>
 
-      {/* Navigation Links */}
-      <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          return (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              className={({ isActive }) =>
-                `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all group ${
-                  isActive
-                    ? 'bg-primary/10 text-primary font-semibold border-l-4 border-primary'
-                    : 'text-gray hover:text-light hover:bg-white/5'
-                }`
-              }
-            >
-              <Icon className="w-5 h-5 transition-transform group-hover:scale-110" />
-              <span>{item.label}</span>
-            </NavLink>
-          );
-        })}
-      </nav>
+      <div className="nav-links">
+        <NavLink
+          to="/dashboard"
+          className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+        >
+          <i className="fas fa-home"></i>
+          <span>Dashboard</span>
+        </NavLink>
+        <NavLink
+          to="/presupuestos"
+          className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+        >
+          <i className="fas fa-wallet"></i>
+          <span>Presupuestos</span>
+        </NavLink>
+        <NavLink
+          to="/estadisticas"
+          className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+        >
+          <i className="fas fa-chart-pie"></i>
+          <span>Estadísticas</span>
+        </NavLink>
+        <NavLink
+          to="/configuracion"
+          className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+        >
+          <i className="fas fa-cog"></i>
+          <span>Configuración</span>
+        </NavLink>
+      </div>
 
-      {/* User Profile & Theme/Logout Controls */}
-      <div className="p-4 border-t border-white/5">
-        <div className="flex items-center justify-between p-2 rounded-xl bg-white/5">
-          <div className="flex items-center gap-3 min-w-0">
+      <div className="sidebar-footer">
+        <div className="user-profile">
+          <div className="user-avatar">
             {user?.photoURL ? (
-              <img src={user.photoURL} alt={displayName} className="w-8 h-8 rounded-full object-cover" />
+              <img src={user.photoURL} alt={displayName} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
             ) : (
-              <div className="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-bold">
-                {initial}
-              </div>
+              initial
             )}
-            <div className="min-w-0">
-              <p className="text-xs font-semibold text-light truncate">{displayName}</p>
-              <p className="text-[10px] text-gray truncate">{displayEmail}</p>
-            </div>
           </div>
-
-          <div className="flex items-center gap-1">
-            <button
-              type="button"
-              onClick={toggleTheme}
-              className="p-1.5 rounded-lg text-gray hover:text-light hover:bg-white/5 transition-colors"
-              title="Cambiar tema"
-            >
-              {theme === 'dark' ? <Sun className="w-4 h-4 icon-sun" /> : <Moon className="w-4 h-4 icon-moon" />}
-            </button>
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="p-1.5 rounded-lg text-gray hover:text-danger hover:bg-danger/10 transition-colors"
-              title="Cerrar sesión"
-            >
-              <LogOut className="w-4 h-4 icon-logout" />
-            </button>
+          <div className="user-info" id="userInfoHover">
+            <div className="user-name">{displayName}</div>
+            <div className="user-email">{displayEmail}</div>
           </div>
+          <button
+            type="button"
+            className="btn btn-icon app-tooltip"
+            id="themeToggle"
+            title="Cambiar tema"
+            onClick={toggleTheme}
+          >
+            <i className={theme === 'dark' ? "fas fa-sun" : "fas fa-moon"}></i>
+          </button>
+          <button
+            type="button"
+            className="btn btn-icon app-tooltip"
+            id="logoutButton"
+            title="Cerrar sesión"
+            onClick={handleLogout}
+          >
+            <i className="fas fa-sign-out-alt"></i>
+          </button>
         </div>
       </div>
-    </aside>
+    </div>
   );
 }

@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-import Modal from './Modal';
-import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 
 const MONTH_NAMES = [
   'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
@@ -13,6 +11,8 @@ export default function DatePickerModal({ isOpen, onClose, selectedDate, onSelec
   const [currentMonth, setCurrentMonth] = useState(initial.getMonth());
   const [currentYear, setCurrentYear] = useState(initial.getFullYear());
   const [tempDate, setTempDate] = useState(selectedDate || new Date().toISOString().slice(0, 10));
+
+  if (!isOpen) return null;
 
   const prevMonth = () => {
     if (currentMonth === 0) {
@@ -65,87 +65,90 @@ export default function DatePickerModal({ isOpen, onClose, selectedDate, onSelec
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={<><Calendar className="w-5 h-5 text-primary" /> Seleccionar Fecha</>} maxWidth="max-w-sm">
-      <div className="space-y-4">
-        {/* Header navigation */}
-        <div className="flex items-center justify-between px-2">
-          <button
-            type="button"
-            onClick={prevMonth}
-            className="p-1.5 rounded-lg text-gray hover:text-light hover:bg-white/5 transition-colors"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-          <span className="font-semibold text-sm text-light">
-            {MONTH_NAMES[currentMonth]} {currentYear}
-          </span>
-          <button
-            type="button"
-            onClick={nextMonth}
-            className="p-1.5 rounded-lg text-gray hover:text-light hover:bg-white/5 transition-colors"
-          >
-            <ChevronRight className="w-5 h-5" />
-          </button>
+    <div
+      className="modal show"
+      id="datePickerModal"
+      role="dialog"
+      aria-modal="true"
+      style={{ display: 'flex' }}
+      onClick={(e) => {
+        if (e.target.classList.contains('modal')) onClose();
+      }}
+    >
+      <div className="modal-content" style={{ maxWidth: '380px' }} onClick={(e) => e.stopPropagation()}>
+        <div className="modal-header">
+          <h2 className="modal-title">
+            <i className="fas fa-calendar-alt"></i> Seleccionar Fecha
+          </h2>
         </div>
 
-        {/* Weekdays */}
-        <div className="grid grid-cols-7 gap-1 text-center text-xs font-semibold text-gray">
-          {WEEK_DAYS.map((wd) => (
-            <div key={wd} className="py-1">{wd}</div>
-          ))}
+        <div className="modal-body">
+          {/* Header navigation */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+            <button type="button" onClick={prevMonth} className="btn-icon">
+              <i className="fas fa-chevron-left"></i>
+            </button>
+            <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>
+              {MONTH_NAMES[currentMonth]} {currentYear}
+            </span>
+            <button type="button" onClick={nextMonth} className="btn-icon">
+              <i className="fas fa-chevron-right"></i>
+            </button>
+          </div>
+
+          {/* Weekdays */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', textAlign: 'center', fontSize: '0.75rem', fontWeight: 600, opacity: 0.7, marginBottom: '6px' }}>
+            {WEEK_DAYS.map((wd) => (
+              <div key={wd}>{wd}</div>
+            ))}
+          </div>
+
+          {/* Days grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '4px', textAlign: 'center' }}>
+            {days.map((item, idx) => {
+              const isSelected = item.dateStr === tempDate;
+              return (
+                <button
+                  key={idx}
+                  type="button"
+                  disabled={!item.isCurrentMonth}
+                  onClick={() => item.dateStr && handleSelectDay(item.dateStr)}
+                  style={{
+                    height: '34px',
+                    width: '34px',
+                    margin: 'auto',
+                    borderRadius: '8px',
+                    border: 'none',
+                    fontSize: '0.8rem',
+                    cursor: item.isCurrentMonth ? 'pointer' : 'default',
+                    opacity: item.isCurrentMonth ? 1 : 0.25,
+                    backgroundColor: isSelected ? 'var(--primary)' : 'transparent',
+                    color: isSelected ? '#191724' : 'inherit',
+                    fontWeight: isSelected ? 'bold' : 'normal',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  {item.day}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
-        {/* Days grid */}
-        <div className="grid grid-cols-7 gap-1 text-center text-sm">
-          {days.map((item, idx) => {
-            const isSelected = item.dateStr === tempDate;
-            return (
-              <button
-                key={idx}
-                type="button"
-                disabled={!item.isCurrentMonth}
-                onClick={() => item.dateStr && handleSelectDay(item.dateStr)}
-                className={`h-9 w-9 mx-auto flex items-center justify-center rounded-lg text-xs font-medium transition-all ${
-                  !item.isCurrentMonth
-                    ? 'text-gray/30 opacity-40 cursor-default'
-                    : isSelected
-                    ? 'bg-primary text-dark font-bold shadow-neon-primary'
-                    : 'text-light hover:bg-white/5 hover:text-primary'
-                }`}
-              >
-                {item.day}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Footer buttons */}
-        <div className="flex items-center justify-between pt-4 border-t border-white/5 gap-2">
-          <button
-            type="button"
-            onClick={handleToday}
-            className="btn-secondary-custom text-xs px-3 py-1.5"
-          >
+        <div className="modal-footer" style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <button type="button" onClick={handleToday} className="btn btn-secondary">
             Hoy
           </button>
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="btn-secondary-custom text-xs px-3 py-1.5"
-            >
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button type="button" onClick={onClose} className="btn btn-secondary">
               Cancelar
             </button>
-            <button
-              type="button"
-              onClick={handleConfirm}
-              className="btn-neon-primary text-xs px-3 py-1.5"
-            >
+            <button type="button" onClick={handleConfirm} className="btn btn-primary">
               Seleccionar
             </button>
           </div>
         </div>
       </div>
-    </Modal>
+    </div>
   );
 }

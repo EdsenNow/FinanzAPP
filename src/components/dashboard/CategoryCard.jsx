@@ -1,18 +1,4 @@
 import React, { useState } from 'react';
-import { 
-  Pin, 
-  MoreVertical, 
-  Trash2, 
-  Edit2, 
-  Eraser, 
-  Plus, 
-  Calendar, 
-  ArrowUp, 
-  ArrowDown, 
-  ChevronLeft, 
-  ChevronRight,
-  GripVertical
-} from 'lucide-react';
 import DatePickerModal from '../common/DatePickerModal';
 import { formatCurrency, parseTransactionDate } from '../../services/dataCalculations';
 
@@ -86,213 +72,249 @@ export default function CategoryCard({
   };
 
   return (
-    <div className="card-glass p-5 flex flex-col justify-between relative group transition-all">
+    <div className={`category-card fade-in ${category.isPinned ? 'pinned' : ''}`}>
       {/* Category Header */}
-      <div className="flex items-center justify-between pb-3 border-b border-white/5 relative">
-        <div className="flex items-center gap-2 min-w-0">
-          <button
-            type="button"
-            onClick={() => onTogglePin(category.id)}
-            className={`p-1 rounded-lg transition-colors ${
-              category.isPinned ? 'text-primary bg-primary/10' : 'text-gray hover:text-light'
-            }`}
-            title={category.isPinned ? 'Desanclar' : 'Anclar'}
-          >
-            <Pin className={`w-4 h-4 ${category.isPinned ? 'fill-primary' : ''}`} />
-          </button>
-          <h3 className="font-bold text-sm text-light truncate" title={category.name}>
-            {category.name}
-          </h3>
-          {category.fixedType !== 'free' && (
-            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${
-              category.fixedType === 'income' ? 'bg-success/15 text-success' : 'bg-danger/15 text-danger'
-            }`}>
-              {category.fixedType === 'income' ? 'Ingreso' : 'Gasto'}
-            </span>
-          )}
+      <div className="category-header">
+        <button
+          className="category-drag-handle btn-icon"
+          type="button"
+          title="Arrastrar para reordenar"
+          aria-label="Arrastrar para reordenar"
+          disabled={category.isPinned}
+        >
+          <i className="fas fa-grip-lines" aria-hidden="true"></i>
+        </button>
+
+        <div className="category-name" title={category.name}>
+          {category.name}
         </div>
 
-        {/* Header Totals & Options Menu */}
-        <div className="flex items-center gap-2">
-          <div className="text-right">
-            <span className="text-xs font-bold text-light">
-              {category.fixedType === 'income' 
-                ? formatCurrency(catIncome, currencySymbol)
-                : formatCurrency(catExpenses || catIncome, currencySymbol)}
-            </span>
-          </div>
+        <div className="category-menu-wrapper">
+          <button
+            className="category-menu-btn btn-icon"
+            type="button"
+            title="Opciones"
+            aria-label="Opciones de categoría"
+            onClick={() => setShowMenu(!showMenu)}
+          >
+            <i className="fas fa-ellipsis-v" aria-hidden="true"></i>
+          </button>
 
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setShowMenu(!showMenu)}
-              className="p-1 rounded-lg text-gray hover:text-light hover:bg-white/5 transition-colors"
-              aria-label="Opciones de categoría"
-            >
-              <MoreVertical className="w-4 h-4" />
-            </button>
-
-            {showMenu && (
-              <>
-                <div className="fixed inset-0 z-10" onClick={() => setShowMenu(false)} />
-                <div className="absolute right-0 top-full mt-1 w-44 bg-[#1f1d2e] border border-white/10 rounded-xl shadow-2xl py-1.5 z-20 text-xs">
-                  <button
-                    type="button"
-                    onClick={() => { setShowMenu(false); onEditCategory(category); }}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-light hover:bg-white/5 transition-colors"
-                  >
-                    <Edit2 className="w-3.5 h-3.5 text-accent" />
-                    <span>Editar categoría</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => { setShowMenu(false); onClearTransactions(category.id); }}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-warning hover:bg-white/5 transition-colors"
-                  >
-                    <Eraser className="w-3.5 h-3.5" />
-                    <span>Vaciar movimientos</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => { setShowMenu(false); onDeleteCategory(category.id); }}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-danger hover:bg-danger/10 transition-colors"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                    <span>Eliminar categoría</span>
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
+          {showMenu && (
+            <div className="category-menu active" id={`category-menu-${category.id}`}>
+              <button
+                className={`category-menu-item ${category.isPinned ? 'pin-on' : ''}`}
+                type="button"
+                onClick={() => { setShowMenu(false); onTogglePin(category.id); }}
+              >
+                <i className="fas fa-thumbtack"></i>
+                {category.isPinned ? 'Desfijar' : 'Fijar categoría'}
+              </button>
+              <button
+                className="category-menu-item"
+                type="button"
+                onClick={() => { setShowMenu(false); onEditCategory(category); }}
+              >
+                <i className="fas fa-edit"></i>
+                Renombrar
+              </button>
+              <button
+                className="category-menu-item"
+                type="button"
+                onClick={() => { setShowMenu(false); onClearTransactions(category.id); }}
+              >
+                <i className="fas fa-eraser"></i>
+                Limpiar transacciones
+              </button>
+              <button
+                className="category-menu-item danger"
+                type="button"
+                onClick={() => { setShowMenu(false); onDeleteCategory(category.id); }}
+              >
+                <i className="fas fa-trash"></i>
+                Eliminar categoría
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Quick Add Form */}
-      <form onSubmit={handleQuickAdd} className="my-4 space-y-2.5">
-        <div className="flex gap-2">
-          {category.fixedType === 'free' && (
-            <button
-              type="button"
-              onClick={() => setType(type === 'expense' ? 'income' : 'expense')}
-              className={`px-2.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shrink-0 ${
-                type === 'income' ? 'bg-success/15 text-success' : 'bg-danger/15 text-danger'
-              }`}
-              title="Cambiar tipo (Ingreso/Gasto)"
-            >
-              {type === 'income' ? <ArrowUp className="w-3.5 h-3.5 icon-arrow-up" /> : <ArrowDown className="w-3.5 h-3.5 icon-arrow-down" />}
-              <span>{type === 'income' ? '+' : '-'}</span>
-            </button>
-          )}
-
-          <input
-            type="number"
-            step="0.01"
-            required
-            min="0.01"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            placeholder="Monto..."
-            className="flex-1 min-w-[80px] bg-input-bg border border-white/10 rounded-xl px-3 py-2 text-xs text-light placeholder-gray/50 focus:outline-none focus:border-primary"
-          />
-
-          <button
-            type="button"
-            onClick={() => setIsDatePickerOpen(true)}
-            className="p-2 rounded-xl bg-input-bg border border-white/10 text-gray hover:text-light shrink-0"
-            title="Cambiar fecha"
-          >
-            <Calendar className="w-4 h-4 text-primary" />
-          </button>
-
-          <button
-            type="submit"
-            className="w-8 h-8 rounded-xl bg-primary text-dark flex items-center justify-center font-bold shadow-neon-primary hover:scale-105 active:scale-95 transition-transform shrink-0"
-            aria-label="Agregar transacción"
-          >
-            <Plus className="w-4 h-4 icon-plus" />
-          </button>
-        </div>
-
-        <input
-          type="text"
-          value={desc}
-          onChange={(e) => setDesc(e.target.value)}
-          placeholder="Descripción (opcional)..."
-          className="w-full bg-input-bg border border-white/10 rounded-xl px-3 py-1.5 text-xs text-light placeholder-gray/50 focus:outline-none focus:border-primary"
-        />
-      </form>
-
-      {/* Transactions List */}
-      <div className="flex-1 min-h-[140px] flex flex-col justify-between">
-        {paginatedTxs.length === 0 ? (
-          <div className="flex-1 flex flex-col items-center justify-center py-6 text-gray text-xs">
-            <span>Sin movimientos registrados</span>
-          </div>
-        ) : (
-          <div className="space-y-1.5">
-            {paginatedTxs.map((tx) => (
-              <div
-                key={tx.id}
-                className="flex items-center justify-between p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors group/item text-xs"
-              >
-                <div className="min-w-0 flex-1 pr-2">
-                  <p className="text-light font-medium truncate">{tx.desc || tx.description || 'Sin descripción'}</p>
-                  <span className="text-[10px] text-gray">{tx.date}</span>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <span className={`font-bold ${tx.type === 'income' ? 'text-success' : 'text-danger'}`}>
-                    {tx.type === 'income' ? '+' : '-'}{formatCurrency(tx.amount, currencySymbol)}
-                  </span>
-
-                  <div className="hidden group-hover/item:flex items-center gap-1">
-                    <button
-                      type="button"
-                      onClick={() => onEditTransaction(category.id, tx)}
-                      className="p-1 text-gray hover:text-accent"
-                      title="Editar"
-                    >
-                      <Edit2 className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => onDeleteTransaction(category.id, tx.id)}
-                      className="p-1 text-gray hover:text-danger"
-                      title="Eliminar"
-                    >
-                      <Trash2 className="w-3.5 h-3.5 icon-trash" />
-                    </button>
-                  </div>
-                </div>
+      {/* Category Stats */}
+      <div className="category-stats alt">
+        <div className="ie-summary">
+          {category.fixedType === 'income' ? (
+            <div className="amount-chip income" title={`Ingresos: ${formatCurrency(catIncome, currencySymbol)}`}>
+              <i className="fas fa-arrow-up" aria-hidden="true"></i>
+              <span>{formatCurrency(catIncome, currencySymbol)}</span>
+            </div>
+          ) : category.fixedType === 'expense' ? (
+            <div className="amount-chip expense" title={`Gastos: ${formatCurrency(catExpenses, currencySymbol)}`}>
+              <i className="fas fa-arrow-down" aria-hidden="true"></i>
+              <span>{formatCurrency(catExpenses, currencySymbol)}</span>
+            </div>
+          ) : (
+            <>
+              <div className="amount-chip income" title={`Ingresos: ${formatCurrency(catIncome, currencySymbol)}`}>
+                <i className="fas fa-arrow-up" aria-hidden="true"></i>
+                <span>{formatCurrency(catIncome, currencySymbol)}</span>
               </div>
-            ))}
-          </div>
-        )}
+              <div className="amount-chip expense" title={`Gastos: ${formatCurrency(catExpenses, currencySymbol)}`}>
+                <i className="fas fa-arrow-down" aria-hidden="true"></i>
+                <span>{formatCurrency(catExpenses, currencySymbol)}</span>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
 
-        {/* Pagination controls */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between pt-3 mt-2 border-t border-white/5 text-xs text-gray">
-            <span>Página {currentPage} de {totalPages}</span>
-            <div className="flex items-center gap-1">
+      {/* Category Details */}
+      <div className="category-details">
+        <form className="transaction-form" onSubmit={handleQuickAdd}>
+          {category.fixedType === 'free' && (
+            <div className="category-type-selector" style={{ marginBottom: '8px' }}>
               <button
                 type="button"
-                disabled={currentPage <= 1}
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                className="p-1 rounded bg-white/5 disabled:opacity-30 hover:text-light"
+                className={`type-btn ${type === 'income' ? 'active income' : ''}`}
+                onClick={() => setType('income')}
               >
-                <ChevronLeft className="w-3.5 h-3.5" />
+                <i className="fas fa-arrow-up"></i> Ingreso
               </button>
               <button
                 type="button"
-                disabled={currentPage >= totalPages}
-                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                className="p-1 rounded bg-white/5 disabled:opacity-30 hover:text-light"
+                className={`type-btn ${type === 'expense' ? 'active expense' : ''}`}
+                onClick={() => setType('expense')}
               >
-                <ChevronRight className="w-3.5 h-3.5" />
+                <i className="fas fa-arrow-down"></i> Gasto
+              </button>
+            </div>
+          )}
+
+          <div className="form-group">
+            <input
+              type="number"
+              step="0.01"
+              required
+              min="0.01"
+              className="form-control"
+              placeholder="Monto"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+            />
+          </div>
+
+          <div className="form-group">
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Descripción (opcional)"
+              value={desc}
+              onChange={(e) => setDesc(e.target.value)}
+            />
+          </div>
+
+          <div className="form-group">
+            <div className="date-picker-wrapper">
+              <input
+                type="text"
+                className="form-control date-picker-input"
+                value={date}
+                readOnly
+                placeholder="Seleccionar fecha"
+                onClick={() => setIsDatePickerOpen(true)}
+              />
+              <button
+                type="button"
+                className="date-picker-btn"
+                onClick={() => setIsDatePickerOpen(true)}
+              >
+                <i className="fas fa-calendar-alt"></i>
               </button>
             </div>
           </div>
-        )}
+
+          <button
+            className="btn btn-primary"
+            type="submit"
+            style={{ width: '100%' }}
+          >
+            Agregar Transacción
+          </button>
+        </form>
+
+        {/* Transaction List */}
+        <div className={`transaction-list ${paginatedTxs.length === 0 ? 'is-empty' : ''}`}>
+          {filteredTransactions.length > 0 ? (
+            <>
+              <div className="transaction-list-header">
+                <span className="transaction-count">
+                  {filteredTransactions.length} {filteredTransactions.length === 1 ? 'transacción' : 'transacciones'}
+                  {totalPages > 1 ? ` · Pág. ${currentPage}/${totalPages}` : ''}
+                </span>
+              </div>
+
+              {paginatedTxs.map((t) => (
+                <div className="transaction-item" key={t.id}>
+                  <div className="transaction-item-header">
+                    <div
+                      className={`transaction-amount ${t.type}`}
+                      title={`${t.type === 'income' ? 'Ingreso: ' : 'Gasto: '}${formatCurrency(t.amount, currencySymbol)}`}
+                    >
+                      {formatCurrency(t.amount, currencySymbol)}
+                    </div>
+                    <div className="transaction-actions">
+                      <button
+                        type="button"
+                        className="btn-icon"
+                        onClick={() => onEditTransaction(category.id, t)}
+                        title="Editar"
+                      >
+                        <i className="fas fa-edit"></i>
+                      </button>
+                      <button
+                        type="button"
+                        className="btn-icon"
+                        onClick={() => onDeleteTransaction(category.id, t.id)}
+                        title="Eliminar"
+                      >
+                        <i className="fas fa-trash"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div className="transaction-desc" title={t.desc || t.description || 'Sin descripción'}>
+                    {t.desc || t.description || 'Sin descripción'}
+                  </div>
+                  <div className="transaction-date">{t.date}</div>
+                </div>
+              ))}
+
+              {totalPages > 1 && (
+                <div className="tx-pagination">
+                  <button
+                    type="button"
+                    className="btn-icon tx-page-btn"
+                    disabled={currentPage <= 1}
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  >
+                    <i className="fas fa-chevron-left"></i>
+                  </button>
+                  <span className="tx-page-info">{currentPage} / {totalPages}</span>
+                  <button
+                    type="button"
+                    className="btn-icon tx-page-btn"
+                    disabled={currentPage >= totalPages}
+                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  >
+                    <i className="fas fa-chevron-right"></i>
+                  </button>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="empty-state">
+              <p>Sin transacciones registradas</p>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* DatePicker Modal */}
