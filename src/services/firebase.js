@@ -2,9 +2,11 @@ import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
-const firebaseConfig = window.FIREBASE_CONFIG || {
+const isLocalhost = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+
+const firebaseConfig = {
   apiKey: "AIzaSyCrOwLwoJlXyMloxNoaq13J3fvRFJcQcjg",
-  authDomain: "byfinanzapp.com",
+  authDomain: isLocalhost ? "finanzapp-fb.firebaseapp.com" : (window.location?.hostname?.includes('byfinanzapp.com') ? "byfinanzapp.com" : "finanzapp-fb.firebaseapp.com"),
   projectId: "finanzapp-fb",
   storageBucket: "finanzapp-fb.firebasestorage.app",
   messagingSenderId: "569331846575",

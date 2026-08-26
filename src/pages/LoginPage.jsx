@@ -36,6 +36,17 @@ export default function LoginPage() {
     }
   }, [user, navigate]);
 
+  const getFriendlyErrorMessage = (err) => {
+    const code = err?.code || '';
+    if (code === 'auth/popup-closed-by-user') return 'La ventana de inicio de sesión de Google fue cerrada antes de completar el acceso.';
+    if (code === 'auth/unauthorized-domain') return 'El dominio local o actual no está en la lista de dominios autorizados de Firebase.';
+    if (code === 'auth/invalid-credential' || code === 'auth/wrong-password' || code === 'auth/user-not-found') return 'Correo electrónico o contraseña incorrectos.';
+    if (code === 'auth/email-already-in-use') return 'Ya existe una cuenta registrada con este correo electrónico.';
+    if (code === 'auth/weak-password') return 'La contraseña debe tener al menos 6 caracteres.';
+    if (code === 'auth/too-many-requests') return 'Demasiados intentos fallidos. Por favor, intenta más tarde.';
+    return err?.message || 'Error durante la autenticación';
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage(null);
@@ -54,7 +65,7 @@ export default function LoginPage() {
         setSuccessMessage('Correo de recuperación enviado. Revisa tu bandeja de entrada.');
       }
     } catch (err) {
-      setErrorMessage(err.message || 'Error durante la autenticación');
+      setErrorMessage(getFriendlyErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -64,10 +75,12 @@ export default function LoginPage() {
     setErrorMessage(null);
     setLoading(true);
     try {
-      await signInWithGoogle();
-      navigate('/dashboard');
+      const user = await signInWithGoogle();
+      if (user) navigate('/dashboard');
     } catch (err) {
-      setErrorMessage(err.message || 'Error con Google Sign-In');
+      if (err.code !== 'auth/popup-closed-by-user') {
+        setErrorMessage(getFriendlyErrorMessage(err));
+      }
     } finally {
       setLoading(false);
     }

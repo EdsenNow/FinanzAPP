@@ -62,22 +62,23 @@ export const useAuthStore = create((set, get) => ({
   signInWithGoogle: async () => {
     set({ loading: true, authError: null });
     try {
-      if (isMobileOrRestrictedBrowser()) {
-        await signInWithRedirect(auth, googleProvider);
-        return;
-      }
       const res = await signInWithPopup(auth, googleProvider);
       set({ user: res.user, isGuest: false, loading: false });
       localStorage.removeItem('isGuest');
       return res.user;
     } catch (err) {
-      console.warn('Popup failed, falling back to redirect:', err);
-      try {
-        await signInWithRedirect(auth, googleProvider);
-      } catch (redirectErr) {
-        set({ authError: redirectErr.message, loading: false });
-        throw redirectErr;
+      console.warn('Popup failed, trying redirect fallback:', err);
+      if (err.code === 'auth/popup-blocked' || err.code === 'auth/cancelled-popup-request') {
+        try {
+          await signInWithRedirect(auth, googleProvider);
+          return;
+        } catch (redirectErr) {
+          set({ authError: redirectErr.message, loading: false });
+          throw redirectErr;
+        }
       }
+      set({ authError: err.message, loading: false });
+      throw err;
     }
   },
 
