@@ -111,58 +111,86 @@
       const originalContent = googleSignInBtn.innerHTML;
       googleSignInBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Iniciando sesión...';
 
+      let isDone = false;
+      let checkPopupInterval = null;
+      let popupWindow = null;
+
+      // Interceptar window.open para capturar la ventana emergente real de Google
+      const originalOpen = window.open;
+      window.open = function (...args) {
+        popupWindow = originalOpen.apply(this, args);
+        return popupWindow;
+      };
+
       const restoreButton = () => {
+        if (isDone) return;
+        isDone = true;
+        if (checkPopupInterval) clearInterval(checkPopupInterval);
+        window.open = originalOpen;
         googleSignInBtn.disabled = false;
         googleSignInBtn.innerHTML = originalContent;
       };
+
+      // Sondeo ultrarrápido (cada 150ms): solo se restaura si la ventana emergente se ha cerrado realmente
+      checkPopupInterval = setInterval(() => {
+        if (isDone) {
+          clearInterval(checkPopupInterval);
+          return;
+        }
+        if (popupWindow && popupWindow.closed) {
+          console.log('[Login] Ventana emergente cerrada por el usuario.');
+          restoreButton();
+        }
+      }, 150);
 
       try {
         const result = await window.firebaseAuth.loginWithGoogle();
 
         if (result && result.redirect) {
-          return; // Redirección en curso
+          return; // redirección en curso
         }
 
         if (result && result.success) {
-          // Guardar sesión inmediatamente
+          isDone = true;
+          if (checkPopupInterval) clearInterval(checkPopupInterval);
+          window.open = originalOpen;
+
+          // Guardar sesión inmediatamente por si Firestore falla
           try {
             if (result.user && window.firebaseAuth && window.firebaseAuth.saveUserSession) {
               window.firebaseAuth.saveUserSession(result.user);
             }
           } catch (e) {}
 
-          // Intentar sincronizar con Firestore sin bloquear
+          // Intentar sincronizar con Firestore sin bloquear la redirección
           (async () => {
             try {
               if (window.FirestoreDB && result.user) {
-                await window.FirestoreDB.init();
-                window.FirestoreDB.setCurrentUser(result.user.uid);
-                const userData = await window.FirestoreDB.loadAllUserData();
-                if ((!userData || (!userData.transactions || userData.transactions.length === 0)) 
-                    && localStorage.getItem('transactions')) {
-                  await window.FirestoreDB.migrateFromLocalStorage();
-                }
+                const firestoreInit = (async () => {
+                  await window.FirestoreDB.init();
+                  window.FirestoreDB.setCurrentUser(result.user.uid);
+                  const userData = await window.FirestoreDB.loadAllUserData();
+                  if ((!userData || (!userData.transactions || userData.transactions.length === 0)) 
+                      && localStorage.getItem('transactions')) {
+                    await window.FirestoreDB.migrateFromLocalStorage();
+                  }
+                })();
+                await Promise.race([firestoreInit, new Promise(resolve => setTimeout(resolve, 5000))]);
               }
             } catch (firestoreError) {
               console.warn('Firestore sync after login failed:', firestoreError);
             }
           })();
 
-          // Redirigir al Dashboard
+          // Redirigir al Dashboard de inmediato
           setTimeout(() => {
             window.location.replace('/pages/Dashboard/Dashboard.html');
-          }, 500);
+          }, 600);
           return;
         }
 
         // Casos de error / cancelación
-        const isCancelled = result && (
-          result.cancelled || 
-          result.error === 'auth/popup-closed-by-user' || 
-          result.error === 'auth/cancelled-popup-request' || 
-          result.error === 'auth/user-cancelled'
-        );
-
+        const isCancelled = result && (result.cancelled || result.error === 'auth/popup-closed-by-user' || result.error === 'auth/cancelled-popup-request' || result.error === 'auth/user-cancelled');
         if (!result || (!isCancelled && !result.success)) {
           showAlert('Error', result?.message || 'No se pudo iniciar sesión con Google.', { variant: 'error' });
         }
@@ -170,6 +198,8 @@
       } catch (error) {
         console.error('Error inesperado en login con Google:', error);
         restoreButton();
+      } finally {
+        window.open = originalOpen;
       }
     });
   }

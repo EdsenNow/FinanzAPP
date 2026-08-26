@@ -39,14 +39,15 @@ class FirebaseAuth {
       
       const config = { ...rawConfig };
 
-      // Sincronizar authDomain con el hostname actual si estamos en Firebase Hosting o dominio activo
-      // Esto es crucial para Firefox y Safari móvil: asegura que el flujo de autenticación sea 100% same-origin
+      // Sincronizar authDomain con el entorno actual:
+      // En localhost/127.0.0.1, usar el authDomain canónico de Firebase (finanzapp-fb.firebaseapp.com)
+      // En producción, usar el dominio personalizado o el host actual
       if (typeof window !== 'undefined' && window.location && window.location.hostname) {
         const currentHost = window.location.hostname;
-        if (currentHost && currentHost !== 'localhost' && currentHost !== '127.0.0.1') {
-          if (currentHost.includes('web.app') || currentHost.includes('firebaseapp.com') || currentHost === config.authDomain) {
-            config.authDomain = currentHost;
-          }
+        if (currentHost === 'localhost' || currentHost === '127.0.0.1') {
+          config.authDomain = `${config.projectId || 'finanzapp-fb'}.firebaseapp.com`;
+        } else if (currentHost.includes('web.app') || currentHost.includes('firebaseapp.com') || currentHost === config.authDomain) {
+          config.authDomain = currentHost;
         }
       }
       

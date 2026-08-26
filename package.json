@@ -4,7 +4,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite src --port 5173",
     "build": "node scripts/build.js",
     "serve": "npm run build && firebase emulators:start",
     "deploy": "npm run build && firebase deploy",
@@ -13,7 +12,6 @@
   "devDependencies": {
     "dotenv": "^16.4.5",
     "happy-dom": "^20.11.2",
-    "vite": "^8.2.2",
     "vitest": "^4.1.11"
   }
 }
