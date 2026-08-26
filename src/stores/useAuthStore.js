@@ -16,6 +16,8 @@ import { auth, googleProvider } from '../services/firebase';
 
 const GOOGLE_CLIENT_ID = "569331846575-djonqen9ib9jrek93o0hpjem189ppjsm.apps.googleusercontent.com";
 
+let isAuthListenerAttached = false;
+
 export const useAuthStore = create((set, get) => ({
   user: null,
   isGuest: false,
@@ -23,6 +25,9 @@ export const useAuthStore = create((set, get) => ({
   authError: null,
 
   initAuth: () => {
+    if (isAuthListenerAttached) return;
+    isAuthListenerAttached = true;
+
     // Check for existing guest session in localStorage
     const savedGuest = localStorage.getItem('isGuest') === 'true';
     if (savedGuest) {
@@ -50,8 +55,17 @@ export const useAuthStore = create((set, get) => ({
       if (firebaseUser) {
         set({ user: firebaseUser, isGuest: false, loading: false });
         localStorage.removeItem('isGuest');
-      } else if (!get().isGuest) {
-        set({ user: null, isGuest: false, loading: false });
+      } else {
+        const isGuest = localStorage.getItem('isGuest') === 'true';
+        if (isGuest) {
+          set({
+            isGuest: true,
+            user: { uid: 'guest_user', displayName: 'Invitado', email: 'invitado@byfinanzapp.com', isAnonymous: true },
+            loading: false
+          });
+        } else {
+          set({ user: null, isGuest: false, loading: false });
+        }
       }
     });
 
@@ -74,47 +88,15 @@ export const useAuthStore = create((set, get) => ({
 
   signInWithGoogle: async () => {
     set({ loading: true, authError: null });
-
-    // Approach 1: Try direct Google Identity Services Token Client (immune to iframe / domain CORS blocks)
-    if (typeof window !== 'undefined' && window.google?.accounts?.oauth2) {
-      try {
-        const user = await new Promise((resolve, reject) => {
-          const client = window.google.accounts.oauth2.initTokenClient({
-            client_id: GOOGLE_CLIENT_ID,
-            scope: "email profile openid",
-            callback: async (tokenResponse) => {
-              if (tokenResponse.error) {
-                reject(tokenResponse);
-                return;
-              }
-              try {
-                const credential = GoogleAuthProvider.credential(null, tokenResponse.access_token);
-                const res = await signInWithCredential(auth, credential);
-                set({ user: res.user, isGuest: false, loading: false });
-                localStorage.removeItem('isGuest');
-                resolve(res.user);
-              } catch (e) {
-                reject(e);
-              }
-            },
-            error_callback: (err) => reject(err)
-          });
-          client.requestAccessToken({ prompt: 'select_account' });
-        });
-        return user;
-      } catch (gisErr) {
-        console.warn('GIS Token client fallback to Firebase popup:', gisErr);
-      }
-    }
-
-    // Approach 2: Standard Firebase popup
     try {
       const res = await signInWithPopup(auth, googleProvider);
-      set({ user: res.user, isGuest: false, loading: false });
-      localStorage.removeItem('isGuest');
-      return res.user;
+      if (res && res.user) {
+        set({ user: res.user, isGuest: false, loading: false });
+        localStorage.removeItem('isGuest');
+        return res.user;
+      }
     } catch (err) {
-      console.warn('Popup fallback notice:', err);
+      console.warn('Popup notice:', err);
       if (err.code === 'auth/popup-blocked' || err.code === 'auth/cancelled-popup-request') {
         try {
           await signInWithRedirect(auth, googleProvider);

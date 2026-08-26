@@ -36,13 +36,15 @@ export default function App() {
 
   useEffect(() => {
     const unsub = initAuth();
-    // Ensure document attribute is in sync with theme
-    document.documentElement.setAttribute('data-theme', theme);
-    document.documentElement.style.backgroundColor = theme === 'light' ? '#faf4ed' : '#191724';
     return () => {
       if (typeof unsub === 'function') unsub();
     };
-  }, [initAuth, theme]);
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    document.documentElement.style.backgroundColor = theme === 'light' ? '#faf4ed' : '#191724';
+  }, [theme]);
 
   return (
     <BrowserRouter>
