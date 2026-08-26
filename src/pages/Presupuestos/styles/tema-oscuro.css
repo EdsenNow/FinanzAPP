@@ -97,7 +97,6 @@
 
 [data-theme="dark"] .budget-card:hover {
     background: #232136;
-	transform: translateY(-4px);
 	box-shadow: 0 0 20px rgba(235, 111, 146, 0.3);
 }
 
@@ -167,9 +166,9 @@
 	box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 100%, transparent);
 }
 
-[data-theme="dark"] .filter-group .custom-dropdown.open .custom-dropdown-selected {
-	border-color: transparent !important;
-	box-shadow: none !important;
+[data-theme="dark"] body .filter-group .custom-dropdown.open .custom-dropdown-selected {
+	border-color: transparent;
+	box-shadow: none;
 }
 [data-theme="dark"] .custom-dropdown-option:hover {
 	background: color-mix(in srgb, var(--gray) 28%, transparent);
@@ -178,7 +177,7 @@
 
 [data-theme="dark"] .budget-category-dropdown .custom-dropdown-options {
 	scrollbar-width: thin;
-	scrollbar-color: #EB6F92;
+	scrollbar-color:  transparent;
 }
 
 [data-theme="dark"] .budget-category-dropdown .custom-dropdown-options::-webkit-scrollbar {
@@ -255,8 +254,8 @@
 	border-color: #9c6bd7;
 }
 
-[data-theme="dark"] .text-danger {
-	color: #eb6f92 !important;
+[data-theme="dark"] body .text-danger {
+	color: #eb6f92;
 }
 
 [data-theme="dark"] .progress-bar-small {
@@ -268,23 +267,13 @@
 }
 
 [data-theme="dark"] .budget-card .actions .btn-icon {
-	background: rgba(255, 255, 255, 0.05);
-	color: #b8b8b8;
+	background: #1f1d2e;
+	border: none;
 }
 
 [data-theme="dark"] .budget-card .actions .btn-icon:hover {
-	background: #c4a7e7;
-	color: #ffffff;
-}
-
-[data-theme="dark"] .budget-card .actions .btn-delete:hover {
-	background: #eb6f92;
-	color: #ffffff;
-}
-
-[data-theme="dark"] .budget-card .actions .btn-sync:hover {
-	background: #56949f;
-	color: #ffffff;
+	background: #1f1d2e;
+	border: none;
 }
 
 [data-theme="dark"] .chart-container {
@@ -303,123 +292,12 @@
 	z-index: 10000;
 }
 
-[data-theme="dark"] .custom-alert {
-	background: #26233a;
-	width: 90%;
-	max-width: 530px;
-	border: 3px solid var(--primary);
-	position: fixed;
-	left: 50%;
-	top: 50%;
-	transform: translate(-50%, -50%) scale(0.95);
-	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-	z-index: 10001;
-	overflow: visible;
-}
-
-[data-theme="dark"] .custom-alert.success {
-	max-width: 420px;
-	padding: 22px;
-}
-
-[data-theme="dark"] .custom-alert.success h3,
-[data-theme="dark"] .custom-alert.success #alertTitle {
-	font-size: 18px;
-	margin: 0 0 14px 0;
-}
-
-[data-theme="dark"] .custom-alert.success p,
-[data-theme="dark"] .custom-alert.success #alertMessage {
-	font-size: 15px;
-	margin: 0 0 20px 0;
-}
-
-[data-theme="dark"] .custom-alert.success #alertButtons,
-[data-theme="dark"] .custom-alert.success .custom-alert-buttons {
-	gap: 12px;
-}
-
-[data-theme="dark"] .custom-alert h3,
-[data-theme="dark"] #alertTitle {
-	font-size: 20px;
-	font-weight: 700;
-	font-family: var(--font-sans);
-	color: #E0DEF4;
-	text-align: center;
-	margin: 0 0 20px 0;
-}
-
-[data-theme="dark"] .custom-alert p,
-[data-theme="dark"] #alertMessage {
-	color: #e0def4;
-	text-align: center;
-	line-height: 1.6;
-	margin: 0 0 30px 0;
-}
-
-[data-theme="dark"] .custom-alert-buttons,
-[data-theme="dark"] #alertButtons {
-	display: flex;
-    align-items: center;
-    gap: 250px;
-    padding-top: 8px;
-}
-
-[data-theme="dark"] .custom-alert .btn,
-[data-theme="dark"] #alertButtons .btn {
-	padding: 12px 20px;
-	border-radius: 12px;
-	border: none;
-	cursor: pointer;
-	font-weight: 600;
-	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-	font-size: 14px;
-	text-transform: uppercase;
-	letter-spacing: 0.3px;
-	min-width: 100px;
-}
-
-[data-theme="dark"] .custom-alert .btn-primary,
-[data-theme="dark"] #alertButtons .btn-primary {
-	background: var(--primary);
-	color: var(--light);
-	box-shadow: 0 2px 8px rgba(235, 111, 146, 0.2);
-}
-
-[data-theme="dark"] .custom-alert .btn-primary:hover,
-[data-theme="dark"] #alertButtons .btn-primary:hover {
-	transform: translateY(-2px);
-	box-shadow: 0 4px 12px rgba(235, 111, 146, 0.3);
-}
-
-[data-theme="dark"] .custom-alert .btn-secondary,
-[data-theme="dark"] #alertButtons .btn-secondary {
-	background: #1F1D2E;
-	backdrop-filter: blur(20px);
-	color: var(--light);
-	border: none;
-	font-weight: 500;
-}
-
-[data-theme="dark"] .custom-alert .btn-secondary:hover,
-[data-theme="dark"] #alertButtons .btn-secondary:hover {
-  border-color: var(--danger);
-  background: color-mix(in srgb, var(--danger) 10%, var(--card-bg));
-  color: var(--danger);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--danger) 25%, transparent);
-}
-
-[data-theme="dark"] .custom-alert .btn-danger,
-[data-theme="dark"] #alertButtons .btn-danger {
-	background: var(--danger);
-	color: var(--light);
-	box-shadow: 0 2px 8px rgba(235, 111, 146, 0.2);
-}
-
-[data-theme="dark"] .custom-alert .btn-danger:hover,
-[data-theme="dark"] #alertButtons .btn-danger:hover {
-	transform: translateY(-2px);
-	box-shadow: 0 4px 12px rgba(235, 111, 146, 0.3);
+[data-theme="dark"] body .alert-overlay.hidden,
+[data-theme="dark"] body .custom-alert.hidden {
+	display: none;
+	opacity: 0;
+	visibility: hidden;
+	pointer-events: none;
 }
 
 [data-theme="dark"] .transactions-table-container th,
@@ -444,6 +322,14 @@
 	box-shadow: 0 0 20px rgba(235, 111, 146, 0.3);
 }
 /* ===== Fin Confirm Bottom Drawer ===== */
+
+[data-theme="dark"] .dual-value.stat-budgeted {
+	color: var(--success, #2D957B);
+}
+
+[data-theme="dark"] .dual-value.stat-spent {
+	color: var(--danger, #eb6f92);
+}
 
 @media (min-width: 900px) {
 	[data-theme="dark"] .transactions-table-container {
@@ -601,17 +487,17 @@
 
 /* Desactivar efectos hover/active en dispositivos móviles */
 @media (hover: none) and (pointer: coarse), (max-width: 768px) {
-  [data-theme="dark"] .budget-card:hover,
-  [data-theme="dark"] .custom-alert .btn-primary:hover,
-  [data-theme="dark"] #alertButtons .btn-primary:hover,
-  [data-theme="dark"] .custom-alert .btn-secondary:hover,
-  [data-theme="dark"] #alertButtons .btn-secondary:hover,
-  [data-theme="dark"] .custom-alert .btn-danger:hover,
-  [data-theme="dark"] #alertButtons .btn-danger:hover,
-  [data-theme="dark"] .confirm-drawer-cancel:hover,
-  [data-theme="dark"] .confirm-drawer-confirm-danger:hover {
-    transform: none !important;
-    box-shadow: none !important;
+  [data-theme="dark"] body .budget-card:hover,
+  [data-theme="dark"] body .custom-alert .btn-primary:hover,
+  [data-theme="dark"] body #alertButtons .btn-primary:hover,
+  [data-theme="dark"] body .custom-alert .btn-secondary:hover,
+  [data-theme="dark"] body #alertButtons .btn-secondary:hover,
+  [data-theme="dark"] body .custom-alert .btn-danger:hover,
+  [data-theme="dark"] body #alertButtons .btn-danger:hover,
+  [data-theme="dark"] body .confirm-drawer-cancel:hover,
+  [data-theme="dark"] body .confirm-drawer-confirm-danger:hover {
+    transform: none;
+    box-shadow: none;
   }
 }
 

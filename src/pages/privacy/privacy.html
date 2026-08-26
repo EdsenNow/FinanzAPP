@@ -36,6 +36,7 @@
 
   <div class="content">
 
+    <h3 class="section-title">Información General</h3>
     <div class="card">
       <div class="card-header">
         <div class="card-icon pink"><i class="fas fa-info-circle"></i></div>
@@ -69,6 +70,40 @@
 
     <div class="card">
       <div class="card-header">
+        <div class="card-icon purple"><i class="fas fa-user-secret"></i></div>
+        <h2>Compartición de datos</h2>
+      </div>
+      <p>FinanzApp no vende, arrienda ni comparte tu información personal con terceros. Los datos son accesibles únicamente por el usuario autenticado.</p>
+    </div>
+
+    <h3 class="section-title mt-4">Seguridad y Protección</h3>
+    
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon green"><i class="fas fa-lock"></i></div>
+        <h2>Seguridad</h2>
+      </div>
+      <p>Utilizamos Firebase Authentication y Firestore con reglas de seguridad para garantizar que solo tú puedas acceder a tus datos. Los tokens de acceso a Gmail se almacenan encriptados y asociados únicamente a tu cuenta de usuario.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon green"><i class="fas fa-user-shield"></i></div>
+        <h2>Mecanismos de Protección de Datos Sensibles</h2>
+      </div>
+      <p>FinanzApp implementa rigurosas medidas de seguridad técnicas y organizativas para garantizar la protección de los datos sensibles de los usuarios:</p>
+      <ul>
+        <li><strong>Encriptación en Tránsito:</strong> Toda la transmisión de datos entre la aplicación, las APIs de Google y nuestros servidores se realiza mediante conexiones HTTPS encriptadas con protocolos TLS 1.3 / SSL.</li>
+        <li><strong>Encriptación en Reposo:</strong> Las credenciales y tokens de la API se almacenan con algoritmos de cifrado fuerte (AES-256) en bases de datos con encriptación en reposo habilitada.</li>
+        <li><strong>Aislamiento y Reglas de Seguridad:</strong> Se aplican políticas de control de acceso estrictas en Firebase Firestore que impiden el acceso no autorizado entre usuarios distintos.</li>
+        <li><strong>Procesamiento Efímero:</strong> El contenido de los correos procesados para notificaciones bancarias se analiza de forma efímera en memoria y no se guarda de forma permanente en servidores externos.</li>
+      </ul>
+    </div>
+
+    <h3 class="section-title mt-4">Integración con Google</h3>
+
+    <div class="card">
+      <div class="card-header">
         <div class="card-icon gold"><i class="fab fa-google"></i></div>
         <h2>Cumplimiento de la Política de APIs de Google (Uso Limitado)</h2>
       </div>
@@ -78,37 +113,30 @@
 
     <div class="card">
       <div class="card-header">
-        <div class="card-icon purple"><i class="fas fa-user-secret"></i></div>
-        <h2>Compartición de datos</h2>
+        <div class="card-icon pink"><i class="fas fa-trash-alt"></i></div>
+        <h2>Retención y Eliminación de Datos de Usuarios de Google</h2>
       </div>
-      <p>FinanzApp no vende, arrienda ni comparte tu información personal con terceros. Los datos son accesibles únicamente por el usuario autenticado.</p>
+      <p>Nos comprometemos con la transparencia en la gestión del ciclo de vida de los datos de nuestros usuarios:</p>
+      <ul>
+        <li><strong>Retención Limitada:</strong> Los tokens de acceso y actualización de la API de Google se conservan únicamente mientras la función de monitoreo de correos permanezca activa por el usuario.</li>
+        <li><strong>Eliminación Inmediata al Desconectar:</strong> Al hacer clic en el botón <strong>"Desconectar Gmail"</strong> en la sección de Configuración de la app, los tokens asociados a la cuenta de Google son revocados y eliminados inmediatamente de la base de datos.</li>
+        <li><strong>Solicitud de Eliminación Total:</strong> Puede solicitar la supresión definitiva e irreversible de su cuenta y todos los datos asociados enviando un correo a <a href="mailto:byfinanzapp@gmail.com">byfinanzapp@gmail.com</a>. Las solicitudes se completan en un plazo máximo de 48 horas.</li>
+        <li><strong>Revocación de Permisos en Google:</strong> Puede revocar en cualquier momento el acceso otorgado a FinanzApp directamente desde la Consola de Seguridad de Google en <a href="https://myaccount.google.com/permissions" target="_blank" rel="noopener">myaccount.google.com/permissions</a>.</li>
+      </ul>
     </div>
 
-    <div class="card">
-      <div class="card-header">
-        <div class="card-icon green"><i class="fas fa-lock"></i></div>
-        <h2>Seguridad</h2>
-      </div>
-      <p>Utilizamos Firebase Authentication y Firestore con reglas de seguridad para garantizar que solo tú puedas acceder a tus datos. Los tokens de acceso a Gmail se almacenan localmente en tu navegador y expiran automáticamente.</p>
-    </div>
-
-    <div class="card">
-      <div class="card-header">
-        <div class="card-icon pink"><i class="fas fa-undo"></i></div>
-        <h2>Revocación de permisos</h2>
-      </div>
-      <p>Puedes revocar el acceso de FinanzApp a tu cuenta de Gmail en cualquier momento desde <a href="https://myaccount.google.com/permissions" target="_blank" rel="noopener">myaccount.google.com/permissions</a>.</p>
-    </div>
+    <h3 class="section-title mt-4">Dudas y Consultas</h3>
 
     <div class="card">
       <div class="card-header">
         <div class="card-icon teal"><i class="fas fa-envelope"></i></div>
         <h2>Contacto</h2>
       </div>
-      <p>Si tienes preguntas sobre esta política, contacta al desarrollador en: <a href="mailto:peluchito281@gmail.com">peluchito281@gmail.com</a></p>
+      <p>Si tienes preguntas sobre esta política o deseas solicitar la eliminación de tus datos, contacta al desarrollador en: <a href="mailto:byfinanzapp@gmail.com">byfinanzapp@gmail.com</a></p>
     </div>
 
   </div>
+
 
   <footer>
     <span>&copy; 2026 FinanzApp</span>

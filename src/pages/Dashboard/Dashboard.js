@@ -32,6 +32,12 @@ if (typeof window !== 'undefined' && window.sidebarRenderer) {
   }
 })();
 
+const CATEGORIAS_PREDETERMINADAS = [
+  { id: 1, name: 'Nómina', fixedType: 'income', isDefault: true, transactions: [], isPinned: false },
+  { id: 2, name: 'Comida', fixedType: 'expense', isDefault: true, transactions: [], isPinned: false },
+  { id: 3, name: 'Transporte', fixedType: 'expense', isDefault: true, transactions: [], isPinned: false }
+];
+
 const datosUsuario = {
   categories: [],
   monthlyData: {
@@ -41,6 +47,43 @@ const datosUsuario = {
   },
   user: { name: "Usuario", email: "usuario@ejemplo.com" }
 };
+
+// Carga síncrona inmediata desde localStorage para renderizado instantáneo (0ms)
+(function _initCachedCategoriesInstant() {
+  try {
+    const authUserRaw = localStorage.getItem('authUser');
+    let uid = 'guest';
+    if (authUserRaw && authUserRaw !== 'guest') {
+      try {
+        const u = JSON.parse(authUserRaw);
+        uid = u.uid || u.email || 'guest';
+      } catch {}
+    }
+    // Clave correcta usada por FirestoreStore
+    const rawCats = localStorage.getItem(`finanzapp:data:v1:${uid}:categories`);
+    if (rawCats !== null) {
+      // rawCats puede ser '[]' (usuario borró todo) — respetar ese valor
+      const parsed = JSON.parse(rawCats);
+      if (Array.isArray(parsed)) {
+        if (parsed.length > 0) {
+          datosUsuario.categories = parsed.map(c => ({
+            ...c,
+            transactions: (c.transactions || []).map(t => ({
+              ...t,
+              date: (t.date && typeof t.date === 'string') ? new Date(t.date) : t.date
+            }))
+          }));
+        } else {
+          // El usuario eliminó todas las categorías: respetar array vacío
+          datosUsuario.categories = [];
+        }
+        return; // Datos locales encontrados — no usar predeterminadas
+      }
+    }
+    // Solo si nunca hubo datos guardados para este uid, usar predeterminadas
+    datosUsuario.categories = CATEGORIAS_PREDETERMINADAS.map(c => ({ ...c, transactions: [] }));
+  } catch {}
+})();
 /** Redondea un número a exactamente dos decimales evitando errores de punto flotante.
  * @param {number} n
  * @returns {number}
@@ -100,24 +143,30 @@ function parseFechaInput(raw) {
   if (!raw) return null;
   const s = String(raw).trim();
   let day, month, year;
+  let isMdy = false;
+  try {
+    const rawSettings = JSON.parse(localStorage.getItem('finanzapp:settings:v1') || '{}');
+    isMdy = rawSettings?.dateFormat === 'mdy';
+  } catch (_) {}
+
   if (s.includes('-')) {
     const parts = s.split('-');
     if (parts.length !== 3) return null;
     year = Number(parts[0]);
     month = Number(parts[1]);
     day = Number(parts[2]);
-  } else if (s.includes('/')) {
-    const parts = s.split('/');
+  } else if (s.includes('/') || s.includes('.')) {
+    const parts = s.includes('/') ? s.split('/') : s.split('.');
     if (parts.length !== 3) return null;
-    day = Number(parts[0]);
-    month = Number(parts[1]);
-    year = Number(parts[2]);
-  } else if (s.includes('.')) {
-    const parts = s.split('.');
-    if (parts.length !== 3) return null;
-    day = Number(parts[0]);
-    month = Number(parts[1]);
-    year = Number(parts[2]);
+    if (isMdy) {
+      month = Number(parts[0]);
+      day = Number(parts[1]);
+      year = Number(parts[2]);
+    } else {
+      day = Number(parts[0]);
+      month = Number(parts[1]);
+      year = Number(parts[2]);
+    }
   } else {
     return null;
   }
@@ -126,6 +175,7 @@ function parseFechaInput(raw) {
   if (Number.isNaN(d.getTime())) return null;
   return d;
 }
+
 
 const cacheFiltros = { key: null, version: -1, result: [] };
 /**
@@ -157,12 +207,6 @@ const MSG_MAX_DECIMALS = 'El monto no puede tener más de 2 decimales';
 const MSG_INVALID_DATE = 'Por favor, ingresa una fecha válida';
 
 const MAX_CATEGORIES = 200;
-
-const CATEGORIAS_PREDETERMINADAS = [
-  { id: 1, name: 'Nómina', fixedType: 'income', isDefault: true },
-  { id: 2, name: 'Comida', fixedType: 'expense', isDefault: true },
-  { id: 3, name: 'Transporte', fixedType: 'expense', isDefault: true }
-];
 
 const PIE_COLORS = [
   '#6C63FF', '#564FD8', '#36D6C3', '#00C9A7', '#7ED957',
@@ -811,9 +855,8 @@ async function boot() {
       }
 
       Object.assign(datosUsuario, saved);
-    }
-
-    if (!saved || !saved.categories || datosUsuario.categories.length === 0) {
+    } else {
+      // Solo para usuario completamente nuevo sin datos previos
       const changed = asegurarCategoriasPredeterminadas();
       if (changed) await persist();
     }
@@ -1193,145 +1236,299 @@ function exportarAJSON() {
 }
 
 /**
- * Genera un PDF con el resumen financiero y el detalle de transacciones filtradas,
+ * Genera un PDF ejecutivo con el resumen financiero y el detalle de transacciones filtradas,
  * y lo descarga automáticamente. Requiere la librería jsPDF en `window`.
  */
 function exportarAPDF() {
-
   if (typeof window.jspdf === 'undefined' && typeof window.jsPDF === 'undefined') {
     console.error('jsPDF no está disponible');
-  mostrarError('La librería PDF no está disponible. Por favor, recarga la página.');
+    mostrarError('La librería PDF no está disponible. Por favor, recarga la página.');
     return;
   }
 
   try {
     const categoriasFiltradas = aplicarFiltrosACategorias();
-
     const jsPDF = window.jsPDF || window.jspdf.jsPDF;
-    
-    const doc = new jsPDF();
-
-  const pageWidth = doc.internal.pageSize.getWidth();
-  const margin = 20;
-  const contentWidth = pageWidth - (margin * 2);
-
-  doc.setFontSize(20);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Reporte de Transacciones - FinanzApp', margin, 30);
-
-  doc.setFontSize(10);
-  doc.setFont('helvetica', 'normal');
-  doc.text(`Generado el: ${new Date().toLocaleDateString('es-ES')}`, margin, 40);
-
-  doc.setLineWidth(0.5);
-  doc.line(margin, 45, pageWidth - margin, 45);
-  
-  let yPosition = 55;
-  const lineHeight = 7;
-  const maxHeight = doc.internal.pageSize.getHeight() - 20;
-
-  let totalIngresos = 0;
-  let totalGastos = 0;
-  
-  categoriasFiltradas.forEach(category => {
-    category.transactions.forEach(transaction => {
-      if (transaction.type === 'income') {
-        totalIngresos += transaction.amount;
-      } else {
-        totalGastos += transaction.amount;
-      }
+    const doc = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4'
     });
-  });
-  
-  const balance = totalIngresos - totalGastos;
 
-  doc.setFontSize(14);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Resumen Financiero', margin, yPosition);
-  yPosition += 10;
-  
-  doc.setFontSize(10);
-  doc.setFont('helvetica', 'normal');
-  doc.text(`Total Ingresos: ${formatCurrency(totalIngresos)}`, margin, yPosition);
-  yPosition += lineHeight;
-  doc.text(`Total Gastos: ${formatCurrency(totalGastos)}`, margin, yPosition);
-  yPosition += lineHeight;
-  doc.text(`Balance: ${formatCurrency(balance)}`, margin, yPosition);
-  yPosition += 15;
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const margin = 15;
+    const contentWidth = pageWidth - (margin * 2);
+    const bottomLimit = pageHeight - 18;
 
-  categoriasFiltradas.forEach(category => {
-    if (category.transactions.length === 0) return;
+    // Calcular totales
+    let totalIngresos = 0;
+    let totalGastos = 0;
+    let totalTransacciones = 0;
 
-    if (yPosition > maxHeight - 50) {
-      doc.addPage();
-      yPosition = 30;
-    }
-
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'bold');
-    doc.text(category.name, margin, yPosition);
-    yPosition += 8;
-
-    doc.setFontSize(8);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Tipo', margin, yPosition);
-    doc.text('Monto', margin + 30, yPosition);
-    doc.text('Descripción', margin + 70, yPosition);
-    doc.text('Fecha', margin + 140, yPosition);
-    yPosition += 5;
-
-    doc.setLineWidth(0.2);
-    doc.line(margin, yPosition, pageWidth - margin, yPosition);
-    yPosition += 5;
-
-    doc.setFont('helvetica', 'normal');
-    category.transactions.forEach(transaction => {
-      if (yPosition > maxHeight - 20) {
-        doc.addPage();
-        yPosition = 30;
-      }
-      
-        const tipo = transaction.type === 'income' ? 'Ingreso' : 'Gasto';
-        const monto = `${formatCurrency(transaction.amount)}`;
-        const descripcion = transaction.description || 'Sin descripción';
-        const fecha = formatDate(transaction.date);
-
-        const descripcionCorta = descripcion.length > 25 ? descripcion.substring(0, 22) + '...' : descripcion;
-      
-        doc.text(tipo, margin, yPosition);
-        doc.text(monto, margin + 30, yPosition);
-        doc.text(descripcionCorta, margin + 70, yPosition);
-        doc.text(fecha, margin + 140, yPosition);
-      yPosition += lineHeight;
+    categoriasFiltradas.forEach(category => {
+      (category.transactions || []).forEach(transaction => {
+        totalTransacciones++;
+        if (transaction.type === 'income') {
+          totalIngresos += transaction.amount;
+        } else {
+          totalGastos += transaction.amount;
+        }
+      });
     });
-    
-    yPosition += 10;
-  });
 
-  const pageCount = doc.internal.getNumberOfPages();
-  for (let i = 1; i <= pageCount; i++) {
-    doc.setPage(i);
-    doc.setFontSize(8);
-    doc.setFont('helvetica', 'normal');
-    doc.text(`Página ${i} de ${pageCount}`, pageWidth - 40, doc.internal.pageSize.getHeight() - 10);
-  }
+    const balance = totalIngresos - totalGastos;
 
+    // Filtros activos
+    let filtroTexto = 'Todos los periodos';
     try {
       const yf = document.getElementById('yearFilter')?.querySelector('.custom-dropdown-selected')?.getAttribute('data-value') || '';
       const mf = document.getElementById('monthFilter')?.querySelector('.custom-dropdown-selected')?.getAttribute('data-value') || '';
-      const meta = `Filtros - Año: ${yf || 'Todos'} | Mes: ${mf===''?'Todos': String(Number(mf)+1)}`;
-      doc.setFontSize(10); doc.setFont('helvetica','italic');
-      doc.text(meta, margin, 50);
+      const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+      if (yf || mf !== '') {
+        const anoStr = yf ? `Año ${yf}` : 'Todos los años';
+        const mesStr = mf !== '' ? monthNames[Number(mf)] || `Mes ${Number(mf) + 1}` : 'Todos los meses';
+        filtroTexto = `${anoStr} • ${mesStr}`;
+      }
     } catch {}
+
+    // Nombre de usuario
+    let nombreUsuario = 'Usuario';
+    try {
+      const rawAuth = localStorage.getItem('authUser');
+      if (rawAuth && rawAuth !== 'guest') {
+        const parsed = JSON.parse(rawAuth);
+        nombreUsuario = parsed.name || parsed.displayName || 'Usuario';
+      }
+    } catch {}
+
+    // ── 1. Banner Superior (Página 1) ──────────────────────────────────
+    doc.setFillColor(31, 29, 46); // #1F1D2E
+    doc.roundedRect(margin, 12, contentWidth, 26, 3, 3, 'F');
+
+    // Accent line en el banner
+    doc.setFillColor(235, 111, 146); // #EB6F92
+    doc.roundedRect(margin, 12, 4, 26, 2, 2, 'F');
+
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(16);
+    doc.text('FinanzApp', margin + 8, 22);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8.5);
+    doc.setTextColor(224, 222, 244);
+    doc.text('Reporte de Transacciones y Estado Financiero', margin + 8, 29);
+
+    // Metadatos a la derecha
+    doc.setFontSize(8);
+    doc.setTextColor(224, 222, 244);
+    doc.text(`Fecha: ${new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}`, pageWidth - margin - 6, 20, { align: 'right' });
+    doc.text(`Usuario: ${nombreUsuario}`, pageWidth - margin - 6, 25, { align: 'right' });
+    doc.text(`Filtro: ${filtroTexto}`, pageWidth - margin - 6, 30, { align: 'right' });
+
+    // ── 2. Tarjetas de Resumen Financiero (KPIs) ──────────────────────
+    let yPos = 44;
+    const cardGap = 4;
+    const cardWidth = (contentWidth - (cardGap * 2)) / 3;
+    const cardHeight = 18;
+
+    // Card 1: Ingresos
+    doc.setFillColor(235, 248, 244);
+    doc.setDrawColor(45, 149, 123);
+    doc.setLineWidth(0.4);
+    doc.roundedRect(margin, yPos, cardWidth, cardHeight, 2.5, 2.5, 'FD');
+
+    doc.setTextColor(45, 149, 123);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7);
+    doc.text('TOTAL INGRESOS', margin + 5, yPos + 6);
+    doc.setFontSize(10.5);
+    doc.text(`+${formatCurrency(totalIngresos)}`, margin + 5, yPos + 13);
+
+    // Card 2: Gastos
+    const card2X = margin + cardWidth + cardGap;
+    doc.setFillColor(253, 242, 244);
+    doc.setDrawColor(235, 111, 146);
+    doc.setLineWidth(0.4);
+    doc.roundedRect(card2X, yPos, cardWidth, cardHeight, 2.5, 2.5, 'FD');
+
+    doc.setTextColor(235, 111, 146);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7);
+    doc.text('TOTAL GASTOS', card2X + 5, yPos + 6);
+    doc.setFontSize(10.5);
+    doc.text(`-${formatCurrency(totalGastos)}`, card2X + 5, yPos + 13);
+
+    // Card 3: Balance Neto
+    const card3X = card2X + cardWidth + cardGap;
+    const balanceColor = balance >= 0 ? [120, 80, 180] : [235, 111, 146];
+    doc.setFillColor(244, 239, 251);
+    doc.setDrawColor(196, 167, 231);
+    doc.setLineWidth(0.4);
+    doc.roundedRect(card3X, yPos, cardWidth, cardHeight, 2.5, 2.5, 'FD');
+
+    doc.setTextColor(balanceColor[0], balanceColor[1], balanceColor[2]);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7);
+    doc.text('BALANCE NETO', card3X + 5, yPos + 6);
+    doc.setFontSize(10.5);
+    doc.text(`${formatCurrency(balance)}`, card3X + 5, yPos + 13);
+
+    yPos += cardHeight + 8;
+
+    // Helper para dibujar encabezado de tabla de categoría
+    function dibujarTableHeader(currentY) {
+      doc.setFillColor(31, 29, 46);
+      doc.roundedRect(margin, currentY, contentWidth, 6.5, 1.5, 1.5, 'F');
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(7.5);
+      doc.text('TIPO', margin + 4, currentY + 4.5);
+      doc.text('MONTO', margin + 30, currentY + 4.5);
+      doc.text('DESCRIPCIÓN', margin + 70, currentY + 4.5);
+      doc.text('FECHA', pageWidth - margin - 4, currentY + 4.5, { align: 'right' });
+
+      return currentY + 7.5;
+    }
+
+    // ── 3. Categorías y Tablas de Transacciones ────────────────────────
+    categoriasFiltradas.forEach(category => {
+      const txs = category.transactions || [];
+      if (txs.length === 0) return;
+
+      // Calcular subtotal de categoría
+      let catTotal = 0;
+      txs.forEach(t => catTotal += t.amount);
+      const esIngresoCat = txs.some(t => t.type === 'income') && !txs.some(t => t.type === 'expense');
+
+      // Verificar si cabe el bloque de categoría (al menos header + tabla + 2 filas)
+      if (yPos + 26 > bottomLimit) {
+        doc.addPage();
+        yPos = 20;
+      }
+
+      // Banner de la Categoría
+      doc.setFillColor(241, 245, 249);
+      doc.setDrawColor(226, 232, 240);
+      doc.setLineWidth(0.3);
+      doc.roundedRect(margin, yPos, contentWidth, 7.5, 2, 2, 'FD');
+
+      // Indicador de color de categoría
+      doc.setFillColor(esIngresoCat ? 45 : 235, esIngresoCat ? 149 : 111, esIngresoCat ? 123 : 146);
+      doc.circle(margin + 4.5, yPos + 3.75, 1.8, 'F');
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9.5);
+      doc.setTextColor(30, 41, 59);
+      doc.text(category.name, margin + 9, yPos + 5.2);
+
+      // Subtotal a la derecha
+      doc.setFontSize(8);
+      doc.setTextColor(71, 85, 105);
+      const subtotalTexto = `${txs.length} ${txs.length === 1 ? 'movimiento' : 'movimientos'}  •  Subtotal: ${formatCurrency(catTotal)}`;
+      doc.text(subtotalTexto, pageWidth - margin - 4, yPos + 5.2, { align: 'right' });
+
+      yPos += 9;
+
+      // Dibujar cabecera de columnas
+      yPos = dibujarTableHeader(yPos);
+
+      // Dibujar filas de transacciones
+      txs.forEach((transaction, idx) => {
+        if (yPos + 7 > bottomLimit) {
+          doc.addPage();
+          yPos = 20;
+          yPos = dibujarTableHeader(yPos);
+        }
+
+        // Fila alternada
+        if (idx % 2 === 1) {
+          doc.setFillColor(248, 250, 252);
+          doc.rect(margin, yPos - 1, contentWidth, 6.2, 'F');
+        }
+
+        const isIncome = transaction.type === 'income';
+        const tipoTexto = isIncome ? 'Ingreso' : 'Gasto';
+        const montoTexto = formatCurrency(transaction.amount);
+        const descTexto = transaction.description || 'Sin descripción';
+        const fechaTexto = formatDate(transaction.date);
+
+        // Badge Tipo
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(7.5);
+        if (isIncome) {
+          doc.setTextColor(45, 149, 123);
+        } else {
+          doc.setTextColor(235, 111, 146);
+        }
+        doc.text(tipoTexto, margin + 4, yPos + 3.5);
+
+        // Monto
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(8);
+        doc.setTextColor(30, 41, 59);
+        doc.text(montoTexto, margin + 30, yPos + 3.5);
+
+        // Descripción (truncada si es muy larga)
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(7.8);
+        doc.setTextColor(71, 85, 105);
+        const descCorta = descTexto.length > 45 ? descTexto.substring(0, 42) + '...' : descTexto;
+        doc.text(descCorta, margin + 70, yPos + 3.5);
+
+        // Fecha
+        doc.setFontSize(7.5);
+        doc.setTextColor(100, 116, 139);
+        doc.text(fechaTexto, pageWidth - margin - 4, yPos + 3.5, { align: 'right' });
+
+        // Línea divisoria muy suave entre filas
+        doc.setDrawColor(241, 245, 249);
+        doc.setLineWidth(0.2);
+        doc.line(margin, yPos + 5.2, pageWidth - margin, yPos + 5.2);
+
+        yPos += 6.2;
+      });
+
+      yPos += 6; // Espacio entre categorías
+    });
+
+    // ── 4. Running Header & Footer en todas las páginas ────────────────
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+
+      // Running header en páginas 2+
+      if (i > 1) {
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(7.5);
+        doc.setTextColor(148, 163, 184);
+        doc.text('FinanzApp  •  Reporte Detallado de Transacciones', margin, 10);
+        doc.setDrawColor(226, 232, 240);
+        doc.setLineWidth(0.3);
+        doc.line(margin, 12, pageWidth - margin, 12);
+      }
+
+      // Running footer en todas las páginas
+      doc.setDrawColor(226, 232, 240);
+      doc.setLineWidth(0.3);
+      doc.line(margin, pageHeight - 12, pageWidth - margin, pageHeight - 12);
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(7.5);
+      doc.setTextColor(148, 163, 184);
+      doc.text('FinanzApp • Documento confidencial generado automáticamente', margin, pageHeight - 7);
+      doc.text(`Página ${i} de ${pageCount}`, pageWidth - margin, pageHeight - 7, { align: 'right' });
+    }
 
     const fileName = `FinanzApp-${_obtenerNombreArchivoUsuario()}-${new Date().toISOString().split('T')[0]}.pdf`;
     doc.save(fileName);
 
-  mostrarExito('Archivo PDF exportado correctamente.');
-    
+    mostrarExito('Archivo PDF exportado correctamente con formato ejecutivo.');
   } catch (error) {
-  console.error('Error al exportar PDF:', error);
-  mostrarError(`Error al exportar PDF: ${error.message}`);
+    console.error('Error al exportar PDF:', error);
+    mostrarError(`Error al exportar PDF: ${error.message}`);
   }
 }
 
@@ -1911,16 +2108,16 @@ function renderizarCategorias() {
               ${formatCurrency(totalIngresos)}
             </div>
           ` : category.fixedType === 'expense' ? `
-            <div class="amount-chip expense" title="Gastos">
+            <div class="amount-chip expense" title="Total Gastos: ${formatCurrency(totalGastos)}">
               <i class="fas fa-arrow-down" aria-hidden="true"></i>
               ${formatCurrency(totalGastos)}
             </div>
           ` : `
-            <div class="amount-chip income" title="Ingresos">
+            <div class="amount-chip income" title="Total Ingresos: ${formatCurrency(totalIngresos)}">
               <i class="fas fa-arrow-up" aria-hidden="true"></i>
               ${formatCurrency(totalIngresos)}
             </div>
-            <div class="amount-chip expense" title="Gastos">
+            <div class="amount-chip expense" title="Total Gastos: ${formatCurrency(totalGastos)}">
               <i class="fas fa-arrow-down" aria-hidden="true"></i>
               ${formatCurrency(totalGastos)}
             </div>
@@ -1954,7 +2151,7 @@ function renderizarCategorias() {
       <div class="transaction-list${txVisibles.length === 0 ? ' is-empty' : ''}">
         ${txVisibles.length > 0 ? `
           <div class="transaction-list-header">
-            <span class="transaction-count">${txVisibles.length} transacción${txVisibles.length !== 1 ? 'es' : ''}${totalPaginas > 1 ? ` · Página ${paginaActual + 1}/${totalPaginas}` : ''}</span>
+            <span class="transaction-count">${txVisibles.length} ${txVisibles.length === 1 ? 'transacción' : 'transacciones'}${totalPaginas > 1 ? ` · Pág. ${paginaActual + 1}/${totalPaginas}` : ''}</span>
             <div class="sort-btn-group">
               <button class="sort-btn btn-icon" data-action="sortFecha" data-category-id="${category.id}"${fechaTitleAttr}>
                 <i class="fas ${fechaIcon}"></i>
@@ -1967,15 +2164,15 @@ function renderizarCategorias() {
         ` : ''}
         ${txPagina.map(t => `
           <div class="transaction-item">
-            <div class="transaction-actions">
-              <button class="btn-icon" data-action="eliminarTransaccion" data-category-id="${category.id}" data-transaction-id="${t.id}" title="Eliminar transacción" aria-label="Eliminar transacción de ${esc(category.name)}"><i class="fas fa-trash"></i></button>
-              <button class="btn-icon" data-action="editarTransaccion" data-category-id="${category.id}" data-transaction-id="${t.id}" title="Editar transacción" aria-label="Editar transacción de ${esc(category.name)}"><i class="fas fa-edit"></i></button>
+            <div class="transaction-item-header">
+              <div class="transaction-amount ${t.type}" title="${t.type === 'income' ? 'Ingreso: ' : 'Gasto: '}${formatCurrency(t.amount)}">${formatCurrency(t.amount)}</div>
+              <div class="transaction-actions">
+                <button class="btn-icon" data-action="editarTransaccion" data-category-id="${category.id}" data-transaction-id="${t.id}" aria-label="Editar transacción de ${esc(category.name)}"><i class="fas fa-edit"></i></button>
+                <button class="btn-icon" data-action="eliminarTransaccion" data-category-id="${category.id}" data-transaction-id="${t.id}" aria-label="Eliminar transacción de ${esc(category.name)}"><i class="fas fa-trash"></i></button>
+              </div>
             </div>
-            <div class="transaction-content">
-              <div class="transaction-amount ${t.type}">${formatCurrency(t.amount)}</div>
-              <div class="transaction-desc" title="${esc(t.description || 'Sin descripción')}">${esc(t.description || 'Sin descripción')}</div>
-              <div class="transaction-date">${formatDate(t.date)}</div>
-            </div>
+            <div class="transaction-desc" title="${esc(t.description || 'Sin descripción')}">${esc(t.description || 'Sin descripción')}</div>
+            <div class="transaction-date">${formatDate(t.date)}</div>
           </div>
         `).join('')}
         ${totalPaginas > 1 ? `
@@ -2502,14 +2699,6 @@ function setupEditTransactionTypeButtons() {
  * @param {*} transactionId - ID de la transacción a eliminar.
  */
 async function eliminarTransaccion(categoryId, transactionId) {
-  
-  if (window.__appConfirmDelete !== false) {
-    const confirmed = await (typeof window.showAlert === 'function'
-      ? window.showAlert('Eliminar transacción', '¿Seguro que deseas eliminar esta transacción?', { variant: 'confirm', emphasis: 'danger' })
-      : Promise.resolve(window.confirm('¿Seguro que deseas eliminar esta transacción?') ? 'confirm' : 'cancel'));
-    if (confirmed !== 'confirm') return;
-  }
-
   const category = datosUsuario.categories.find(c => c.id === categoryId);
   if (!category) {
     console.error('No se encontró la categoría:', categoryId);
@@ -3297,6 +3486,8 @@ function configurarListenersEventos() {
 
   const ejecutarEliminarTodasCategorias = async () => {
     datosUsuario.categories = [];
+    localStorage.removeItem('categories');
+    localStorage.removeItem('transactions');
     marcarCambioDatos();
     await persist();
     
@@ -3662,19 +3853,27 @@ class DashboardApp extends BasePage {
    * @protected
    */
   async _init() {
+    // 1. Renderizado instantáneo (0ms) con categorías predeterminadas o datos locales
+    generarOpcionesAnio();
+    configurarListenersEventos();
+    configurarListenersFiltros();
+    initCustomTransactionTooltip();
+    this._bindCrossTabEvents();
+    initGmailTransactionListener();
+    cargarTablero();
+
+    // 2. Inicialización y sincronización en segundo plano con Firebase / Firestore
     try {
       if (!window.firebase) {
         console.error('❌ Firebase SDK no cargado');
         throw new Error('Firebase SDK no disponible');
       }
 
-      if (!firebase.apps.length) {
+      if (window.FirestoreDB) {
+        window.FirestoreDB.ensureFirebaseInitialized();
+      } else if (!firebase.apps.length) {
         const config = window.FIREBASE_CONFIG;
-        if (!config) {
-          console.error('❌ Configuración de Firebase no encontrada');
-          throw new Error('Configuración de Firebase no disponible');
-        }
-        firebase.initializeApp(config);
+        if (config) firebase.initializeApp(config);
       }
     } catch (error) {
       console.error('❌ Error inicializando Firebase:', error);
@@ -3685,16 +3884,12 @@ class DashboardApp extends BasePage {
         const auth = firebase.auth();
         let resolved = false;
         let nullCount = 0;
-
-        // Firebase sometimes fires null FIRST while restoring session from IndexedDB.
-        // We wait up to 4 seconds for a real user before giving up.
         const fallbackTimer = setTimeout(() => {
           if (!resolved) {
-            console.warn('⏱ Firebase Auth timed out without a user — proceeding as guest/local');
             resolved = true;
             resolve();
           }
-        }, 4000);
+        }, 8000);
 
         auth.onAuthStateChanged(async (currentUser) => {
           if (currentUser) {
@@ -3706,10 +3901,30 @@ class DashboardApp extends BasePage {
               uid: currentUser.uid,
               email: currentUser.email || '',
               name: currentUser.displayName || currentUser.email?.split('@')[0] || 'Usuario',
-              photoURL: currentUser.photoURL || '',
-              provider: currentUser.providerData?.[0]?.providerId || 'google'
+              picture: currentUser.photoURL || currentUser.providerData?.[0]?.photoURL || '',
+              provider: currentUser.providerData?.[0]?.providerId || 'google',
+              emailVerified: currentUser.emailVerified
             };
             localStorage.setItem('authUser', JSON.stringify(profile));
+
+            // Actualizar el avatar inmediatamente con la foto real de Google.
+            try {
+              const avatarEl = document.querySelector('.user-avatar');
+              if (avatarEl) {
+                avatarEl.innerHTML = '';
+                if (profile.picture) {
+                  const img = document.createElement('img');
+                  img.src = profile.picture;
+                  img.alt = profile.name || 'Usuario';
+                  img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:50%';
+                  avatarEl.appendChild(img);
+                } else {
+                  avatarEl.textContent = (profile.name || 'U').charAt(0).toUpperCase();
+                }
+              }
+              const nameEl = document.querySelector('.user-name');
+              if (nameEl) nameEl.textContent = profile.name || 'Usuario';
+            } catch {}
 
             if (window.FirestoreDB) {
               await window.FirestoreDB.init(currentUser.uid);
@@ -3717,26 +3932,16 @@ class DashboardApp extends BasePage {
             }
             resolve();
           } else {
-            // null can fire while Firebase is still loading session from IndexedDB.
-            // We increment a counter but do NOT resolve yet — let the timer handle timeout.
             nullCount++;
-            console.warn(`⚠️ Firebase Auth emitió null (emisión #${nullCount}), esperando sesión real...`);
           }
         });
       } catch (error) {
-        console.error('❌ Error en Auth:', error);
         resolve();
       }
     });
 
     await boot();
-    generarOpcionesAnio();
-    configurarListenersEventos();
-    configurarListenersFiltros();
     cargarTablero();
-    initCustomTransactionTooltip();
-    this._bindCrossTabEvents();
-    initGmailTransactionListener();
   }
 
   /**
@@ -3776,23 +3981,52 @@ class GmailNotificationManager {
     this.init();
   }
 
+  _isRealTransactionNotif(notif) {
+    if (!notif) return false;
+    const text = `${notif.description || ''} ${notif.subject || ''}`;
+    const spamRegex = /(estado de cuenta|extracto|resumen de cuenta|resumen de saldo|balance de cuenta|balance mensual|informe de cuenta|estado de tarjeta|resumen mensual|alerta de inicio de sesi[oó]n|intento de acceso|cambio de contrase[nñ]a|empleo|vacante|postula|bolet[ií]n|newsletter|publicidad|descuento|ofert|promoci[oó]n|suscr[ií]bete|unsubscribe|darse de baja|ver en navegador|tienes hamb|lugares nuevos|soluciones|ahorro\s*🎨|bolsa de trabajo|linkedIn|glassdoor|indeed|career|hiring|trabajo|pide tu s[uú]per|como pides tu comida|c[oó]digo de verificaci[oó]n|verificar tu correo|clave temporal|otp|security code)/i;
+    if (spamRegex.test(text)) return false;
+    const bankTxnKeywords = /(monto|importe|cargo|compra|consumo|d[eé]bito|debito|pago|transacci[oó]n|recibo|factura|viaje|transferencia|notificaci[oó]n|alerta|aprobada|banco|bhd|popular|banreservas|scotiabank|visa|mastercard|paypal|stripe|voucher)/i;
+    return bankTxnKeywords.test(text);
+  }
+
+
+  _sortList(list) {
+    if (!Array.isArray(list)) return [];
+    return list.sort((a, b) => {
+      const timeA = a.date ? new Date(a.date).getTime() : (a.timestamp || 0);
+      const timeB = b.date ? new Date(b.date).getTime() : (b.timestamp || 0);
+      const valA = isNaN(timeA) ? 0 : timeA;
+      const valB = isNaN(timeB) ? 0 : timeB;
+      return valB - valA;
+    });
+  }
+
   _loadNotifications() {
     try {
       const raw = localStorage.getItem(this.STORAGE_KEY);
-      return Array.isArray(JSON.parse(raw)) ? JSON.parse(raw) : [];
+      const items = Array.isArray(JSON.parse(raw)) ? JSON.parse(raw) : [];
+      const filtered = items.filter(item => this._isRealTransactionNotif(item));
+      return this._sortList(filtered);
     } catch {
       return [];
     }
   }
 
   _saveNotifications() {
+    this.notifications = this._sortList(this.notifications);
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.notifications));
+    localStorage.setItem('finanzapp:gmail:notifications', JSON.stringify(this.notifications));
     this.updateBadges();
     this.renderList();
+    if (typeof window.renderMobileNotificationsMenu === 'function') {
+      window.renderMobileNotificationsMenu();
+    }
   }
 
   addNotification(txn) {
-    if (!txn || !txn.amount) return;
+    if (!txn || !txn.amount || !this._isRealTransactionNotif(txn)) return;
+
     const notif = {
       id: 'notif_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
       amount: txn.amount,
@@ -3804,10 +4038,11 @@ class GmailNotificationManager {
     };
 
     const exists = this.notifications.some(n => 
-      n.amount === notif.amount && n.description === notif.description
+      n.amount === notif.amount && n.description === notif.description && n.date === notif.date
     );
     if (!exists) {
-      this.notifications.unshift(notif);
+      this.notifications.push(notif);
+      this.notifications = this._sortList(this.notifications);
       this._saveNotifications();
     }
   }
@@ -3832,7 +4067,9 @@ class GmailNotificationManager {
       b.textContent = count;
       if (count > 0) {
         b.classList.remove('hidden');
-        b.style.display = 'inline-block';
+        b.style.display = 'inline-flex';
+        b.style.alignItems = 'center';
+        b.style.justifyContent = 'center';
       } else {
         b.classList.add('hidden');
         b.style.display = 'none';
@@ -3845,6 +4082,8 @@ class GmailNotificationManager {
     const footerEl = document.getElementById('gmailNotifFooter');
     if (!listEl) return;
 
+    this.notifications = this._sortList(this.notifications);
+
     if (!this.notifications.length) {
       listEl.innerHTML = '<p class="gmail-notif-empty" style="text-align:center; color:#888; padding:20px 10px;">Sin notificaciones bancarias pendientes.</p>';
       if (footerEl) footerEl.style.display = 'none';
@@ -3855,18 +4094,23 @@ class GmailNotificationManager {
 
     listEl.innerHTML = this.notifications.map(n => {
       const formattedAmount = (n.amount || 0).toLocaleString('es-DO', { minimumFractionDigits: 2 });
-      const formattedDate = n.date ? new Date(n.date).toLocaleDateString('es-DO', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '';
-      const detailText = n.subject || formattedDate || 'Notificación bancaria';
+      const formattedDate = n.date ? formatDate(n.date) : '';
+      const subjectText = (n.subject && n.subject !== n.description) ? n.subject : (n.description || 'Notificación bancaria');
       return `
         <div class="gmail-notif-item" data-id="${n.id}">
           <div class="gmail-notif-item-top">
             <span class="gmail-notif-merchant">${n.description || 'Comercio'}</span>
             <span class="gmail-notif-amount">$${formattedAmount}</span>
           </div>
-          <span class="gmail-notif-date">${detailText}</span>
+          <div class="gmail-notif-item-bottom">
+            <span class="gmail-notif-detail">${subjectText}</span>
+            ${formattedDate ? `<span class="gmail-notif-date"><i class="far fa-calendar-alt"></i>${formattedDate}</span>` : ''}
+          </div>
         </div>
       `;
     }).join('');
+
+
 
     listEl.querySelectorAll('.gmail-notif-item').forEach(item => {
       item.addEventListener('click', () => {
@@ -3880,6 +4124,34 @@ class GmailNotificationManager {
     });
   }
 
+  positionPanel() {
+    const panel = document.getElementById('gmailNotifPanel');
+    const bellBtn = document.getElementById('gmailBellBtn');
+    if (!panel) return;
+
+    if (!bellBtn || bellBtn.offsetParent === null) {
+      panel.style.top = '70px';
+      panel.style.right = '16px';
+      panel.style.left = 'auto';
+      return;
+    }
+
+    const rect = bellBtn.getBoundingClientRect();
+    const panelWidth = Math.min(340, window.innerWidth - 32);
+
+    const top = Math.round(rect.bottom + 8);
+    let right = Math.round(window.innerWidth - rect.right);
+
+    if (right < 16) right = 16;
+    if (window.innerWidth - right - panelWidth < 16) {
+      right = Math.max(16, window.innerWidth - panelWidth - 16);
+    }
+
+    panel.style.top = `${top}px`;
+    panel.style.right = `${right}px`;
+    panel.style.left = 'auto';
+  }
+
   togglePanel(show) {
     const panel = document.getElementById('gmailNotifPanel');
     const overlay = document.getElementById('gmailNotifOverlay');
@@ -3890,6 +4162,7 @@ class GmailNotificationManager {
 
     if (shouldShow) {
       panel.classList.remove('hidden');
+      this.positionPanel();
       if (overlay) overlay.classList.remove('hidden');
       this.renderList();
     } else {
@@ -3923,12 +4196,26 @@ class GmailNotificationManager {
     if (clearBtn) {
       clearBtn.addEventListener('click', () => this.clearAll());
     }
+
+    window.addEventListener('resize', () => {
+      const panel = document.getElementById('gmailNotifPanel');
+      if (panel && !panel.classList.contains('hidden')) {
+        this.positionPanel();
+      }
+    });
+
+    window.addEventListener('scroll', () => {
+      const panel = document.getElementById('gmailNotifPanel');
+      if (panel && !panel.classList.contains('hidden')) {
+        this.positionPanel();
+      }
+    }, { passive: true });
   }
 }
 
 let gmailNotifManager = null;
 
-function initGmailTransactionListener() {
+async function initGmailTransactionListener() {
   if (!window.GmailAPI) return;
   if (!gmailNotifManager) {
     gmailNotifManager = new GmailNotificationManager();
@@ -3940,16 +4227,21 @@ function initGmailTransactionListener() {
     gmailNotifManager.addNotification(txn);
   };
 
+  if (!window.GmailAPI.isSignedIn() && typeof window.GmailAPI.ensureSession === 'function') {
+    await window.GmailAPI.ensureSession();
+  }
+
   if (window.GmailAPI.isSignedIn()) {
     window.GmailAPI.startPolling(handleTransaction);
-  } else {
-    window.GmailAPI._onStatusChange = (signedIn) => {
-      if (signedIn) {
-        window.GmailAPI.startPolling(handleTransaction);
-      }
-    };
   }
+
+  window.GmailAPI._onStatusChange = (signedIn) => {
+    if (signedIn) {
+      window.GmailAPI.startPolling(handleTransaction);
+    }
+  };
 }
+
 
 /**
  * Abre el modal preexistente en Dashboard.html (#gmailReviewModal) para revisar
@@ -3978,12 +4270,9 @@ function abrirModalRevisarGmail(notif, notifId = null) {
   if (descInput) descInput.value = notif.description || '';
 
   if (dateInput) {
-    const d = notif.date ? new Date(notif.date) : new Date();
-    const day = String(d.getDate()).padStart(2, '0');
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const year = d.getFullYear();
-    dateInput.value = `${day}/${month}/${year}`;
+    dateInput.value = formatDate(notif.date || new Date());
   }
+
 
   let currentTxType = notif.type || 'expense';
 
@@ -4226,29 +4515,32 @@ function initCustomTransactionTooltip() {
     tooltip.style.transform = 'translateY(-4px)';
   };
 
+  const TOOLTIP_TARGETS = '.transaction-desc, .transaction-amount, .amount-chip, .sort-btn, [data-tooltip]';
+
   document.addEventListener('click', forceHide, true);
   document.addEventListener('scroll', forceHide, { capture: true, passive: true });
   document.addEventListener('keydown', forceHide, true);
 
   document.addEventListener('mouseenter', (e) => {
-    const target = safeClosest(e.target, '.transaction-desc') || safeClosest(e.target, '.sort-btn');
+    const target = safeClosest(e.target, TOOLTIP_TARGETS);
     if (!target) return;
     showTooltip(target, e);
   }, true);
 
   document.addEventListener('mousemove', (e) => {
-    const has = safeClosest(e.target, '.transaction-desc') || safeClosest(e.target, '.sort-btn');
+    const has = safeClosest(e.target, TOOLTIP_TARGETS);
     if (!has) return;
     positionTooltip(e);
   }, true);
 
   document.addEventListener('mouseleave', (e) => {
-    const target = safeClosest(e.target, '.transaction-desc') || safeClosest(e.target, '.sort-btn');
+    const target = safeClosest(e.target, TOOLTIP_TARGETS);
     if (!target) return;
     if (target.contains(e.relatedTarget)) return;
     hideTooltip(target);
   }, true);
 }
+
 window.editarTransaccion = editarTransaccion;
 window.eliminarTransaccion = eliminarTransaccion;
 window.abrirSelectorFecha = abrirSelectorFecha;

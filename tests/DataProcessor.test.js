@@ -86,11 +86,16 @@ describe('DataProcessor', () => {
 
   describe('calcularEstadisticasDiarias', () => {
     it('calcula ingresos/gastos de hoy y promedio diario de 30 días', () => {
-      const hoy = new Date().toISOString().slice(0, 10);
+      const d = new Date();
+      const pad = n => String(n).padStart(2, '0');
+      const hoy = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+      const ayerD = new Date(d);
+      ayerD.setDate(d.getDate() - 1);
+      const ayer = `${ayerD.getFullYear()}-${pad(ayerD.getMonth() + 1)}-${pad(ayerD.getDate())}`;
       const txs = [
         { amount: 100, date: hoy, type: 'income' },
         { amount: 40, date: hoy, type: 'expense' },
-        { amount: 30, date: new Date(Date.now() - 86400000).toISOString().slice(0, 10), type: 'income' }
+        { amount: 30, date: ayer, type: 'income' }
       ];
       const stats = processor.calcularEstadisticasDiarias(txs);
       expect(stats.incomeToday).toBe(100);

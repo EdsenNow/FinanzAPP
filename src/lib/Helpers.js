@@ -194,20 +194,57 @@ class Helpers {
   }
 
   /**
-   * Formatea una fecha según el formato configurado (DMY o MDY).
-   * @param {Date} date
+   * Formatea una fecha según el formato configurado por el usuario (DMY o MDY).
+   * @param {Date|string|number} date
    * @returns {string} Fecha formateada o cadena vacía si la entrada es inválida.
    */
   static formatDate(date) {
-    if (!date || !(date instanceof Date)) return '';
+    if (!date) return '';
+    let d = date;
+    if (!(d instanceof Date)) {
+      if (typeof d === 'string') {
+        const trimmed = d.trim();
+        if (trimmed.includes('/')) {
+          const parts = trimmed.split('/');
+          if (parts.length === 3) {
+            let isMdy = false;
+            try {
+              const raw = JSON.parse(localStorage.getItem('finanzapp:settings:v1') || '{}');
+              isMdy = raw?.dateFormat === 'mdy';
+            } catch (_) {}
+            const day = isMdy ? Number(parts[1]) : Number(parts[0]);
+            const month = isMdy ? Number(parts[0]) : Number(parts[1]);
+            const year = Number(parts[2]);
+            d = new Date(year, month - 1, day);
+          } else {
+            d = new Date(trimmed);
+          }
+        } else {
+          d = new Date(trimmed);
+        }
+      } else {
+        d = new Date(date);
+      }
+    }
+    if (!d || !(d instanceof Date) || isNaN(d.getTime())) return '';
+
     try {
       const raw = JSON.parse(localStorage.getItem('finanzapp:settings:v1') || '{}');
+      const day = String(d.getDate()).padStart(2, '0');
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const year = d.getFullYear();
       if (raw?.dateFormat === 'mdy') {
-        return date.toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' });
+        return `${month}/${day}/${year}`;
       }
-    } catch { /* usa formato por defecto */ }
-    return date.toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' });
+      return `${day}/${month}/${year}`;
+    } catch {
+      const day = String(d.getDate()).padStart(2, '0');
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const year = d.getFullYear();
+      return `${day}/${month}/${year}`;
+    }
   }
+
 
   /**
    * Convierte una fecha a formato `YYYY-MM-DD` para usar en inputs `<input type="date">`.

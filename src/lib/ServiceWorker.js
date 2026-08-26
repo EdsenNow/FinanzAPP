@@ -16,10 +16,10 @@
    */
   function limpiarCachesObsoletas() {
     if (!('caches' in window)) return;
-    const patronesViejos = ['finanzapp-static-v5', 'finanzapp-shell-v5'];
+    const versionActual = 'v20260819_v3';
     caches.keys().then(names => {
       names.forEach(name => {
-        if (patronesViejos.some(p => name.includes(p))) {
+        if (!name.includes(versionActual)) {
           caches.delete(name);
         }
       });

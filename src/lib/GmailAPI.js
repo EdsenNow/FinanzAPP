@@ -45,12 +45,15 @@ class GmailAPI {
       this._accessToken = token;
       this._signedIn    = true;
       console.log('[GmailAPI] Sesión restaurada desde localStorage. Expira en', Math.round((expiry - Date.now()) / 60000), 'min');
-      return;
+      return true;
     }
 
-    // Si no hay token válido en localStorage, intentar renovar vía backend
+    // Si no hay token válido en localStorage, intentar renovar vía backend esperando primero a que Firebase Auth esté listo
     if (GMAIL_BACKEND_URL) {
       try {
+        if (window.FirestoreDB?.waitForAuth) {
+          await window.FirestoreDB.waitForAuth(5000);
+        }
         const uid = await this._getCurrentUserId();
         if (uid) {
           const url = GMAIL_BACKEND_URL.replace(/\/$/, '') + '/refreshAccessToken?uid=' + encodeURIComponent(uid);
@@ -63,15 +66,14 @@ class GmailAPI {
               this._saveToken(json.access_token, json.expires_in || 3600);
               this._signedIn = true;
               if (this._onStatusChange) this._onStatusChange(true);
-              return;
+              return true;
             }
           } else {
             const json = await resp.json().catch(() => ({}));
             if (resp.status === 401 && (json.error === 'invalid_grant' || json.message === 'refresh_token_revoked')) {
               console.warn('[GmailAPI] _restoreToken: refresh_token revoked, forcing interactive reauth');
               this._clearToken();
-              if (window.google?.accounts?.oauth2) this.signInInteractive().catch(e => console.warn('[GmailAPI] signInInteractive failed', e));
-              return;
+              return false;
             }
           }
         }
@@ -79,6 +81,16 @@ class GmailAPI {
         console.warn('[GmailAPI] _restoreToken: error al pedir token al backend:', err);
       }
     }
+    return false;
+  }
+
+  /**
+   * Garantiza que la sesión de Gmail esté activa (restaurando via localStorage o backend).
+   * @returns {Promise<boolean>}
+   */
+  async ensureSession() {
+    if (this.isSignedIn()) return true;
+    return await this._restoreToken();
   }
 
   _saveToken(token, expiresInSeconds) {
@@ -102,7 +114,7 @@ class GmailAPI {
 
   _renewToken() {
     // Intentar renovar vía backend (si está configurado) usando el refresh_token
-    (async () => {
+    return (async () => {
       try {
         if (GMAIL_BACKEND_URL) {
           const uid = await this._getCurrentUserId();
@@ -180,8 +192,18 @@ class GmailAPI {
 
   async _getFirebaseIdToken() {
     try {
+      if (window.FirestoreDB) {
+        await window.FirestoreDB.ensureUserContext();
+      }
       if (window.firebaseAuth?.init) {
         await window.firebaseAuth.init();
+      }
+
+      // Si firebase.auth existe pero el currentUser aún no resolvió, esperar a waitForAuth()
+      if (window.firebase?.auth && !window.firebase.auth().currentUser) {
+        if (window.FirestoreDB?.waitForAuth) {
+          await window.FirestoreDB.waitForAuth(5000);
+        }
       }
 
       const authUser = window.firebaseAuth?.getCurrentUser?.()
@@ -195,6 +217,7 @@ class GmailAPI {
     }
     return null;
   }
+
 
   async _getBackendHeaders(includeJson = true) {
     const headers = {};
@@ -295,8 +318,8 @@ class GmailAPI {
             this._signedIn = false;
             let msg = response.error_description || response.error || 'error_oauth';
             // Mensaje más amigable para errores comunes de cliente OAuth
-            if (response.error === 'invalid_client' || /client.*not.*found/i.test(msg)) {
-              msg = 'El cliente OAuth no fue encontrado. Verifica `lib/config.js` y la Consola de Google Cloud (Credentials → OAuth 2.0 Client IDs). Asegura que el Client ID coincide y que el origen de la app está autorizado.';
+            if (response.error === 'invalid_client' || response.error === 'deleted_client' || /client.*(not.*found|was deleted)/i.test(msg)) {
+              msg = 'El cliente OAuth no fue encontrado o fue eliminado. Verifica `lib/config.js` y la Consola de Google Cloud (Credentials → OAuth 2.0 Client IDs). Asegura que el Client ID coincide y que el origen de la app está autorizado.';
             }
             reject(new Error(msg));
             return;
@@ -360,7 +383,7 @@ class GmailAPI {
         }
       }, 300000);
 
-      const handleSuccess = (accessToken, expiresIn) => {
+      const handleTokenSuccess = (accessToken, expiresIn) => {
         if (settled) return;
         settled = true;
         clearTimeout(timeout);
@@ -369,6 +392,35 @@ class GmailAPI {
         if (this._onStatusChange) this._onStatusChange(true);
         resolve();
       };
+
+      const handleCodeSuccess = async (code) => {
+        try {
+          const uid = await this._getCurrentUserId();
+          if (!uid || !GMAIL_BACKEND_URL) {
+            throw new Error('no_backend_uid');
+          }
+
+          const url = GMAIL_BACKEND_URL.replace(/\/$/, '') + '/exchangeCode';
+          const headers = await this._getBackendHeaders(true);
+          const resp = await fetch(url, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({ code, uid, redirect_uri: 'postmessage' })
+          });
+
+          const json = await resp.json();
+          if (resp.ok && json.access_token) {
+            console.log('[GmailAPI] Código OAuth intercambiado con éxito. refresh_token guardado para UID:', uid);
+            handleTokenSuccess(json.access_token, json.expires_in || 3600);
+            return;
+          }
+          throw new Error(json.error || json.message || 'exchange_failed');
+        } catch (e) {
+          console.error('[GmailAPI] Error intercambiando código con backend:', e);
+          handleError(e);
+        }
+      };
+
 
       const handleError = (error) => {
         if (settled) return;
@@ -385,34 +437,70 @@ class GmailAPI {
       };
 
       this._debugClientId();
-      const tokenClient = window.google.accounts.oauth2.initTokenClient({
-        client_id: this._clientId,
-        scope: 'https://www.googleapis.com/auth/gmail.readonly',
-        callback: (response) => {
-          if (settled) return;
-          if (response.error || !response.access_token) {
-            handleError(response.error_description || response.error || 'error_oauth');
-            return;
-          }
-          handleSuccess(response.access_token, response.expires_in);
-        },
-        error_callback: (err) => {
-          handleError(err);
-        }
-      });
 
-      tokenClient.requestAccessToken({ prompt: 'select_account' });
+      // Intentar primero con initCodeClient para obtener el refresh_token offline en el backend
+      try {
+        const codeClient = window.google.accounts.oauth2.initCodeClient({
+          client_id: this._clientId,
+          scope: 'https://www.googleapis.com/auth/gmail.readonly',
+          ux_mode: 'popup',
+          // access_type offline + prompt consent: garantiza que Google SIEMPRE
+          // devuelva un refresh_token nuevo al vincular (sin esto, solo lo emite
+          // la primera vez y la vinculación muere al expirar el access token).
+          access_type: 'offline',
+          prompt: 'consent select_account',
+          callback: (response) => {
+            if (settled) return;
+            if (response.error || !response.code) {
+              handleError(response.error_description || response.error || 'error_oauth');
+              return;
+            }
+            handleCodeSuccess(response.code);
+          },
+          error_callback: (err) => handleError(err)
+        });
+
+        codeClient.requestCode();
+      } catch (err) {
+        console.warn('[GmailAPI] initCodeClient no disponible, usando initTokenClient:', err);
+        const tokenClient = window.google.accounts.oauth2.initTokenClient({
+          client_id: this._clientId,
+          scope: 'https://www.googleapis.com/auth/gmail.readonly',
+          callback: (response) => {
+            if (settled) return;
+            if (response.error || !response.access_token) {
+              handleError(response.error_description || response.error || 'error_oauth');
+              return;
+            }
+            handleTokenSuccess(response.access_token, response.expires_in);
+          },
+          error_callback: (err) => handleError(err)
+        });
+        tokenClient.requestAccessToken({ prompt: 'select_account' });
+      }
     });
   }
 
-  signOut() {
+  async signOut() {
     if (this._accessToken && window.google?.accounts?.oauth2) {
-      window.google.accounts.oauth2.revoke(this._accessToken, () => {});
+      try { window.google.accounts.oauth2.revoke(this._accessToken, () => {}); } catch {}
+    }
+    // Borrar token permanente del usuario en Firestore al desvincular
+    if (GMAIL_BACKEND_URL) {
+      try {
+        const uid = await this._getCurrentUserId();
+        if (uid) {
+          const url = GMAIL_BACKEND_URL.replace(/\/$/, '') + '/clearGmailToken?uid=' + encodeURIComponent(uid);
+          const headers = await this._getBackendHeaders(true);
+          await fetch(url, { method: 'DELETE', headers }).catch(() => {});
+        }
+      } catch (e) {}
     }
     this._clearToken();
     this.stopPolling();
     if (this._onStatusChange) this._onStatusChange(false);
   }
+
 
   // ── Polling ────────────────────────────────────────────────────────────────
 
@@ -577,7 +665,10 @@ class GmailAPI {
       });
 
       if (resp.status === 401) {
-        console.warn('[GmailAPI] Token expirado (401)');
+        console.warn('[GmailAPI] Token expirado (401), intentando renovar antes de desconectar...');
+        await this._renewToken();
+        if (this.isSignedIn()) return; // Renovado con éxito: seguir polling
+        console.warn('[GmailAPI] No se pudo renovar el token, sesión terminada.');
         this._clearToken();
         this.stopPolling();
         if (this._onStatusChange) this._onStatusChange(false);
@@ -672,7 +763,18 @@ class GmailAPI {
     const body       = this._extractBody(msg.payload);
     const fullText   = `${subject}\n${body}`;
 
-    console.log('[GmailAPI] === TEXTO DEL CORREO (primeros 800 chars) ===\n', fullText.substring(0, 800));
+    // 1. FILTRADO ESTRICTO DE PUBLICIDAD, ESTADOS DE CUENTA, ANUNCIOS, OFERTAS DE EMPLEO Y NEWSLETTERS (Falsos Positivos)
+    const spamMarketingRegex = /(estado de cuenta|extracto|resumen de cuenta|resumen de saldo|balance de cuenta|balance mensual|informe de cuenta|estado de tarjeta|resumen mensual|alerta de inicio de sesi[oó]n|intento de acceso|cambio de contrase[nñ]a|empleo|vacante|postula|bolet[ií]n|newsletter|publicidad|descuento|ofert|promoci[oó]n|suscr[ií]bete|unsubscribe|darse de baja|ver en navegador|tienes hamb|lugares nuevos|soluciones|ahorro\s*🎨|bolsa de trabajo|linkedIn|glassdoor|indeed|career|hiring|trabajo|pide tu s[uú]per|como pides tu comida|c[oó]digo de verificaci[oó]n|verificar tu correo|clave temporal|otp|security code)/i;
+    if (spamMarketingRegex.test(subject) || spamMarketingRegex.test(fullText)) {
+      return { ignored: true, reason: 'marketing/spam' };
+    }
+
+
+    // 2. VALIDAR QUE TENGA CONTEXTO REAL DE TRANSACCIÓN O NOTIFICACIÓN BANCARIA/COMERCIAL
+    const bankTxnKeywords = /(monto|importe|cargo|compra|consumo|d[eé]bito|debito|pago|transacci[oó]n|recibo|factura|viaje|transferencia|notificaci[oó]n|alerta|aprobada|banco|bhd|popular|banreservas|scotiabank|visa|mastercard|paypal|stripe|voucher)/i;
+    if (!bankTxnKeywords.test(fullText)) {
+      return { ignored: true, reason: 'no_bank_context' };
+    }
 
     const isDeclined = this._isDeclined(fullText);
 
@@ -680,6 +782,7 @@ class GmailAPI {
     const amountInfo = this._selectTransactionAmountInfo(fullText, userCurrency);
     let amount = amountInfo ? amountInfo.amount : this._parseAmount(fullText);
     if (!amount) return null;
+
 
     // Política actual: NO realizar conversiones automáticas en el cliente.
     // Preservar el monto detectado en el email y no modificarlo.
@@ -690,7 +793,6 @@ class GmailAPI {
     const date        = this._parseDate(dateHeader, fullText);
     const type        = this._detectTransactionType(fullText);
 
-    console.log('[GmailAPI] Comercio detectado:', description, '| Tipo:', type);
 
     return {
       amount,

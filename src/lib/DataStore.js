@@ -106,9 +106,21 @@ class LocalStorageStore extends Store {
   /** @override */
   async load() {
     try {
-      const key = `${this.#baseKey}:${_getUserId()}`;
-      const raw = localStorage.getItem(key);
-      return raw ? JSON.parse(raw) : null;
+      const userId = _getUserId();
+      const p = this.#baseKey;
+      const rawCategories = localStorage.getItem(`${p}:${userId}:categories`);
+      const rawTransactions = localStorage.getItem(`${p}:${userId}:transactions`);
+      const rawBudgets = localStorage.getItem(`${p}:${userId}:budgets`);
+      
+      if (rawCategories === null && rawTransactions === null && rawBudgets === null) {
+        return null;
+      }
+
+      return {
+        transactions: JSON.parse(rawTransactions || '[]'),
+        categories:   JSON.parse(rawCategories   || '[]'),
+        budgets:      JSON.parse(rawBudgets      || '{}')
+      };
     } catch {
       return null;
     }
@@ -118,19 +130,10 @@ class LocalStorageStore extends Store {
   async save(state) {
     try {
       const userId = _getUserId();
-      localStorage.setItem(`${this.#baseKey}:${userId}`, JSON.stringify(state));
-
-      if (window.FirestoreDB?.initialized && userId !== 'guest') {
-        try {
-          await Promise.all([
-            window.FirestoreDB.saveTransactions(state.transactions || []),
-            window.FirestoreDB.saveCategories(state.categories   || []),
-            window.FirestoreDB.saveBudgets(state.budgets         || {})
-          ]);
-        } catch (err) {
-          console.warn('Error sincronizando con Firestore:', err);
-        }
-      }
+      const p = this.#baseKey;
+      localStorage.setItem(`${p}:${userId}:transactions`, JSON.stringify(state.transactions || []));
+      localStorage.setItem(`${p}:${userId}:categories`,   JSON.stringify(state.categories   || []));
+      localStorage.setItem(`${p}:${userId}:budgets`,      JSON.stringify(state.budgets      || {}));
     } catch (err) {
       console.error('Error guardando en LocalStorageStore:', err);
     }
@@ -150,6 +153,12 @@ class FirestoreStore extends Store {
   /** @type {string} Prefijo de claves en localStorage */
   static #LS_PREFIX = 'finanzapp:data:v1';
 
+  /** @type {number} Margen en ms para ignorar nuestros propios guardados */
+  static #OWN_SAVE_MARGIN_MS = 500;
+
+  #unsubscribe = null;
+  #lastLocalSaveAt = 0;
+
   /**
    * Lee el snapshot actual de localStorage para un usuario.
    * @param {string} userId
@@ -157,50 +166,141 @@ class FirestoreStore extends Store {
    */
   static #readLocalSnapshot(userId) {
     const p = FirestoreStore.#LS_PREFIX;
+    const rawCategories = localStorage.getItem(`${p}:${userId}:categories`);
+    const rawTransactions = localStorage.getItem(`${p}:${userId}:transactions`);
+    const rawBudgets = localStorage.getItem(`${p}:${userId}:budgets`);
+
+    if (rawCategories === null && rawTransactions === null && rawBudgets === null) {
+      return null;
+    }
+
+    let settings = {};
+    try {
+      settings = JSON.parse(localStorage.getItem('finanzapp:settings:v1') || '{}');
+    } catch {}
     return {
-      transactions: JSON.parse(localStorage.getItem(`${p}:${userId}:transactions`) || '[]'),
-      categories:   JSON.parse(localStorage.getItem(`${p}:${userId}:categories`)   || '[]'),
-      budgets:      JSON.parse(localStorage.getItem(`${p}:${userId}:budgets`)       || '{}')
+      categories:   JSON.parse(rawCategories   || '[]'),
+      transactions: JSON.parse(rawTransactions || '[]'),
+      budgets:      JSON.parse(rawBudgets      || '{}'),
+      settings:     settings
     };
+  }
+
+  static #writeLocalSnapshot(userId, snapshot) {
+    const p = FirestoreStore.#LS_PREFIX;
+    localStorage.setItem(`${p}:${userId}:transactions`, JSON.stringify(snapshot.transactions || []));
+    localStorage.setItem(`${p}:${userId}:categories`,   JSON.stringify(snapshot.categories   || []));
+    localStorage.setItem(`${p}:${userId}:budgets`,      JSON.stringify(snapshot.budgets      || {}));
+    if (snapshot.settings && typeof snapshot.settings === 'object' && Object.keys(snapshot.settings).length > 0) {
+      try {
+        localStorage.setItem('finanzapp:settings:v1', JSON.stringify(snapshot.settings));
+        if (snapshot.settings.theme) {
+          localStorage.setItem('theme', snapshot.settings.theme);
+          document.documentElement.setAttribute('data-theme', snapshot.settings.theme);
+        }
+      } catch {}
+    }
+  }
+
+
+  static #snapshotsEqual(a, b) {
+    try {
+      return JSON.stringify(a) === JSON.stringify(b);
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Inicia la suscripción a cambios remotos del usuario autenticado.
+   * Emite `finanzapp:data:updated` cuando llegan datos diferentes desde otro dispositivo.
+   */
+  #subscribeToRemote(userId) {
+    if (this.#unsubscribe || !window.FirestoreDB?.initialized || userId === 'guest') return;
+
+    this.#unsubscribe = window.FirestoreDB.subscribeToUserData((remoteData) => {
+      if (!remoteData) return;
+
+      // Ignorar snapshots que son eco de nuestro propio guardado reciente
+      const now = Date.now();
+      if (now - this.#lastLocalSaveAt < FirestoreStore.#OWN_SAVE_MARGIN_MS) return;
+
+      const localSnapshot = FirestoreStore.#readLocalSnapshot(userId);
+      if (FirestoreStore.#snapshotsEqual(localSnapshot, remoteData)) return;
+
+      FirestoreStore.#writeLocalSnapshot(userId, remoteData);
+      window.dispatchEvent(new CustomEvent('finanzapp:data:updated', {
+        detail: remoteData
+      }));
+      if (window.DataEvents) {
+        window.DataEvents.emit('datos:actualizados', remoteData);
+        window.DataEvents.emit('transactionChanged', { action: 'remoteSync', remoteData });
+      }
+    });
+  }
+
+
+  unsubscribe() {
+    if (typeof this.#unsubscribe === 'function') {
+      this.#unsubscribe();
+      this.#unsubscribe = null;
+    }
   }
 
   /** @override */
   async load() {
-    const userId = _getUserId();
+    // Esperar a que Firebase Auth resuelva el usuario antes de intentar cargar.
+    // waitForAuth() solo resuelve con un UID cuando hay sesión Firebase real —
+    // devuelve null si Firebase no tiene usuario (no hay fallback a localStorage).
+    let userId = 'guest';
+    let hasFirebaseSession = false; // ¿Firebase Auth confirmó al usuario?
 
-    if (_isGuestUser() || !window.FirestoreDB) {
+    if (window.FirestoreDB && window.firebase) {
+      try {
+        const uid = await window.FirestoreDB.waitForAuth(5000);
+        if (uid) {
+          userId = uid;
+          hasFirebaseSession = true;
+          // Asegurar que FirestoreDB esté inicializado con el UID verificado por Firebase
+          if (!window.FirestoreDB.initialized) {
+            await window.FirestoreDB.init(userId);
+          }
+          window.FirestoreDB.setCurrentUser(userId);
+          console.log('[DataStore] Sesión Firebase confirmada para uid:', userId);
+        } else {
+          // No hay sesión Firebase real — operar solo en modo local
+          userId = _getUserId();
+          console.warn('[DataStore] Sin sesión Firebase — modo local para uid:', userId);
+        }
+      } catch {
+        userId = _getUserId();
+      }
+    } else {
+      userId = _getUserId();
+    }
+
+    // Sin sesión Firebase verificada → solo localStorage (acceder Firestore sin token
+    // causaría "Missing or insufficient permissions").
+    if (!hasFirebaseSession || !window.FirestoreDB) {
       return FirestoreStore.#readLocalSnapshot(userId);
     }
 
     try {
-      await window.FirestoreDB.init(userId);
-      window.FirestoreDB.setCurrentUser(userId);
+      // Suscribirse a cambios remotos
+      this.#subscribeToRemote(userId);
 
       // Intentar cargar desde Firestore
       const remoteData = await window.FirestoreDB.loadAll();
 
-      if (remoteData && (
-        remoteData.categories.length > 0 ||
-        remoteData.transactions.length > 0 ||
-        Object.keys(remoteData.budgets || {}).length > 0
-      )) {
-        // Guardar copia local para acceso offline
-        const p = FirestoreStore.#LS_PREFIX;
-        localStorage.setItem(`${p}:${userId}:categories`, JSON.stringify(remoteData.categories));
-        localStorage.setItem(`${p}:${userId}:transactions`, JSON.stringify(remoteData.transactions));
-        localStorage.setItem(`${p}:${userId}:budgets`, JSON.stringify(remoteData.budgets));
+      if (remoteData !== null) {
+        FirestoreStore.#writeLocalSnapshot(userId, remoteData);
         return remoteData;
       }
 
-      // Sin datos remotos — usar datos locales y subirlos
+      // Sin datos remotos en Firestore — usar snapshot local si existe
       const localSnapshot = FirestoreStore.#readLocalSnapshot(userId);
-      const hasLocalData =
-        localSnapshot.categories.length > 0 ||
-        localSnapshot.transactions.length > 0 ||
-        Object.keys(localSnapshot.budgets).length > 0;
-
-      if (hasLocalData) {
-        // Subir datos locales a Firestore
+      if (localSnapshot !== null) {
+        // Subir datos locales a Firestore para sincronizar
         try {
           await window.FirestoreDB.saveAll(localSnapshot);
         } catch (e) {
@@ -209,7 +309,7 @@ class FirestoreStore extends Store {
         return localSnapshot;
       }
 
-      return { transactions: [], categories: [], budgets: {} };
+      return null;
     } catch (err) {
       console.error('[DataStore] Error cargando desde Firestore:', err);
       return FirestoreStore.#readLocalSnapshot(userId);
@@ -219,20 +319,39 @@ class FirestoreStore extends Store {
   /** @override */
   async save(state) {
     try {
-      const userId = _getUserId();
-      const p      = FirestoreStore.#LS_PREFIX;
+      // Preferir el UID resuelto por FirestoreDB (via waitForAuth en load()) sobre
+      // la lectura síncrona de localStorage, que puede no estar actualizada aún.
+      const userId = window.FirestoreDB?.currentUserId || _getUserId();
 
-      // Guardar copia local primero
-      localStorage.setItem(`${p}:${userId}:transactions`, JSON.stringify(state.transactions || []));
-      localStorage.setItem(`${p}:${userId}:categories`,   JSON.stringify(state.categories   || []));
-      localStorage.setItem(`${p}:${userId}:budgets`,      JSON.stringify(state.budgets       || {}));
+      // Guardar copia local primero (siempre, como respaldo)
+      FirestoreStore.#writeLocalSnapshot(userId, state);
+      this.#lastLocalSaveAt = Date.now();
 
-      // Sincronizar con Firestore usando saveAll (documento único)
-      if (window.FirestoreDB?.initialized && userId !== 'guest') {
-        try {
-          await window.FirestoreDB.saveAll(state);
-        } catch (err) {
-          console.error('[DataStore] Error sincronizando con Firestore:', err);
+      // Sincronizar con Firestore
+      if (window.FirestoreDB && userId !== 'guest') {
+        // Si FirestoreDB no está inicializado o no tiene usuario, intentarlo ahora.
+        // Esto cubre el caso donde persist() se llama antes de que boot() complete.
+        if (!window.FirestoreDB.initialized || !window.FirestoreDB.currentUserId) {
+          try {
+            const uid = await window.FirestoreDB.waitForAuth(3000);
+            const uidToUse = uid || userId;
+            await window.FirestoreDB.init(uidToUse);
+            window.FirestoreDB.setCurrentUser(uidToUse);
+            console.log('[DataStore] FirestoreDB inicializado en save() con uid:', uidToUse);
+          } catch (initErr) {
+            console.warn('[DataStore] No se pudo inicializar FirestoreDB en save():', initErr);
+          }
+        }
+
+        if (window.FirestoreDB.initialized && window.FirestoreDB.currentUserId) {
+          try {
+            await window.FirestoreDB.saveAll(state);
+            console.log('[DataStore] Datos guardados en Firestore para uid:', window.FirestoreDB.currentUserId);
+          } catch (err) {
+            console.error('[DataStore] Error sincronizando con Firestore:', err);
+          }
+        } else {
+          console.warn('[DataStore] save() omitido en Firestore: FirestoreDB no listo. Solo guardado localmente.');
         }
       }
     } catch (err) {

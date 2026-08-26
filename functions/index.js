@@ -46,7 +46,7 @@ const ADMIN_UIDS = new Set(
     .filter(Boolean)
 );
 const ALLOWED_ORIGINS = new Set(
-  (process.env.ALLOWED_ORIGINS || 'https://finanzapp-fb.web.app,https://finanzapp-fb.firebaseapp.com,http://localhost:5000,http://127.0.0.1:5000,http://localhost:5173,http://127.0.0.1:5173')
+  (process.env.ALLOWED_ORIGINS || 'https://byfinanzapp.com,https://www.byfinanzapp.com,https://finanzapp-fb.web.app,https://finanzapp-fb.firebaseapp.com,http://localhost:5000,http://127.0.0.1:5000,http://localhost:5173,http://127.0.0.1:5173')
     .split(',')
     .map((s) => s.trim())
     .filter(Boolean)
@@ -55,7 +55,8 @@ const API_RATE_LIMIT_WINDOW_MS = Number(process.env.API_RATE_LIMIT_WINDOW_MS || 
 const API_RATE_LIMIT_MAX = Number(process.env.API_RATE_LIMIT_MAX || 120);
 const RATE_LIMITED_PATHS = new Set(['/exchangeCode', '/refreshAccessToken', '/gmail/startWatch', '/gmail/stopWatch', '/admin/reprocess']);
 const APPCHECK_PROTECTED_PATHS = new Set(['/exchangeCode', '/refreshAccessToken', '/gmail/startWatch', '/gmail/stopWatch']);
-const ENFORCE_APPCHECK = String(process.env.ENFORCE_APPCHECK || 'true').toLowerCase() === 'true';
+const ENFORCE_APPCHECK = String(process.env.ENFORCE_APPCHECK || 'false').toLowerCase() === 'true';
+
 const rateLimitBuckets = new Map();
 
 function normalizeOrigin(origin) {
@@ -162,16 +163,25 @@ app.use(async (req, res, next) => {
   if (!ENFORCE_APPCHECK || !APPCHECK_PROTECTED_PATHS.has(req.path)) return next();
   const isValid = await verifyAppCheckRequest(req);
   if (!isValid) {
+    const bearer = getBearerToken(req);
+    if (bearer) {
+      try {
+        const decoded = await admin.auth().verifyIdToken(bearer);
+        if (decoded && decoded.uid) return next();
+      } catch (e) {}
+    }
     return res.status(401).json({ error: 'invalid_app_check' });
   }
   return next();
 });
 
+
 app.use(express.json({ limit: '100kb' }));
 
-const CLIENT_ID = process.env.GMAIL_CLIENT_ID || process.env.CLIENT_ID || null;
-const CLIENT_SECRET = process.env.GMAIL_CLIENT_SECRET || process.env.CLIENT_SECRET || null;
+const CLIENT_ID = process.env.GMAIL_CLIENT_ID || '';
+const CLIENT_SECRET = process.env.GMAIL_CLIENT_SECRET || '';
 const REDIRECT_URI = process.env.GMAIL_REDIRECT_URI || process.env.REDIRECT_URI || 'postmessage';
+
 const GMAIL_RUNTIME_SECRETS = ['GMAIL_CLIENT_SECRET'];
 // Pub/Sub topic to receive Gmail push notifications (full path and short name)
 const GMAIL_PUBSUB_TOPIC = process.env.GMAIL_PUBSUB_TOPIC || `projects/${process.env.GCLOUD_PROJECT}/topics/gmail-notifications`;
@@ -211,25 +221,44 @@ app.post('/exchangeCode', async (req, res) => {
     const caller = await verifyUserRequest(req, uid);
     if (!caller) return res.status(403).json({ error: 'unauthorized' });
 
+    const redirectUri = req.body.redirect_uri || REDIRECT_URI || 'postmessage';
     const params = new URLSearchParams();
     params.append('code', code);
     params.append('client_id', CLIENT_ID);
     params.append('client_secret', CLIENT_SECRET);
-    params.append('redirect_uri', REDIRECT_URI);
+    params.append('redirect_uri', redirectUri);
     params.append('grant_type', 'authorization_code');
 
-    const tokenResp = await axios.post('https://oauth2.googleapis.com/token', params.toString(), {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-    });
+    let tokenResp;
+    try {
+      tokenResp = await axios.post('https://oauth2.googleapis.com/token', params.toString(), {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+      });
+    } catch (e1) {
+      if (redirectUri !== 'postmessage') {
+        params.set('redirect_uri', 'postmessage');
+        tokenResp = await axios.post('https://oauth2.googleapis.com/token', params.toString(), {
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+        });
+      } else {
+        throw e1;
+      }
+    }
 
     const tokens = tokenResp.data;
 
+    const gmailDoc = {
+      tokens: tokens,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    };
+
+    if (tokens.refresh_token) {
+      gmailDoc.refresh_token = tokens.refresh_token;
+      gmailDoc.encrypted_refresh_token = await encryptKms(tokens.refresh_token);
+    }
+
     await admin.firestore().collection('users').doc(uid).set({
-      gmail: {
-        encrypted_refresh_token: tokens.refresh_token ? await encryptKms(tokens.refresh_token) : null,
-        tokens: tokens,
-        updatedAt: admin.firestore.FieldValue.serverTimestamp()
-      }
+      gmail: gmailDoc
     }, { merge: true });
 
     res.json({
@@ -237,6 +266,7 @@ app.post('/exchangeCode', async (req, res) => {
       access_token: tokens.access_token,
       expires_in: tokens.expires_in || 3600
     });
+
   } catch (err) {
     const errData = err?.response?.data;
     console.error('exchangeCode error', errData || err.message);
@@ -246,8 +276,8 @@ app.post('/exchangeCode', async (req, res) => {
       errMsg = JSON.stringify(errMsg);
     }
     
-    if (errMsg.includes('invalid_client') || errMsg.includes('invalid_grant') || errMsg.includes('unauthorized_client')) {
-      errMsg = 'Las credenciales de Google OAuth de tu proyecto Firebase (Client ID o Client Secret) no son válidas, están cruzadas o están mal configuradas. Por favor, asegúrate de que coincidan con la consola de Google Cloud.';
+    if (errMsg.includes('invalid_client') || errMsg.includes('invalid_grant') || errMsg.includes('unauthorized_client') || errMsg.includes('deleted_client')) {
+      errMsg = 'Las credenciales de Google OAuth de tu proyecto Firebase (Client ID o Client Secret) no son válidas, están cruzadas, fueron eliminadas o están mal configuradas. Por favor, asegúrate de que coincidan con la consola de Google Cloud.';
     }
     
     res.status(500).json({ error: errMsg });
@@ -285,12 +315,19 @@ app.get('/exchangeCode', async (req, res) => {
 
     const tokens = tokenResp.data;
 
+    // No sobrescribir el refresh_token guardado con null si Google no devuelve
+    // uno nuevo (solo lo emite cuando hay consentimiento explícito).
+    const gmailDoc = {
+      tokens: tokens,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    };
+    if (tokens.refresh_token) {
+      gmailDoc.refresh_token = tokens.refresh_token;
+      gmailDoc.encrypted_refresh_token = await encryptKms(tokens.refresh_token);
+    }
+
     await admin.firestore().collection('users').doc(uid).set({
-      gmail: {
-        encrypted_refresh_token: tokens.refresh_token ? await encryptKms(tokens.refresh_token) : null,
-        tokens: tokens,
-        updatedAt: admin.firestore.FieldValue.serverTimestamp()
-      }
+      gmail: gmailDoc
     }, { merge: true });
 
     // Responder una página simple para el navegador
@@ -1101,18 +1138,26 @@ async function parseMessageToTransactionAsync(msg, userCurrency = 'USD') {
     const body = extractBody(msg.payload);
     const fullText = `${subject}\n${body}`;
 
-    // PREVENCIÓN DE SPAM Y FALSOS POSITIVOS:
-    // 1. Validar que tenga palabras clave de transacciones
-    const isTransaction = /(monto|importe|cargo|compra|consumo|d[eé]bito|debito|pago|transacci[oó]n|recibo|factura|viaje|transferencia|notificaci[oó]n|alerta|aprobada)/i.test(fullText);
+    // PREVENCIÓN DE SPAM, PUBLICIDAD, ESTADOS DE CUENTA Y FALSOS POSITIVOS:
+    // 1. Filtrado de estados de cuenta, ofertas de empleo, anuncios, promociones y newsletters
+    const spamMarketingRegex = /(estado de cuenta|extracto|resumen de cuenta|resumen de saldo|balance de cuenta|balance mensual|informe de cuenta|estado de tarjeta|resumen mensual|alerta de inicio de sesi[oó]n|intento de acceso|cambio de contrase[nñ]a|empleo|vacante|postula|bolet[ií]n|newsletter|publicidad|descuento|ofert|promoci[oó]n|suscr[ií]bete|unsubscribe|darse de baja|ver en navegador|tienes hamb|lugares nuevos|soluciones|ahorro\s*🎨|bolsa de trabajo|linkedIn|glassdoor|indeed|career|hiring|trabajo|pide tu s[uú]per|como pides tu comida|c[oó]digo de verificaci[oó]n|verificar tu correo|clave temporal|otp|security code)/i;
+    if (spamMarketingRegex.test(subject) || spamMarketingRegex.test(fullText)) {
+      return null;
+    }
+
+
+    // 2. Validar que tenga palabras clave de transacciones bancarias o comerciales
+    const isTransaction = /(monto|importe|cargo|compra|consumo|d[eé]bito|debito|pago|transacci[oó]n|recibo|factura|viaje|transferencia|notificaci[oó]n|alerta|aprobada|banco|bhd|popular|banreservas|scotiabank|visa|mastercard|paypal|stripe|voucher)/i.test(fullText);
     if (!isTransaction) return null;
 
     const declined = isDeclinedText(fullText);
     const amountInfo = selectTransactionAmountInfo(fullText, userCurrency);
 
-    // 2. Si el monto detectado tiene un "score" negativo (es decir, el algoritmo cree que es un saldo o no tiene sentido de pago), lo ignoramos.
+    // 3. Si el monto detectado tiene un "score" negativo (es decir, el algoritmo cree que es un saldo o no tiene sentido de pago), lo ignoramos.
     if (amountInfo && amountInfo.score !== undefined && amountInfo.score < 0) {
       return null;
     }
+
 
     let amount = amountInfo ? amountInfo.amount : parseAmount(fullText);
     if (!amount) return null;

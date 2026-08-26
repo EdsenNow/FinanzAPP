@@ -148,16 +148,30 @@ class BasePage {
    */
   _updateUserProfile() {
     try {
-      const user    = JSON.parse(localStorage.getItem('authUser') || '{}');
-      const name    = user?.displayName || user?.email || 'Usuario';
+      const raw     = localStorage.getItem('authUser');
+      const user    = raw && raw !== 'guest' ? JSON.parse(raw) : {};
+      const name    = user?.name || user?.displayName || user?.email?.split('@')[0] || 'Usuario';
+      const picture = user?.picture || user?.photoURL || '';
       const nameEl  = document.querySelector('.user-name');
       const emailEl = document.querySelector('.user-email');
       const avatarEl = document.querySelector('.user-avatar');
       if (nameEl)  nameEl.textContent  = name;
       if (emailEl) emailEl.textContent = user?.email || '';
-      if (avatarEl) avatarEl.textContent = name.charAt(0).toUpperCase();
+      if (avatarEl) {
+        avatarEl.innerHTML = '';
+        if (picture) {
+          const img = document.createElement('img');
+          img.src = picture;
+          img.alt = name;
+          img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:50%';
+          avatarEl.appendChild(img);
+        } else {
+          avatarEl.textContent = (name || 'U').trim().charAt(0).toUpperCase();
+        }
+      }
     } catch { /* noop */ }
   }
+
 
   // ---------------------------------------------------------------------------
   // Eventos

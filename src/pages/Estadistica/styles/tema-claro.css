@@ -1,20 +1,20 @@
-[data-theme="light"] .estadistica-page .stats-insights .insight-icon.primary { 
-background: linear-gradient(#b4637a) !important; 
-color: #FFFAF3 !important;
+[data-theme="light"] body.estadistica-page .stats-insights .insight-icon.primary { 
+background: linear-gradient(#b4637a); 
+color: #FFFAF3;
 }
 
-[data-theme="light"] .estadistica-page .stats-insights .insight-icon.accent { 
-background: linear-gradient(#2D957B) !important; 
-color: #FFFAF3 !important;
+[data-theme="light"] body.estadistica-page .stats-insights .insight-icon.accent { 
+background: linear-gradient(#2D957B); 
+color: #FFFAF3;
 }
 
-[data-theme="light"] .estadistica-page .stats-insights .insight-icon.success { 
-background: linear-gradient(#9c6bd7) !important; 
-color: #FFFAF3 !important;
+[data-theme="light"] body.estadistica-page .stats-insights .insight-icon.success { 
+background: linear-gradient(#9c6bd7); 
+color: #FFFAF3;
 }
 
-[data-theme="light"] .estadistica-page .summary-card.expenses .card-value {
-color: #b4637a !important;
+[data-theme="light"] body.estadistica-page .summary-card.expenses .card-value {
+color: #b4637a;
 }
 
 [data-theme="light"] .estadistica-page .chart-title-center i.fa-wave-square {
@@ -34,12 +34,37 @@ color: #b4637a;
 background: #faf4ed;
 }
 
+[data-theme="light"] .user-avatar {
+  background: linear-gradient(135deg, #d7827e 0%, #b4637a 100%);
+  color: #ffffff;
+}
+
+[data-theme="light"] .user-email {
+  color: #b4637a;
+}
+
+[data-theme="light"] body.estadistica-page {
+  background: #faf4ed;
+}
+
+[data-theme="light"] body.estadistica-page .main-content,
 [data-theme="light"] .main-content {
-background: #faf4ed;
+  background: #faf4ed;
+  scrollbar-color: #b4637a transparent;
+}
+
+[data-theme="light"] body.estadistica-page .main-content::-webkit-scrollbar-thumb,
+[data-theme="light"] .main-content::-webkit-scrollbar-thumb {
+  background: #b4637a;
+}
+
+[data-theme="light"] body.estadistica-page .main-content::-webkit-scrollbar-thumb:hover,
+[data-theme="light"] .main-content::-webkit-scrollbar-thumb:hover {
+  background: #964f62;
 }
 
 [data-theme="light"] .filter-group label {
-color: #575279;
+color: var(--primary);
 }
 
 [data-theme="light"] .nav-item:hover {
@@ -62,21 +87,25 @@ font-size: 13px;
 font-weight: 400;
 }
 
-[data-theme="light"] .estadistica-page .stats-insights .insight-icon.primary { 
-background: linear-gradient(#b4637a) !important; 
-color: #FFFAF3 !important;
+[data-theme="light"] body.estadistica-page .stats-insights .insight-icon.primary { 
+background: linear-gradient(#b4637a); 
+color: #FFFAF3;
 }
-[data-theme="light"] .estadistica-page .stats-insights .insight-icon.accent { 
-background: linear-gradient(#2D957B) !important; 
-color: #FFFAF3 !important;
+[data-theme="light"] body.estadistica-page .stats-insights .insight-icon.accent { 
+background: linear-gradient(#2D957B); 
+color: #FFFAF3;
 }
-[data-theme="light"] .estadistica-page .stats-insights .insight-icon.success { 
-background: linear-gradient(#9c6bd7) !important; 
-color: #FFFAF3 !important;
+[data-theme="light"] body.estadistica-page .stats-insights .insight-icon.success { 
+background: linear-gradient(#9c6bd7); 
+color: #FFFAF3;
 }
 
-[data-theme="light"] .estadistica-page .summary-card.expenses .card-value {
-color: #b4637a !important;
+[data-theme="light"] .logo-icon i {
+color: #e0def4 !important;
+}
+
+[data-theme="light"] body.estadistica-page .summary-card.expenses .card-value {
+color: #b4637a;
 }
 
 [data-theme="light"] .estadistica-page .chart-title-center i.fa-wave-square {
@@ -139,7 +168,7 @@ color: var(--text-color);
 }
 
 [data-theme="light"] .estadistica-page .summary-card:hover {
-transform: translateY(-4px);
+border-color: var(--primary);
 box-shadow: var(--card-shadow-hover);
 }
 
@@ -174,7 +203,7 @@ background: #faf4ed;
 }
 
 [data-theme="light"] .filter-group label {
-color: #575279;
+color: var(--primary);
 }
 
 [data-theme="light"] .estadistica-page .filter-controls .custom-dropdown-selected i {
@@ -209,6 +238,13 @@ background: #fffaf3;
 border: 3px solid #f2e9e1;
 }
 
+[data-theme="light"] .filter-group:hover,
+[data-theme="light"] .filter-group:has(.custom-dropdown.open),
+[data-theme="light"] .filter-group:focus-within {
+border-color: var(--primary);
+box-shadow: none;
+}
+
 [data-theme="light"] .btn-secondary {
 background: #fffaf3;
 color: var(--light);
@@ -236,37 +272,55 @@ scrollbar-color: #b4637a transparent;
 color: #f3f3f3;
 }
 
+[data-theme="light"] .transaction-list {
+  scrollbar-width: thin;
+  scrollbar-color: #b4637a transparent;
+}
+
+[data-theme="light"] .transaction-list::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+  background: transparent;
+}
+
+[data-theme="light"] .transaction-list::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 12px;
+}
+
+[data-theme="light"] .transaction-list::-webkit-scrollbar-thumb {
+  background: #b4637a;
+  border-radius: 12px;
+}
+
+[data-theme="light"] .transaction-list::-webkit-scrollbar-thumb:hover {
+  background: #964f62;
+}
+
 [data-theme="light"] .summary-card {
     background: #fffaf3;
     border: 3px solid #f2e9e1;
 }
 
-[data-theme="light"] .estadistica-page .stats-chart-card{
-background: #fffaf3;  
-box-shadow: 0 0 24px rgba(121, 117, 147, 0.15); 
+[data-theme="light"] .estadistica-page .stats-chart-card {
+  background: #fffaf3;  
+  border: 3px solid #f2e9e1;
+  border-radius: 18px;
 }
 
-[data-theme="light"] .estadistica-page .stats-chart-card:hover{
-box-shadow: var(--card-shadow-hover);
+[data-theme="light"] .estadistica-page .stats-chart-card:hover {
+  border-color: var(--primary);
 }
 
 [data-theme="light"] .profile-tooltip {
 background: #fffaf3;
 border: 3px solid #b4637a;
-box-shadow: var(--card-shadow-hover);
 }
 
 /* Desactivar efectos hover/active en dispositivos móviles */
 @media (hover: none) and (pointer: coarse), (max-width: 768px) {
-  [data-theme="light"] .estadistica-page .stats-chart-card:hover {
-    transform: none !important;
-    box-shadow: 0 0 24px rgba(121, 117, 147, 0.15) !important;
+  [data-theme="light"] body.estadistica-page .stats-chart-card:hover {
+    transform: none;
+    box-shadow: 0 0 24px rgba(121, 117, 147, 0.15);
   }
-}
-
-[data-theme="light"] .confirm-drawer-cancel {
-    background: #F5EFEA;
-    color: var(--light);
-    border: none;
-    box-shadow: none;
 }

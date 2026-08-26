@@ -33,9 +33,22 @@ class FirebaseAuth {
         appId: "YOUR_APP_ID",
         measurementId: "YOUR_MEASUREMENT_ID"
       };
-      const config = (window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.apiKey) 
+      const rawConfig = (window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.apiKey) 
         ? window.FIREBASE_CONFIG 
         : (window.APP_CONFIG?.firebaseConfig || defaultConfig);
+      
+      const config = { ...rawConfig };
+
+      // Sincronizar authDomain con el hostname actual si estamos en Firebase Hosting o dominio activo
+      // Esto es crucial para Firefox y Safari móvil: asegura que el flujo de autenticación sea 100% same-origin
+      if (typeof window !== 'undefined' && window.location && window.location.hostname) {
+        const currentHost = window.location.hostname;
+        if (currentHost && currentHost !== 'localhost' && currentHost !== '127.0.0.1') {
+          if (currentHost.includes('web.app') || currentHost.includes('firebaseapp.com') || currentHost === config.authDomain) {
+            config.authDomain = currentHost;
+          }
+        }
+      }
       
       if (!config || !config.apiKey) {
         return false;
@@ -60,21 +73,18 @@ class FirebaseAuth {
           }
           if (appCheckProvider) {
             firebase.appCheck().activate(appCheckProvider, true);
-            console.log('[AppCheck] Activado con reCAPTCHA provider');
           }
 
           try {
             await firebase.appCheck().getToken();
-            console.log('[AppCheck] Token obtenido correctamente');
           } catch (tokenErr) {
-            console.warn('[AppCheck] No se pudo obtener token de AppCheck (auth continuará activo):', tokenErr?.message || tokenErr);
+            // Silencioso en producción
           }
-        } else {
-          console.log('[AppCheck] Desactivado o falta siteKey');
         }
       } catch (e) {
-        console.warn('[AppCheck] Error en inicialización de AppCheck (no crítico):', e?.message || e);
+        // Silencioso en producción
       }
+
 
       this.auth = firebase.auth();
       this.initialized = true;
@@ -136,11 +146,11 @@ class FirebaseAuth {
       try {
         const redirectResult = await this.auth.getRedirectResult();
         if (redirectResult && redirectResult.user) {
+          localStorage.removeItem('logoutTimestamp');
           this.saveUserSession(redirectResult.user);
           console.log('[FirebaseAuth] Sesión restaurada desde redirect:', redirectResult.user.email);
-          if (window.location.pathname.toLowerCase().includes('login')) {
-            window.location.href = '../Dashboard/Dashboard.html';
-          }
+          window.location.replace('/pages/Dashboard/Dashboard.html');
+          return true;
         }
       } catch (err) {
         console.error('[FirebaseAuth] Error al procesar redirect result:', err?.code, err?.message || err);
@@ -195,7 +205,7 @@ class FirebaseAuth {
       return {
         success: true,
         requiresVerification: true,
-        message: 'Cuenta creada. Revisa tu correo y haz clic en el enlace de verificación para poder iniciar sesión.'
+        message: '¡Cuenta creada con éxito! Revisa tu bandeja de entrada o la carpeta de SPAM / Correo no deseado y haz clic en el enlace de verificación para activar tu cuenta.'
       };
     } catch (error) {
       return this.handleAuthError(error);
@@ -227,12 +237,13 @@ class FirebaseAuth {
         return {
           success: false,
           error: 'auth/email-not-verified',
-          message: 'Debes verificar tu correo electrónico antes de iniciar sesión. Revisa tu bandeja de entrada.',
+          message: 'Debes verificar tu correo electrónico antes de iniciar sesión. Revisa tu bandeja de entrada o la carpeta de SPAM / Correo no deseado.',
           canResend: true,
           email: email,
           password: password
         };
       }
+
 
       this.saveUserSession(userCredential.user);
 
@@ -246,7 +257,7 @@ class FirebaseAuth {
     }
   }
 
-  // Login con Google
+  // Iniciar sesión con Google directa y rápida
   async loginWithGoogle() {
     try {
       if (!this.initialized) {
@@ -257,16 +268,28 @@ class FirebaseAuth {
         throw new Error('Firebase Auth no está inicializado');
       }
 
+      localStorage.removeItem('logoutTimestamp');
+
       const provider = new firebase.auth.GoogleAuthProvider();
       provider.setCustomParameters({
         prompt: 'select_account'
       });
 
-      localStorage.removeItem('logoutTimestamp');
-      await this.auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+      // En dispositivos móviles (especialmente Firefox Mobile / Safari), preferir o reintentar con redirección
+      const isMobile = /Android|iPhone|iPad|iPod|Mobile|Firefox/i.test(navigator.userAgent);
+      if (isMobile) {
+        try {
+          console.info('[FirebaseAuth] Navegador móvil/Firefox detectado, iniciando autenticación con redirección...');
+          await this.auth.signInWithRedirect(provider);
+          return { success: true, redirect: true, message: 'Redirigiendo para iniciar sesión con Google' };
+        } catch (redirErr) {
+          console.warn('[FirebaseAuth] signInWithRedirect directo falló, intentando popup:', redirErr);
+        }
+      }
 
       try {
         const userCredential = await this.auth.signInWithPopup(provider);
+        localStorage.removeItem('logoutTimestamp');
         this.saveUserSession(userCredential.user);
         return {
           success: true,
@@ -274,15 +297,37 @@ class FirebaseAuth {
           message: 'Inicio de sesión exitoso con Google'
         };
       } catch (popupError) {
-        console.warn('[FirebaseAuth] signInWithPopup falló (' + popupError.code + '), reintentando con redirección:', popupError.message);
-        try {
-          await this.auth.signInWithRedirect(provider);
-          return { success: true, redirect: true, message: 'Redirigiendo para iniciar sesión con Google' };
-        } catch (redirectError) {
-          console.error('[FirebaseAuth] signInWithRedirect falló (' + redirectError.code + '):', redirectError.message);
-          return this.handleAuthError(redirectError);
+        const code = popupError && popupError.code ? popupError.code : '';
+        
+        // Si el usuario cerró o canceló la ventana emergente, restaurar al instante
+        if (code === 'auth/popup-closed-by-user' || 
+            code === 'auth/cancelled-popup-request' || 
+            code === 'auth/user-cancelled' ||
+            popupError?.message?.includes('closed-by-user')) {
+          return {
+            success: false,
+            cancelled: true,
+            error: code,
+            message: 'Inicio de sesión cancelado'
+          };
         }
+
+        // Si el popup falló por bloqueo, error interno de Firefox/cross-origin, usar redirección
+        if (code === 'auth/popup-blocked' || code === 'auth/internal-error' || isMobile) {
+          console.warn('[FirebaseAuth] Popup no disponible (' + code + '), usando fallback con redirección...');
+          try {
+            await this.auth.signInWithRedirect(provider);
+            return { success: true, redirect: true, message: 'Redirigiendo para iniciar sesión con Google' };
+          } catch (redirectError) {
+            console.error('[FirebaseAuth] signInWithRedirect falló (' + redirectError.code + '):', redirectError.message);
+            return this.handleAuthError(redirectError);
+          }
+        }
+
+        console.error('[FirebaseAuth] Error en signInWithPopup:', popupError);
+        return this.handleAuthError(popupError);
       }
+
     } catch (error) {
       console.error('Error en loginWithGoogle:', error);
       return this.handleAuthError(error);

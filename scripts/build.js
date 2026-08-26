@@ -154,7 +154,7 @@ async function processHtml(filePath) {
       : `${relativeDir.replace(/\\/g, '/')}/inline-${hash}.js`;
     const outPath = path.join(OUT, fileName);
     await fs.mkdir(path.dirname(outPath), { recursive: true });
-    await fs.writeFile(outPath, content.trim() + '\n');
+    await fs.writeFile(outPath, content.trim() + `\n//# sourceURL=/${fileName}\n`);
 
     const newTag = `<script src="/${fileName}"></script>`;
     html = html.replace(m[0], newTag);
@@ -202,20 +202,23 @@ async function processHtml(filePath) {
   // 5) Inject global cache buster and SW unregister to nuke old stale Service Workers
   const cacheBusterScript = `
     <script>
-      if ('caches' in window) {
-        caches.keys().then(names => {
-          for (let name of names) {
-            caches.delete(name);
-          }
-        });
-      }
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then(registrations => {
-          for (let r of registrations) {
-            r.unregister();
-          }
-        });
-      }
+      (function() {
+        if ('caches' in window) {
+          caches.keys().then(function(names) {
+            for (var i = 0; i < names.length; i++) {
+              caches.delete(names[i]);
+            }
+          });
+        }
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations().then(function(registrations) {
+            for (var i = 0; i < registrations.length; i++) {
+              registrations[i].unregister();
+            }
+          });
+        }
+      })();
+      //# sourceURL=/sw-cleanup.js
     </script>
   </body>`;
   html = html.replace(/<\/body>/i, cacheBusterScript);

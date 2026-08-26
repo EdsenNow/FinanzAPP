@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v20260804_v7';
+const CACHE_VERSION = 'v20260819_v3';
 const STATIC_CACHE = `finanzapp-static-${CACHE_VERSION}`;
 const SHELL_CACHE = `finanzapp-shell-${CACHE_VERSION}`;
 

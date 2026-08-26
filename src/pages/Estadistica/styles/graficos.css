@@ -5,8 +5,8 @@
 
 .estadistica-page .stats-chart-card {
   background: var(--card-bg);
-  border-radius: 12px;
-  padding: 28px 24px 40px 24px;
+  border-radius: 18px;
+  padding: 24px 22px 28px 22px;
   box-shadow: 0 18px 45px -30px rgba(15, 23, 42, 0.66);
   transition: transform 0.25s ease, box-shadow 0.25s ease;
   position: relative;
@@ -17,7 +17,7 @@
 
 .estadistica-page .stats-chart-card.chart-full { 
   grid-column: span 12;
-  padding-bottom: 48px;
+  padding-bottom: 28px;
 }
 
 .estadistica-page .stats-chart-card.chart-half { 
@@ -102,10 +102,10 @@
   color: #ef4444;
 }
 
-.estadistica-page .chart-wrap canvas {
-  display: block !important;
-  width: 100% !important;
-  height: 100% !important;
+body.estadistica-page .chart-wrap canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 /* Fallback si las gráficas no cargan */

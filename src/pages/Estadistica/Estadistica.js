@@ -837,6 +837,14 @@ function colorWithAlpha(color, alpha = 1) {
     const baseOptions = {
       responsive: true,
       maintainAspectRatio: false,
+      layout: {
+        padding: {
+          left: 14,
+          right: 18,
+          top: 6,
+          bottom: 6
+        }
+      },
       animation: {
         duration: 900,
         easing: 'easeInOutQuart'
@@ -935,7 +943,7 @@ function colorWithAlpha(color, alpha = 1) {
                 ticks: {
                   color: tickColor,
                   font: { size: 11 },
-                  callback: value => `${APP_CURRENCY.symbol}${CHART_CURRENCY_FORMATTER.format(value)}`
+                  callback: value => `${APP_CURRENCY.symbol}${Intl.NumberFormat('es-DO', { notation: 'compact', compactDisplay: 'short' }).format(value)}`
                 }
               }
             }
@@ -980,6 +988,7 @@ function colorWithAlpha(color, alpha = 1) {
               borderColor: successLine,
               hoverBackgroundColor: successLine,
               borderRadius: 6,
+              maxBarThickness: 32,
               borderSkipped: 'start',
               minBarLength: 4,
               barPercentage: 0.65,
@@ -1015,7 +1024,7 @@ function colorWithAlpha(color, alpha = 1) {
                 ticks: {
                   color: '#9893a5',
                   font: { size: 11 },
-                  callback: value => `${APP_CURRENCY.symbol}${CHART_CURRENCY_FORMATTER.format(value)}`
+                  callback: value => `${APP_CURRENCY.symbol}${Intl.NumberFormat('es-DO', { notation: 'compact', compactDisplay: 'short' }).format(value)}`
                 }
               },
               y: {
@@ -1070,6 +1079,7 @@ function colorWithAlpha(color, alpha = 1) {
               borderColor: dangerLine,
               hoverBackgroundColor: dangerLine,
               borderRadius: 6,
+              maxBarThickness: 32,
               borderSkipped: 'start',
               minBarLength: 4,
               barPercentage: 0.65,
@@ -1105,7 +1115,7 @@ function colorWithAlpha(color, alpha = 1) {
                 ticks: {
                   color: '#9893a5',
                   font: { size: 11 },
-                  callback: value => `${APP_CURRENCY.symbol}${CHART_CURRENCY_FORMATTER.format(value)}`
+                  callback: value => `${APP_CURRENCY.symbol}${Intl.NumberFormat('es-DO', { notation: 'compact', compactDisplay: 'short' }).format(value)}`
                 }
               },
               y: {
@@ -1374,12 +1384,11 @@ function colorWithAlpha(color, alpha = 1) {
     }
     
     try {
-      console.log('[Estadistica] Llamando renderizarGraficos con', tx.length, 'transacciones. window.Chart:', !!window.Chart, 'canvas chartCashflowArea:', !!document.getElementById('chartCashflowArea'));
       renderizarGraficos(tx);
-      console.log('[Estadistica] renderizarGraficos completado');
     } catch (error) {
       console.error('[Estadistica] Error en renderizarGraficos:', error);
     }
+
     
     try { window.__statsLastRenderAt = Date.now(); } catch {}
   }
@@ -1460,10 +1469,91 @@ function colorWithAlpha(color, alpha = 1) {
         document.body.classList.add('dark-theme');
       }
 
-      // 2. Inicializar Firebase y esperar autenticación
+      // 2. Configurar eventos y UI de inmediato (no dependen de datos)
+      configurarEventosComunes();
+      configurarUI();
+
+      // 3. CARGA OPTIMISTA: mostrar datos del localStorage inmediatamente
+      //    sin esperar a Firebase. Esto elimina el delay de 5-8 segundos.
+      let renderizadoInicial = false;
+      try {
+        const authUser = localStorage.getItem('authUser');
+        if (authUser && authUser !== 'guest') {
+          const profile = JSON.parse(authUser);
+          const userId = profile.uid || profile.email || 'guest';
+          const LS_PREFIX = 'finanzapp:data:v1';
+          const rawCategories = localStorage.getItem(`${LS_PREFIX}:${userId}:categories`);
+          const rawTransactions = localStorage.getItem(`${LS_PREFIX}:${userId}:transactions`);
+
+          if (rawCategories) {
+            const localData = {
+              categories: JSON.parse(rawCategories || '[]'),
+              transactions: JSON.parse(rawTransactions || '[]'),
+            };
+
+            // Aplicar datos locales al state inmediatamente
+            state = {
+              categories: (localData.categories || []).map(c => ({
+                ...c,
+                transactions: (c.transactions || []).map(t => ({
+                  ...t,
+                  date: (t.date && typeof t.date === 'string') ? new Date(t.date) : t.date
+                }))
+              })),
+              monthlyData: { labels: MONTHS, income: Array(12).fill(0), expenses: Array(12).fill(0) },
+              user: { name: profile.name || 'Usuario', email: profile.email || '' }
+            };
+
+            // Re-vincular transacciones planas si vienen separadas
+            if (Array.isArray(localData.transactions) && localData.transactions.length > 0) {
+              localData.transactions.forEach(t => {
+                const tDate = (t.date && typeof t.date === 'string') ? new Date(t.date) : t.date;
+                const cat = state.categories.find(c => String(c.id) === String(t.categoryId));
+                if (cat) {
+                  if (!cat.transactions) cat.transactions = [];
+                  const exists = cat.transactions.some(ct => String(ct.id) === String(t.id));
+                  if (!exists) cat.transactions.push({ ...t, date: tDate });
+                }
+              });
+            }
+
+            // Verificar Chart.js antes del primer render
+            let chartJsReady = typeof window.Chart !== 'undefined' && typeof window.Chart.getChart === 'function';
+            if (!chartJsReady) {
+              let attempts = 0;
+              while (!chartJsReady && attempts < 30) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+                chartJsReady = typeof window.Chart !== 'undefined' && typeof window.Chart.getChart === 'function';
+                attempts++;
+              }
+            }
+
+            // Asegurar lienzos de gráficos
+            const canvasIds = ['chartCashflowArea', 'chartIncomeByCategory', 'chartExpenseByCategory', 'chartIncomeByDay', 'chartHeatmap'];
+            document.querySelectorAll('.chart-wrap').forEach((wrap, idx) => {
+              const expectedId = canvasIds[idx];
+              if (expectedId && !wrap.querySelector(`canvas#${expectedId}`)) {
+                wrap.innerHTML = `<canvas id="${expectedId}"></canvas>`;
+              }
+            });
+
+            // Renderizar con datos locales inmediatamente
+            renderizarTodo();
+            ocultarEsqueletos();
+            renderizadoInicial = true;
+          }
+        }
+      } catch (e) {
+        console.warn('[Estadistica] Error en carga optimista local:', e);
+      }
+
+      // 4. Inicializar Firebase y sincronizar en background
+      //    Si ya renderizamos con datos locales, esto actualiza silenciosamente.
       try {
         if (window.firebase) {
-          if (!firebase.apps.length) {
+          if (window.FirestoreDB) {
+            window.FirestoreDB.ensureFirebaseInitialized();
+          } else if (!firebase.apps.length) {
             const config = window.FIREBASE_CONFIG;
             if (config) firebase.initializeApp(config);
           }
@@ -1473,15 +1563,14 @@ function colorWithAlpha(color, alpha = 1) {
               let resolved = false;
               let nullCount = 0;
 
-              // Firebase can emit null first while restoring session from IndexedDB.
-              // Wait up to 4s for a real user before giving up.
+              // Reducir timeout a 3s (antes era 8s) ya que ya tenemos datos locales
               const fallbackTimer = setTimeout(() => {
                 if (!resolved) {
-                  console.warn('⏱ Firebase Auth timed out in Estadistica — proceeding as guest/local');
+                  console.warn('⏱ Firebase Auth timed out (3s) in Estadistica — usando datos locales');
                   resolved = true;
                   resolve();
                 }
-              }, 4000);
+              }, 3000);
 
               auth.onAuthStateChanged(async (currentUser) => {
                 if (currentUser) {
@@ -1493,8 +1582,9 @@ function colorWithAlpha(color, alpha = 1) {
                       uid: currentUser.uid,
                       email: currentUser.email || '',
                       name: currentUser.displayName || currentUser.email?.split('@')[0] || 'Usuario',
-                      picture: currentUser.photoURL || '',
-                      provider: currentUser.providerData?.[0]?.providerId || 'google'
+                      picture: currentUser.photoURL || currentUser.providerData?.[0]?.photoURL || '',
+                      provider: currentUser.providerData?.[0]?.providerId || 'google',
+                      emailVerified: currentUser.emailVerified
                     };
                     localStorage.setItem('authUser', JSON.stringify(profile));
                     poblarPerfilSidebar();
@@ -1506,7 +1596,7 @@ function colorWithAlpha(color, alpha = 1) {
                   resolve();
                 } else {
                   nullCount++;
-                  console.warn(`⚠️ Firebase Auth emitió null en Estadistica (emisión #${nullCount}), esperando sesión real...`);
+                  console.warn(`⚠️ Firebase Auth emitió null en Estadistica (emisión #${nullCount})`);
                 }
               });
             } catch (error) {
@@ -1516,34 +1606,34 @@ function colorWithAlpha(color, alpha = 1) {
         }
       } catch (error) {}
 
-      // 3. Verificar Chart.js
-      let chartJsReady = typeof window.Chart !== 'undefined' && typeof window.Chart.getChart === 'function';
-      if (!chartJsReady) {
-        let attempts = 0;
-        const maxAttempts = 30;
-        while (!chartJsReady && attempts < maxAttempts) {
-          if (typeof window.Chart !== 'undefined' && typeof window.Chart.getChart === 'function') {
-            chartJsReady = true;
-          } else {
-            await new Promise(resolve => setTimeout(resolve, 100));
-            attempts++;
+      // 5. Verificar Chart.js (si aún no fue verificado en el path optimista)
+      if (!renderizadoInicial) {
+        let chartJsReady = typeof window.Chart !== 'undefined' && typeof window.Chart.getChart === 'function';
+        if (!chartJsReady) {
+          let attempts = 0;
+          const maxAttempts = 30;
+          while (!chartJsReady && attempts < maxAttempts) {
+            if (typeof window.Chart !== 'undefined' && typeof window.Chart.getChart === 'function') {
+              chartJsReady = true;
+            } else {
+              await new Promise(resolve => setTimeout(resolve, 100));
+              attempts++;
+            }
           }
         }
+
+        // Asegurar lienzos de gráficos
+        const canvasIds = ['chartCashflowArea', 'chartIncomeByCategory', 'chartExpenseByCategory', 'chartIncomeByDay', 'chartHeatmap'];
+        document.querySelectorAll('.chart-wrap').forEach((wrap, idx) => {
+          const expectedId = canvasIds[idx];
+          if (expectedId && !wrap.querySelector(`canvas#${expectedId}`)) {
+            wrap.innerHTML = `<canvas id="${expectedId}"></canvas>`;
+          }
+        });
       }
 
-      // 4. Asegurar lienzos de gráficos impecables
-      const canvasIds = ['chartCashflowArea', 'chartIncomeByCategory', 'chartExpenseByCategory', 'chartIncomeByDay', 'chartHeatmap'];
-      document.querySelectorAll('.chart-wrap').forEach((wrap, idx) => {
-        const expectedId = canvasIds[idx];
-        if (expectedId && !wrap.querySelector(`canvas#${expectedId}`)) {
-          wrap.innerHTML = `<canvas id="${expectedId}"></canvas>`;
-        }
-      });
-
-      // 5. Cargar datos desde Firestore (ya inicializado) y renderizar
+      // 6. Sincronizar con Firestore (obtiene datos más frescos si hay diferencia)
       await cargarDatos();
-      configurarEventosComunes();
-      configurarUI();
       renderizarTodo();
       ocultarEsqueletos();
       this._bindCrossTabEvents();

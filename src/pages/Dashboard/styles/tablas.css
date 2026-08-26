@@ -202,15 +202,15 @@
 }
 
 .table-wrapper::-webkit-scrollbar-track {
-	background: rgba(255, 255, 255, 0.05);
+	background: transparent;
 	border-radius: 12px;
 }
 
 .table-wrapper::-webkit-scrollbar-thumb {
-	background: var(--scrollbar-accent);
+	background: var(--scrollbar-accent, #EB6F92);
 	border-radius: 12px;
 }
 
 .table-wrapper::-webkit-scrollbar-thumb:hover {
-	background: var(--scrollbar-accent);
+	background: var(--scrollbar-accent, #EB6F92);
 }

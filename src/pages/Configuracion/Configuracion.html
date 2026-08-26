@@ -3,6 +3,27 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (!t) {
+          var s = localStorage.getItem('finanzapp:settings:v1');
+          if (s) {
+            var p = JSON.parse(s);
+            if (p && p.theme) t = p.theme;
+          }
+        }
+        if (t === 'light') {
+          document.documentElement.setAttribute('data-theme', 'light');
+          document.documentElement.style.backgroundColor = '#f5efea';
+        } else {
+          document.documentElement.setAttribute('data-theme', 'dark');
+          document.documentElement.style.backgroundColor = '#191724';
+        }
+      } catch (e) {}
+    })();
+  </script>
   <title>FinanzApp - Configuracion</title>
 
   <link rel="manifest" href="/Icons/site.webmanifest" />
@@ -11,18 +32,16 @@
   <link rel="icon" type="image/png" sizes="16x16" href="/Icons/favicon-16x16.png" />
   <link rel="apple-touch-icon" href="/Icons/apple-touch-icon.png" />
 
-  
-
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" crossorigin="anonymous">
   <link rel="stylesheet" href="/lib/fonts.css">
   <link rel="stylesheet" href="/lib/fontawesome/v5/css/all.min.css">
 
-  <link rel="stylesheet" href="/pages/Dashboard/Dashboard.css?v=202511120001">
-  <link rel="stylesheet" href="/lib/UI.css?v=20260505">
-  <link rel="stylesheet" href="/pages/Configuracion/Configuracion.css?v=20260505b">
-  <link rel="stylesheet" href="/pages/Configuracion/styles/tema-oscuro.css?v=20260503" id="dark-css">
-  <link rel="stylesheet" href="/pages/Configuracion/styles/tema-claro.css?v=20260503" id="light-css">
-  <link rel="stylesheet" href="/pages/Configuracion/styles/mobile-nav.css?v=20260503">
+  <link rel="stylesheet" href="/pages/Dashboard/Dashboard.css?v=20260824003">
+  <link rel="stylesheet" href="/lib/UI.css?v=20260824003">
+  <link rel="stylesheet" href="/pages/Configuracion/Configuracion.css?v=20260824003">
+  <link rel="stylesheet" href="/pages/Configuracion/styles/tema-oscuro.css?v=20260824003" id="dark-css">
+  <link rel="stylesheet" href="/pages/Configuracion/styles/tema-claro.css?v=20260824003" id="light-css">
+  <link rel="stylesheet" href="/pages/Configuracion/styles/mobile-nav.css?v=20260824003">
 
   <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-app-compat.js" crossorigin="anonymous"></script>
   <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-app-check-compat.js" crossorigin="anonymous"></script>
@@ -39,6 +58,19 @@
   <script src="/lib/Helpers.js?v=202605170003"></script>
   <script src="/lib/DataStore.js?v=202511120001"></script>
   <script src="/lib/BasePage.js?v=20260601"></script>
+
+  <!-- DOMPurify: sanitización automática de innerHTML contra XSS -->
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.4.14/dist/purify.min.js" crossorigin="anonymous"></script>
+  <script>
+    (function () {
+      const _d = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML');
+      Object.defineProperty(Element.prototype, 'innerHTML', {
+        set(v) { _d.set.call(this, typeof v === 'string' ? DOMPurify.sanitize(v, { FORCE_BODY: false }) : v); },
+        get: _d.get,
+        configurable: true,
+      });
+    })();
+  </script>
 </head>
 <body class="config-page">
   <div class="app-container">
@@ -75,10 +107,10 @@
             <div class="user-email"></div>
           </div>
           <button class="btn btn-icon app-tooltip" id="themeToggle" data-tooltip="Cambiar tema">
-            <i class="fas fa-sun"></i>
+            <svg class="lucide icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
           </button>
           <button class="btn btn-icon app-tooltip" id="logoutButton" data-tooltip="Cerrar sesión">
-            <i class="fas fa-sign-out-alt"></i>
+            <svg class="lucide icon-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline class="logout-arrow" points="16 17 21 12 16 7"/><line class="logout-arrow" x1="21" x2="9" y1="12" y2="12"/></svg>
           </button>
         </div>
 
@@ -90,7 +122,6 @@
     </aside>
 
     <main class="main-content">
-
 
       <section class="config-grid" aria-label="Secciones de configuracion">
         <article class="config-card profile-card">
@@ -104,149 +135,198 @@
         </article>
 
         <article class="config-card preferences-card">
-          <!-- <h2 class="card-title">Preferencias</h2> -->
+          <h2 class="card-title">Preferencias generales</h2>
           <form id="preferencesForm" class="settings-form" novalidate>
-            <div class="setting-row">
-              <label>Tema</label>
-              <div class="custom-dropdown" id="themePreference">
-                <div class="custom-dropdown-selected" data-value="dark" tabindex="0">
-                  <span>Oscuro</span>
-                  <i class="fas fa-chevron-down"></i>
+            
+            <!-- Grupo 1: Visualización y Formato -->
+            <div class="settings-section">
+              <div class="settings-section-header">
+                <span class="section-icon-badge"><i class="fas fa-palette"></i></span>
+                <span>Visualización y Formato</span>
+              </div>
+
+              <div class="setting-row">
+                <label>Tema</label>
+                <div class="custom-dropdown" id="themePreference">
+                  <div class="custom-dropdown-selected" data-value="dark" tabindex="0">
+                    <span>Oscuro</span>
+                    <i class="fas fa-chevron-down"></i>
+                  </div>
+                  <div class="custom-dropdown-options">
+                    <div class="custom-dropdown-option selected" data-value="dark">Oscuro</div>
+                    <div class="custom-dropdown-option" data-value="light">Claro</div>
+                  </div>
                 </div>
-                <div class="custom-dropdown-options">
-                  <div class="custom-dropdown-option selected" data-value="dark">Oscuro</div>
-                  <div class="custom-dropdown-option" data-value="light">Claro</div>
+              </div>
+
+              <div class="setting-row">
+                <label>Moneda principal</label>
+                <div class="custom-dropdown" id="currencyPreference">
+                  <div class="custom-dropdown-selected" data-value="DOP" tabindex="0">
+                    <span>Peso Dominicano (RD$)</span>
+                    <i class="fas fa-chevron-down"></i>
+                  </div>
+                  <div class="custom-dropdown-options">
+                    <div class="custom-dropdown-option selected" data-value="DOP">Peso Dominicano (RD$)</div>
+                    <div class="custom-dropdown-option" data-value="USD">Dólar ($)</div>
+                    <div class="custom-dropdown-option" data-value="EUR">Euro (€)</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="setting-row">
+                <label>Formato numérico</label>
+                <div class="custom-dropdown" id="numberFormatPreference">
+                  <div class="custom-dropdown-selected" data-value="us" tabindex="0">
+                    <span>1,234.56</span>
+                    <i class="fas fa-chevron-down"></i>
+                  </div>
+                  <div class="custom-dropdown-options">
+                    <div class="custom-dropdown-option selected" data-value="us">1,234.56</div>
+                    <div class="custom-dropdown-option" data-value="eu">1.234,56</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="setting-row">
+                <label>Mostrar centavos</label>
+                <div class="custom-dropdown" id="showCentsPreference">
+                  <div class="custom-dropdown-selected" data-value="on" tabindex="0">
+                    <span>Activado</span>
+                    <i class="fas fa-chevron-down"></i>
+                  </div>
+                  <div class="custom-dropdown-options">
+                    <div class="custom-dropdown-option selected" data-value="on">Activado</div>
+                    <div class="custom-dropdown-option" data-value="off">Desactivado</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="setting-row">
+                <label>Formato de fecha</label>
+                <div class="custom-dropdown" id="dateFormatPreference">
+                  <div class="custom-dropdown-selected" data-value="dmy" tabindex="0">
+                    <span>DD/MM/AAAA</span>
+                    <i class="fas fa-chevron-down"></i>
+                  </div>
+                  <div class="custom-dropdown-options">
+                    <div class="custom-dropdown-option selected" data-value="dmy">DD/MM/AAAA</div>
+                    <div class="custom-dropdown-option" data-value="mdy">MM/DD/AAAA</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="preview-row">
+                <span class="preview-label">Vista previa</span>
+                <div class="format-preview" id="formatPreview">$1,234.56 · 10 / 05 / 2026</div>
+              </div>
+            </div>
+
+            <!-- Grupo 2: Operaciones y Presupuestos -->
+            <div class="settings-section">
+              <div class="settings-section-header">
+                <span class="section-icon-badge"><i class="fas fa-wallet"></i></span>
+                <span>Operaciones y Presupuestos</span>
+              </div>
+
+              <div class="setting-row">
+                <label>Transacciones por página</label>
+                <div class="custom-dropdown" id="txPerPagePreference">
+                  <div class="custom-dropdown-selected" data-value="all" tabindex="0">
+                    <span>Sin límite</span>
+                    <i class="fas fa-chevron-down"></i>
+                  </div>
+                  <div class="custom-dropdown-options">
+                    <div class="custom-dropdown-option" data-value="10">10</div>
+                    <div class="custom-dropdown-option" data-value="25">25</div>
+                    <div class="custom-dropdown-option" data-value="50">50</div>
+                    <div class="custom-dropdown-option selected" data-value="all">Sin límite</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="setting-row">
+                <label>Reiniciar presupuestos automáticamente</label>
+                <div class="custom-dropdown" id="autoRenewBudgetsPreference">
+                  <div class="custom-dropdown-selected" data-value="on" tabindex="0">
+                    <span>Activado</span>
+                    <i class="fas fa-chevron-down"></i>
+                  </div>
+                  <div class="custom-dropdown-options">
+                    <div class="custom-dropdown-option selected" data-value="on">Activado</div>
+                    <div class="custom-dropdown-option" data-value="off">Desactivado</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="setting-row">
+                <label>Confirmar al eliminar</label>
+                <div class="custom-dropdown" id="confirmDeletePreference">
+                  <div class="custom-dropdown-selected" data-value="on" tabindex="0">
+                    <span>Activado</span>
+                    <i class="fas fa-chevron-down"></i>
+                  </div>
+                  <div class="custom-dropdown-options">
+                    <div class="custom-dropdown-option selected" data-value="on">Activado</div>
+                    <div class="custom-dropdown-option" data-value="off">Desactivado</div>
+                  </div>
                 </div>
               </div>
             </div>
-            <div class="setting-row">
-              <label>Moneda principal</label>
-              <div class="custom-dropdown" id="currencyPreference">
-                <div class="custom-dropdown-selected" data-value="DOP" tabindex="0">
-                  <span>Peso Dominicano (RD$)</span>
-                  <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="custom-dropdown-options">
-                  <div class="custom-dropdown-option selected" data-value="DOP">Peso Dominicano (RD$)</div>
-                  <div class="custom-dropdown-option" data-value="USD">Dólar ($)</div>
-                  <div class="custom-dropdown-option" data-value="EUR">Euro (€)</div>
+
+            <!-- Grupo 3: Interacción y Accesibilidad -->
+            <div class="settings-section">
+              <div class="settings-section-header">
+                <span class="section-icon-badge"><i class="fas fa-bell"></i></span>
+                <span>Interacción y Ayudas</span>
+              </div>
+
+              <div class="setting-row">
+                <label>Avisos emergentes</label>
+                <div class="custom-dropdown" id="tooltipsPreference">
+                  <div class="custom-dropdown-selected" data-value="on" tabindex="0">
+                    <span>Activado</span>
+                    <i class="fas fa-chevron-down"></i>
+                  </div>
+                  <div class="custom-dropdown-options">
+                    <div class="custom-dropdown-option selected" data-value="on">Activado</div>
+                    <div class="custom-dropdown-option" data-value="off">Desactivado</div>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div class="setting-row">
-              <label>Formato numerico</label>
-              <div class="custom-dropdown" id="numberFormatPreference">
-                <div class="custom-dropdown-selected" data-value="us" tabindex="0">
-                  <span>1,234.56</span>
-                  <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="custom-dropdown-options">
-                  <div class="custom-dropdown-option selected" data-value="us">1,234.56</div>
-                  <div class="custom-dropdown-option" data-value="eu">1.234,56</div>
-                </div>
-              </div>
-            </div>
-            <div class="setting-row">
-              <label>Mostrar centavos</label>
-              <div class="custom-dropdown" id="showCentsPreference">
-                <div class="custom-dropdown-selected" data-value="on" tabindex="0">
-                  <span>Activado</span>
-                  <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="custom-dropdown-options">
-                  <div class="custom-dropdown-option selected" data-value="on">Activado</div>
-                  <div class="custom-dropdown-option" data-value="off">Desactivado</div>
+
+              <div class="setting-row">
+                <label>Atajos de teclado</label>
+                <div class="custom-dropdown" id="shortcutsPreference">
+                  <div class="custom-dropdown-selected" data-value="on" tabindex="0">
+                    <span>Activado</span>
+                    <i class="fas fa-chevron-down"></i>
+                  </div>
+                  <div class="custom-dropdown-options">
+                    <div class="custom-dropdown-option selected" data-value="on">Activado</div>
+                    <div class="custom-dropdown-option" data-value="off">Desactivado</div>
+                    <div class="custom-dropdown-option shortcut-view-option" data-value="view"><i class="fas fa-keyboard" aria-hidden="true"></i> Ver atajos disponibles</div>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div class="setting-row">
-              <label>Transacciones por p&aacute;gina</label>
-              <div class="custom-dropdown" id="txPerPagePreference">
-                <div class="custom-dropdown-selected" data-value="all" tabindex="0">
-                  <span>Sin límite</span>
-                  <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="custom-dropdown-options">
-                  <div class="custom-dropdown-option" data-value="10">10</div>
-                  <div class="custom-dropdown-option" data-value="25">25</div>
-                  <div class="custom-dropdown-option" data-value="50">50</div>
-                  <div class="custom-dropdown-option selected" data-value="all">Sin límite</div>
-                </div>
+
+              <div class="shortcuts-panel hidden" id="shortcutsList" aria-label="Lista de atajos de teclado">
+                <ul class="shortcuts-list">
+                  <li><kbd>?</kbd> Mostrar esta ayuda</li>
+                  <li><kbd>/</kbd> Buscar transaccion</li>
+                  <li><kbd>n</kbd> Nueva categoria</li>
+                  <li><kbd>s</kbd> Abrir menu Exportar</li>
+                  <li><kbd>j</kbd> Exportar JSON</li>
+                  <li><kbd>p</kbd> Exportar PDF</li>
+                  <li><kbd>i</kbd> Importar datos</li>
+                  <li><kbd>y</kbd> Abrir filtro Año</li>
+                  <li><kbd>m</kbd> Abrir filtro Mes</li>
+                  <li><kbd>l</kbd> Limpiar filtros</li>
+                  <li><kbd>Shift</kbd> + <kbd>Delete</kbd> Eliminar todas las categorias</li>
+                  <li><kbd>Esc</kbd> Cerrar dialogos o menus</li>
+                </ul>
+                <p class="shortcuts-note">Los atajos se desactivan mientras escribes en un campo de texto.</p>
               </div>
-            </div>
-            <div class="setting-row">
-              <label>Formato de fecha</label>
-              <div class="custom-dropdown" id="dateFormatPreference">
-                <div class="custom-dropdown-selected" data-value="dmy" tabindex="0">
-                  <span>DD/MM/AAAA</span>
-                  <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="custom-dropdown-options">
-                  <div class="custom-dropdown-option selected" data-value="dmy">DD/MM/AAAA</div>
-                  <div class="custom-dropdown-option" data-value="mdy">MM/DD/AAAA</div>
-                </div>
-              </div>
-            </div>
-            <div class="setting-row">
-              <label>Confirmar al eliminar</label>
-              <div class="custom-dropdown" id="confirmDeletePreference">
-                <div class="custom-dropdown-selected" data-value="on" tabindex="0">
-                  <span>Activado</span>
-                  <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="custom-dropdown-options">
-                  <div class="custom-dropdown-option selected" data-value="on">Activado</div>
-                  <div class="custom-dropdown-option" data-value="off">Desactivado</div>
-                </div>
-              </div>
-            </div>
-            <div class="setting-row">
-              <label>Avisos emergentes</label>
-              <div class="custom-dropdown" id="tooltipsPreference">
-                <div class="custom-dropdown-selected" data-value="on" tabindex="0">
-                  <span>Activado</span>
-                  <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="custom-dropdown-options">
-                  <div class="custom-dropdown-option selected" data-value="on">Activado</div>
-                  <div class="custom-dropdown-option" data-value="off">Desactivado</div>
-                </div>
-              </div>
-            </div>
-            <div class="setting-row">
-              <label>Atajos de teclado</label>
-              <div class="custom-dropdown" id="shortcutsPreference">
-                <div class="custom-dropdown-selected" data-value="on" tabindex="0">
-                  <span>Activado</span>
-                  <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="custom-dropdown-options">
-                  <div class="custom-dropdown-option selected" data-value="on">Activado</div>
-                  <div class="custom-dropdown-option" data-value="off">Desactivado</div>
-                  <div class="custom-dropdown-option shortcut-view-option" data-value="view"><i class="fas fa-keyboard" aria-hidden="true"></i> Ver atajos disponibles</div>
-                </div>
-              </div>
-            </div>
-            <div class="shortcuts-panel hidden" id="shortcutsList" aria-label="Lista de atajos de teclado">
-              <ul class="shortcuts-list">
-                <li><kbd>?</kbd> Mostrar esta ayuda</li>
-                <li><kbd>/</kbd> Buscar transaccion</li>
-                <li><kbd>n</kbd> Nueva categoria</li>
-                <li><kbd>s</kbd> Abrir menu Exportar</li>
-                <li><kbd>j</kbd> Exportar JSON</li>
-                <li><kbd>p</kbd> Exportar PDF</li>
-                <li><kbd>i</kbd> Importar datos</li>
-                <li><kbd>y</kbd> Abrir filtro Año</li>
-                <li><kbd>m</kbd> Abrir filtro Mes</li>
-                <li><kbd>l</kbd> Limpiar filtros</li>
-                <li><kbd>Shift</kbd> + <kbd>Delete</kbd> Eliminar todas las categorias</li>
-                <li><kbd>Esc</kbd> Cerrar dialogos o menus</li>
-              </ul>
-              <p class="shortcuts-note">Los atajos se desactivan mientras escribes en un campo de texto.</p>
-            </div>
-            <div class="setting-row preview-row">
-              <span>Vista previa</span>
-              <div class="format-preview" id="formatPreview">$1,234.56 · 10 / 05 / 2026</div>
             </div>
             <div class="settings-actions">
               <button class="btn btn-primary" type="submit" id="savePreferencesBtn">
@@ -298,7 +378,7 @@
 
           <!-- ===== Notificaciones bancarias ===== -->
           <article class="config-card quick-actions-card">
-            <h2 class="card-title"></i> Notificaciones bancarias</h2>
+            <h2 class="card-title">Notificaciones bancarias</h2>
             <p class="helper-text gmail-helper-text">
               FinanzApp monitorea tu Gmail y detecta transacciones de tus bancos automáticamente.<br>
             </p>
@@ -319,9 +399,6 @@
 
           </article>
         </div>
-
-
-
 
       </section>
     </main>

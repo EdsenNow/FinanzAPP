@@ -3,18 +3,112 @@ class FirestoreDB {
     this.db = null;
     this.currentUserId = null;
     this.initialized = false;
+    this._unsubscribeSnapshot = null;
+  }
+
+  /**
+   * Garantiza que Firebase App y App Check estén inicializados juntos.
+   * Se invoca automáticamente antes de cualquier operación de Auth o Firestore.
+   * @returns {boolean}
+   */
+  static ensureFirebaseInitialized() {
+    if (!window.firebase) return false;
+
+    const config = window.FIREBASE_CONFIG || window.APP_CONFIG?.firebaseConfig;
+    if (!config || !config.apiKey) return false;
+
+    if (!firebase.apps.length) {
+      firebase.initializeApp(config);
+    }
+
+    if (!FirestoreDB._appCheckActivated && firebase.appCheck) {
+      FirestoreDB._appCheckActivated = true;
+      try {
+        const appCheckEnabled = window.APP_CONFIG?.appCheckEnabled === true;
+        const siteKey = window.APP_CONFIG?.recaptchaSiteKey;
+        if (appCheckEnabled && siteKey) {
+          let provider = null;
+          if (firebase.appCheck.ReCaptchaEnterpriseProvider) {
+            provider = new firebase.appCheck.ReCaptchaEnterpriseProvider(siteKey);
+          } else if (firebase.appCheck.ReCaptchaV3Provider) {
+            provider = new firebase.appCheck.ReCaptchaV3Provider(siteKey);
+          }
+          if (provider) {
+            firebase.appCheck().activate(provider, true);
+          }
+        }
+      } catch (e) {
+        // Silencioso en producción
+      }
+    }
+    return true;
+
+  }
+
+
+  ensureFirebaseInitialized() {
+    return FirestoreDB.ensureFirebaseInitialized();
+  }
+
+  /**
+   * Espera a que Firebase Auth resuelva el estado de autenticación.
+   * Devuelve el UID del usuario autenticado, o null si no hay sesión real.
+   *
+   * IMPORTANTE: NO resuelve en la primera emisión null de onAuthStateChanged —
+   * Firebase siempre emite null primero mientras restaura la sesión desde IndexedDB.
+   * Solo resuelve cuando:
+   *   1. Un usuario real (con UID) aparece en onAuthStateChanged.
+   *   2. El timer expira → devuelve null (sin fallback a localStorage, porque
+   *      un UID de localStorage sin token Firebase real causa "Missing or insufficient permissions").
+   *
+   * @param {number} [timeoutMs=5000]
+   * @returns {Promise<string|null>}
+   */
+  waitForAuth(timeoutMs = 5000) {
+    return new Promise((resolve) => {
+      if (!FirestoreDB.ensureFirebaseInitialized()) { resolve(null); return; }
+
+      // Si Firebase Auth ya tiene un usuario resuelto, devolverlo inmediatamente.
+      try {
+        const current = firebase.auth().currentUser;
+        if (current && current.uid) {
+          resolve(current.uid);
+          return;
+        }
+      } catch {}
+
+      let unsubscribe;
+      let resolved = false;
+
+      const doResolve = (uid) => {
+        if (resolved) return;
+        resolved = true;
+        try { if (typeof unsubscribe === 'function') unsubscribe(); } catch {}
+        resolve(uid);
+      };
+
+      const timer = setTimeout(() => {
+        console.warn('[FirestoreDB] waitForAuth timeout — sin sesión Firebase activa.');
+        doResolve(null);
+      }, timeoutMs);
+
+      try {
+        unsubscribe = firebase.auth().onAuthStateChanged((user) => {
+          if (user && user.uid) {
+            clearTimeout(timer);
+            doResolve(user.uid);
+          }
+        });
+      } catch (e) {
+        clearTimeout(timer);
+        doResolve(null);
+      }
+    });
   }
 
   async init(userId = null) {
     try {
-      if (!window.firebase) return false;
-
-      const config = window.FIREBASE_CONFIG || window.APP_CONFIG?.firebaseConfig;
-      if (!config || !config.apiKey) return false;
-
-      if (!firebase.apps.length) {
-        firebase.initializeApp(config);
-      }
+      if (!FirestoreDB.ensureFirebaseInitialized()) return false;
 
       this.db = firebase.firestore();
       this.initialized = true;
@@ -39,6 +133,7 @@ class FirestoreDB {
     }
   }
 
+
   setCurrentUser(userId) {
     this.currentUserId = userId;
   }
@@ -46,13 +141,10 @@ class FirestoreDB {
   async ensureUserContext() {
     if (!this.initialized) await this.init();
     if (!this.currentUserId) {
-      try {
-        const raw = localStorage.getItem('authUser');
-        if (raw && raw !== 'guest') {
-          const parsed = JSON.parse(raw);
-          if (parsed?.uid) this.currentUserId = parsed.uid;
-        }
-      } catch {}
+      // Esperar a que Firebase Auth resuelva el usuario (cubre el caso
+      // en que currentUser es null momentáneamente al inicio de la sesión)
+      const uid = await this.waitForAuth(4000);
+      if (uid) this.currentUserId = uid;
     }
     return !!(this.initialized && this.currentUserId);
   }
@@ -87,8 +179,9 @@ class FirestoreDB {
         categories,
         transactions,
         budgets: data.budgets || {},
+        settings: data.settings || {},
         updatedAt: new Date().toISOString()
-      }, { merge: false });
+      }, { merge: true });
 
       return true;
     } catch (error) {
@@ -108,16 +201,15 @@ class FirestoreDB {
       const doc = await userRef.get();
       let data = doc.exists ? doc.data() : null;
 
-      // Si no existe data o las categorías están vacías, intentar recuperar de las subcolecciones antiguas (MIGRACIÓN A PRUEBA DE FALLOS)
-      if (!data || !data.categories || data.categories.length === 0) {
-        console.log('[FirestoreDB] No hay datos en documento raíz, buscando en subcolecciones antiguas...');
+      // Si el documento principal NO existe en absoluto, intentar migrar de subcolecciones antiguas
+      if (!doc.exists) {
         try {
           const catsSnapshot = await userRef.collection('categories').get();
           const txSnapshot = await userRef.collection('transactions').get();
           
           if (!catsSnapshot.empty || !txSnapshot.empty) {
-            console.log('[FirestoreDB] Subcolecciones antiguas encontradas! Migrando...');
             const oldCategories = catsSnapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+
             const oldTx = txSnapshot.docs.map(d => ({ id: d.id, ...d.data() }));
             
             // Anidar transacciones dentro de las categorías correspondientes para la nueva estructura
@@ -129,7 +221,8 @@ class FirestoreDB {
             data = {
               categories: mergedCategories,
               transactions: oldTx,
-              budgets: data?.budgets || {}
+              budgets: {},
+              settings: {}
             };
             
             // Guardar inmediatamente en la nueva estructura para sellar la migración
@@ -143,9 +236,10 @@ class FirestoreDB {
       if (!data) return null;
 
       return {
-        categories: data.categories || [],
-        transactions: data.transactions || [],
-        budgets: data.budgets || {}
+        categories: Array.isArray(data.categories) ? data.categories : [],
+        transactions: Array.isArray(data.transactions) ? data.transactions : [],
+        budgets: data.budgets || {},
+        settings: data.settings || {}
       };
     } catch (error) {
       console.error('[FirestoreDB] loadAll error:', error);
@@ -156,7 +250,7 @@ class FirestoreDB {
   // Alias para compatibilidad con código existente
   async loadAllUserData() {
     const result = await this.loadAll();
-    return result || { transactions: [], categories: [], budgets: {} };
+    return result || { transactions: [], categories: [], budgets: {}, settings: {} };
   }
 
   async saveSettings(settings) {
@@ -173,6 +267,47 @@ class FirestoreDB {
       const doc = await this._userDoc().get();
       return doc.exists ? (doc.data().settings || {}) : {};
     } catch { return {}; }
+  }
+
+  /**
+   * Suscribe a cambios del documento del usuario en Firestore.
+   * @param {function} callback - recibe { categories, transactions, budgets, settings } o null si no existe.
+   * @returns {function} Función para cancelar la suscripción.
+   */
+  subscribeToUserData(callback) {
+    if (!this.db || !this.currentUserId) {
+      console.warn('[FirestoreDB] No se puede suscribir: falta db o currentUserId');
+      return () => {};
+    }
+    this.unsubscribeFromUserData();
+
+    this._unsubscribeSnapshot = this._userDoc().onSnapshot(
+      (doc) => {
+        if (!doc.exists) {
+          callback(null);
+          return;
+        }
+        const data = doc.data();
+        callback({
+          categories: data.categories || [],
+          transactions: data.transactions || [],
+          budgets: data.budgets || {},
+          settings: data.settings || {}
+        });
+      },
+      (error) => {
+        console.error('[FirestoreDB] onSnapshot error:', error);
+      }
+    );
+
+    return this._unsubscribeSnapshot;
+  }
+
+  unsubscribeFromUserData() {
+    if (typeof this._unsubscribeSnapshot === 'function') {
+      this._unsubscribeSnapshot();
+      this._unsubscribeSnapshot = null;
+    }
   }
 
   // Métodos stub de compatibilidad (el guardado real usa saveAll)

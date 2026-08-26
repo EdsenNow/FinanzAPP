@@ -21,6 +21,7 @@
     shortcuts: 'on',
     dateFormat: 'dmy',
     confirmDelete: 'on',
+    autoRenewBudgets: 'on',
     txPerPage: 'all',
     showCents: 'on'
   });
@@ -82,6 +83,7 @@
     elements.shortcutsPreference = document.getElementById('shortcutsPreference');
     elements.dateFormatPreference = document.getElementById('dateFormatPreference');
     elements.confirmDeletePreference = document.getElementById('confirmDeletePreference');
+    elements.autoRenewBudgetsPreference = document.getElementById('autoRenewBudgetsPreference');
     elements.txPerPagePreference = document.getElementById('txPerPagePreference');
     elements.showCentsPreference = document.getElementById('showCentsPreference');
     elements.formatPreview = document.getElementById('formatPreview');
@@ -174,7 +176,11 @@
     const discBtn = document.getElementById('gmailDisconnectBtn');
     if (!dot) return;
 
-    waitForGmailAPI(() => {
+    waitForGmailAPI(async () => {
+      if (!window.GmailAPI.isSignedIn() && typeof window.GmailAPI.ensureSession === 'function') {
+        await window.GmailAPI.ensureSession();
+      }
+
       if (window.GmailAPI.isSignedIn()) {
         dot.style.background  = '';
         dot.classList.remove('dot-disconnected');
@@ -192,6 +198,7 @@
       }
     });
   }
+
 
   // --- Custom dropdown helpers ---
 
@@ -276,6 +283,7 @@
       shortcuts: raw?.shortcuts === 'off' ? 'off' : 'on',
       dateFormat: raw?.dateFormat === 'mdy' ? 'mdy' : 'dmy',
       confirmDelete: raw?.confirmDelete === 'off' ? 'off' : 'on',
+      autoRenewBudgets: raw?.autoRenewBudgets === 'off' ? 'off' : 'on',
       txPerPage: ['10','25','50','all'].includes(String(raw?.txPerPage)) ? String(raw.txPerPage) : '10',
       showCents: raw?.showCents === 'off' ? 'off' : 'on'
     };
@@ -308,6 +316,7 @@
     setDropdownValue('shortcutsPreference', state.settings.shortcuts || 'on');
     setDropdownValue('dateFormatPreference', state.settings.dateFormat || 'dmy');
     setDropdownValue('confirmDeletePreference', state.settings.confirmDelete || 'on');
+    setDropdownValue('autoRenewBudgetsPreference', state.settings.autoRenewBudgets || 'on');
     setDropdownValue('txPerPagePreference', state.settings.txPerPage || 'all');
     setDropdownValue('showCentsPreference', state.settings.showCents || 'on');
   }
@@ -321,6 +330,7 @@
       shortcuts: getDropdownValue('shortcutsPreference'),
       dateFormat: getDropdownValue('dateFormatPreference'),
       confirmDelete: getDropdownValue('confirmDeletePreference'),
+      autoRenewBudgets: getDropdownValue('autoRenewBudgetsPreference'),
       txPerPage: getDropdownValue('txPerPagePreference'),
       showCents: getDropdownValue('showCentsPreference')
     });
@@ -354,20 +364,23 @@
   function persistSettings() {
     try {
       localStorage.setItem(SETTINGS_KEY, JSON.stringify(state.settings));
+      if (state.settings.theme) {
+        localStorage.setItem('theme', state.settings.theme);
+      }
     } catch {
       window._configMostrarToast('No se pudieron guardar las preferencias.', 'error');
     }
 
-    // Sincronizar la moneda al perfil de Firestore para que el backend
-    // (gmailPubSubHandler) use la moneda correcta al parsear correos bancarios.
+    // Sincronizar TODA la configuración a Firestore para que se sincronice en tiempo real en todos los dispositivos
     try {
-      if (window.FirestoreDB && state.settings.currency) {
-        window.FirestoreDB.saveSettings({ currency: state.settings.currency }).catch(() => {});
+      if (window.FirestoreDB) {
+        window.FirestoreDB.saveSettings(state.settings).catch(() => {});
       }
     } catch (e) {
       // No bloquear si Firestore falla
     }
   }
+
 
   function toggleTheme() {
     const next = (localStorage.getItem('theme') || state.settings.theme) === 'light' ? 'dark' : 'light';
@@ -409,7 +422,7 @@
     const money = formatCurrencyBySettings(sample, { currency, numberFormat, showCents });
 
     const date = formatDatePreview(new Date(), { numberFormat });
-    elements.formatPreview.textContent = `${money} · ${date}`;
+    elements.formatPreview.innerHTML = `<span>${money}</span><span class="preview-separator"> · </span><span>${date}</span>`;
   }
 
   function formatCurrencyBySettings(value, settings) {
@@ -487,23 +500,6 @@
     try {
       const loaded = await store.load();
       state.snapshot = normalizeState(loaded);
-
-      try {
-        const rootCategories = JSON.parse(localStorage.getItem('categories') || '[]');
-        if (rootCategories.length > 0 && state.snapshot.categories.length === 0) {
-          state.snapshot.categories = rootCategories;
-        }
-        
-        const rootTransactions = JSON.parse(localStorage.getItem('transactions') || '[]');
-        if (rootTransactions.length > 0 && state.snapshot.transactions.length === 0) {
-          state.snapshot.transactions = rootTransactions;
-        }
-
-        const rootBudgets = JSON.parse(localStorage.getItem('finanzapp:budgets') || 'null');
-        if (rootBudgets && Object.keys(rootBudgets).length > 0 && Object.keys(state.snapshot.budgets).length === 0) {
-          state.snapshot.budgets = rootBudgets;
-        }
-      } catch (e) {}
 
       const categoryCount = state.snapshot.categories.length;
       const txCount = countTransactions(state.snapshot);
@@ -611,25 +607,6 @@
     try {
       const loaded = await store.load();
       state.snapshot = normalizeState(loaded);
-
-      try {
-        const rootCategories = JSON.parse(localStorage.getItem('categories') || '[]');
-        if (rootCategories.length > 0 && state.snapshot.categories.length === 0) {
-          state.snapshot.categories = rootCategories;
-        }
-        
-        const rootTransactions = JSON.parse(localStorage.getItem('transactions') || '[]');
-        if (rootTransactions.length > 0 && state.snapshot.transactions.length === 0) {
-          state.snapshot.transactions = rootTransactions;
-        }
-
-        const rootBudgets = JSON.parse(localStorage.getItem('finanzapp:budgets') || 'null');
-        if (rootBudgets && Object.keys(rootBudgets).length > 0 && Object.keys(state.snapshot.budgets).length === 0) {
-          state.snapshot.budgets = rootBudgets;
-        }
-      } catch (e) {
-        console.warn('Error reading root localStorage for export:', e);
-      }
 
       const payload = {
         version: 1,
@@ -1019,11 +996,19 @@
      * @override
      */
     _bindCrossTabEvents() {
-      if (!window.DataEvents) return;
-      window.DataEvents.on('datos:actualizados', async () => {
+      const handleRemoteUpdate = async () => {
+        loadSettings();
+        applySettingsToForm();
+        updateFormatPreview();
         await refreshDataSummary();
-      });
+      };
+
+      if (window.DataEvents) {
+        window.DataEvents.on('datos:actualizados', handleRemoteUpdate);
+      }
+      window.addEventListener('finanzapp:data:updated', handleRemoteUpdate);
     }
+
   }
 
   const _configuracionApp = new ConfiguracionApp(); // eslint-disable-line no-unused-vars

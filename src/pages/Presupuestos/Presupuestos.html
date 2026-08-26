@@ -3,6 +3,27 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (!t) {
+          var s = localStorage.getItem('finanzapp:settings:v1');
+          if (s) {
+            var p = JSON.parse(s);
+            if (p && p.theme) t = p.theme;
+          }
+        }
+        if (t === 'light') {
+          document.documentElement.setAttribute('data-theme', 'light');
+          document.documentElement.style.backgroundColor = '#f5efea';
+        } else {
+          document.documentElement.setAttribute('data-theme', 'dark');
+          document.documentElement.style.backgroundColor = '#191724';
+        }
+      } catch (e) {}
+    })();
+  </script>
   <title>FinanzApp - Presupuestos</title>
 
   <link rel="manifest" href="/Icons/site.webmanifest" />
@@ -17,78 +38,44 @@
   <link rel="stylesheet" href="/lib/fonts.css">
   <link rel="stylesheet" href="/lib/fontawesome/v5/css/all.min.css">
 
-  <link rel="stylesheet" href="/pages/Dashboard/Dashboard.css?v=202511120001">
-  <link rel="stylesheet" href="/lib/UI.css?v=20260505">
-  <link rel="stylesheet" href="/pages/Presupuestos/Presupuestos.css?v=20260108">
-  <link rel="stylesheet" href="/pages/Presupuestos/styles/base.css?v=20260108">
-  <link rel="stylesheet" href="/pages/Presupuestos/styles/tablas.css?v=20260108">
-  <link rel="stylesheet" href="/pages/Presupuestos/styles/tema-claro.css?v=20260108" id="light-css">
-  <link rel="stylesheet" href="/pages/Presupuestos/styles/tema-oscuro.css?v=20260108" id="dark-css">
-  <link rel="stylesheet" href="/pages/Presupuestos/styles/mobile-nav.css?v=2026040101">
+  <link rel="stylesheet" href="/pages/Dashboard/Dashboard.css?v=20260824003">
+  <link rel="stylesheet" href="/lib/UI.css?v=20260824003">
+  <link rel="stylesheet" href="/pages/Presupuestos/Presupuestos.css?v=20260824003">
+  <link rel="stylesheet" href="/pages/Presupuestos/styles/base.css?v=20260824003">
+  <link rel="stylesheet" href="/pages/Presupuestos/styles/tablas.css?v=20260824003">
+  <link rel="stylesheet" href="/pages/Presupuestos/styles/tema-claro.css?v=20260824003" id="light-css">
+  <link rel="stylesheet" href="/pages/Presupuestos/styles/tema-oscuro.css?v=20260824003" id="dark-css">
+  <link rel="stylesheet" href="/pages/Presupuestos/styles/mobile-nav.css?v=20260824003">
 
-  <style>
-    /* Estilos críticos para el datepicker - INLINE para asegurar que funcionen */
-    #datePickerModal {
-      position: fixed;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      top: unset;
-      width: 100vw;
-      height: auto;
-      min-height: 0;
-      background: rgba(0, 0, 0, 0.85);
-      backdrop-filter: blur(8px);
-      display: flex;
-      justify-content: center;
-      align-items: flex-end;
-      z-index: 10000 !important;
-      opacity: 0;
-      visibility: hidden;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    #datePickerModal.active {
-      opacity: 1 !important;
-      visibility: visible !important;
-    }
-    .date-picker-modal .modal-content {
-      width: 100vw;
-      max-width: 100vw;
-      border-radius: 18px 18px 0 0;
-      margin: 0;
-      padding: 30px 10px 18px 10px;
-      position: relative;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      box-shadow: 0 -2px 24px rgba(0,0,0,0.32);
-      transform: translateY(0) scale(1);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      overflow: visible;
-      border: 2px solid rgba(235, 111, 146, 0.3);
-    }
-    @media (min-width: 600px) {
-      .date-picker-modal .modal-content {
-        max-width: 420px;
-        margin: 0 auto;
-      }
-    }
-  </style>
+
 
   <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-app-compat.js" crossorigin="anonymous"></script>
   <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-app-check-compat.js" crossorigin="anonymous"></script>
   <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-auth-compat.js" crossorigin="anonymous"></script>
   <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore-compat.js" crossorigin="anonymous"></script>
   <script src="/__config.js"></script>
-  <script src="/lib/FirestoreDB.js?v=202511120001"></script>
+  <script src="/lib/FirestoreDB.js?v=20260820002"></script>
   
   <script>try{localStorage.setItem('finanzapp:debug','off');}catch(e){}</script>
-  <script src="/lib/Debug.js?v=202511120001"></script>
-  <script src="/lib/Events.js?v=202511120001"></script>
+  <script src="/lib/Debug.js?v=20260820002"></script>
+  <script src="/lib/Events.js?v=20260820002"></script>
   <script src="/lib/UI.js?v=20260505"></script>
   <script src="/lib/Helpers.js?v=202605170002"></script>
-  <script src="/lib/DataStore.js?v=202511120001"></script>
+  <script src="/lib/DataStore.js?v=20260820002"></script>
   <script src="/lib/BasePage.js?v=20260601"></script>
+
+  <!-- DOMPurify: sanitización automática de innerHTML contra XSS -->
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.4.14/dist/purify.min.js" crossorigin="anonymous"></script>
+  <script>
+    (function () {
+      const _d = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML');
+      Object.defineProperty(Element.prototype, 'innerHTML', {
+        set(v) { _d.set.call(this, typeof v === 'string' ? DOMPurify.sanitize(v, { FORCE_BODY: false }) : v); },
+        get: _d.get,
+        configurable: true,
+      });
+    })();
+  </script>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" crossorigin="anonymous"></script>
 
@@ -378,7 +365,6 @@
     <div class="modal-content date-picker-modal">
       <div class="modal-header">
         <h2 class="modal-title" id="datePickerTitle">Seleccionar Fecha</h2>
-        <button class="modal-close" aria-label="Cerrar modal">&times;</button>
       </div>
       <div class="modal-body">
         <div class="date-picker-container">
@@ -503,6 +489,25 @@
       panel.appendChild(subpanel);
       let activeSubmenuAction = null;
 
+      const syncActiveFilters = function () {
+        if (!panel) return;
+        const yearVal = document.getElementById('yearFilter')?.querySelector('.custom-dropdown-selected')?.getAttribute('data-value') || '';
+        const monthVal = document.getElementById('monthFilter')?.querySelector('.custom-dropdown-selected')?.getAttribute('data-value') || '';
+        
+        const yearBtn = panel.querySelector('[data-action="year"]');
+        const monthBtn = panel.querySelector('[data-action="month"]');
+        
+        if (yearBtn) yearBtn.classList.toggle('filter-active', yearVal !== '' || activeSubmenuAction === 'year');
+        if (monthBtn) monthBtn.classList.toggle('filter-active', monthVal !== '' || activeSubmenuAction === 'month');
+      };
+
+      const filterObserver = new MutationObserver(syncActiveFilters);
+      ['yearFilter', 'monthFilter'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) filterObserver.observe(el, { attributes: true, childList: true, subtree: true });
+      });
+
+
       const closePanel = function () {
         dropdown.classList.remove('open');
         toggle.setAttribute('aria-expanded', 'false');
@@ -531,11 +536,13 @@
         anchorBtn.insertAdjacentElement('afterend', subpanel);
         subpanel.classList.add('open');
         activeSubmenuAction = actionKey;
+        syncActiveFilters();
       };
 
       toggle.addEventListener('click', function (e) {
         e.stopPropagation();
         syncDrawerProfile();
+        syncActiveFilters();
         dropdown.classList.toggle('open');
         toggle.setAttribute('aria-expanded', dropdown.classList.contains('open') ? 'true' : 'false');
       });
@@ -600,7 +607,8 @@
       });
 
       document.addEventListener('click', function (e) {
-        if (!dropdown.contains(e.target)) {
+        // Solo cerrar el panel móvil si el clic fue fuera del dropdown mobile Y fuera de cualquier custom-dropdown
+        if ((!dropdown.contains(e.target) || e.target === dropdown) && !e.target.closest('.custom-dropdown') && !e.target.closest('.modal')) {
           closePanel();
         }
       });
@@ -622,6 +630,6 @@
     });
   </script>
 
-  <script src="/pages/Presupuestos/Presupuestos.js?v=20260504001"></script>
+  <script src="/pages/Presupuestos/Presupuestos.js?v=20260820001"></script>
 </body>
 </html>

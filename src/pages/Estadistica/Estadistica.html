@@ -24,6 +24,19 @@
   <link rel="stylesheet" href="/pages/Estadistica/styles/tema-claro.css?v=20260118" id="light-css">
   <link rel="stylesheet" href="/pages/Estadistica/styles/mobile-nav.css?v=2026051001">
 
+  <!-- DOMPurify: sanitización automática de innerHTML contra XSS -->
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.4.14/dist/purify.min.js" crossorigin="anonymous"></script>
+  <script>
+    (function () {
+      const _d = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML');
+      Object.defineProperty(Element.prototype, 'innerHTML', {
+        set(v) { _d.set.call(this, typeof v === 'string' ? DOMPurify.sanitize(v, { FORCE_BODY: false }) : v); },
+        get: _d.get,
+        configurable: true,
+      });
+    })();
+  </script>
+
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" crossorigin="anonymous"></script>
   
   <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-app-compat.js" crossorigin="anonymous"></script>

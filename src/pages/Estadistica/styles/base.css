@@ -48,8 +48,8 @@
   flex-shrink: 0;
 }
 
-.estadistica-page .stats-insights .insight-icon i {
-  color: inherit !important;
+body.estadistica-page .stats-insights .insight-icon i {
+  color: inherit;
 }
 
 /* Grid de gráficos */

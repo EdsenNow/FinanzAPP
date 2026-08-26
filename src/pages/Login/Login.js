@@ -111,32 +111,50 @@
       const originalContent = googleSignInBtn.innerHTML;
       googleSignInBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Iniciando sesión...';
 
-      let restored = false;
+      let isDone = false;
+      let checkPopupInterval = null;
+      let popupWindow = null;
+
+      // Interceptar window.open para capturar la ventana emergente real de Google
+      const originalOpen = window.open;
+      window.open = function (...args) {
+        popupWindow = originalOpen.apply(this, args);
+        return popupWindow;
+      };
+
       const restoreButton = () => {
-        if (restored) return;
-        restored = true;
+        if (isDone) return;
+        isDone = true;
+        if (checkPopupInterval) clearInterval(checkPopupInterval);
+        window.open = originalOpen;
         googleSignInBtn.disabled = false;
         googleSignInBtn.innerHTML = originalContent;
       };
 
+      // Sondeo ultrarrápido (cada 150ms): solo se restaura si la ventana emergente se ha cerrado realmente
+      checkPopupInterval = setInterval(() => {
+        if (isDone) {
+          clearInterval(checkPopupInterval);
+          return;
+        }
+        if (popupWindow && popupWindow.closed) {
+          console.log('[Login] Ventana emergente cerrada por el usuario.');
+          restoreButton();
+        }
+      }, 150);
+
       try {
-        // Timeout de seguridad: si el popup nunca devuelve, forzar error.
-        const loginTimeout = new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('Login timeout: el popup no respondió a tiempo')), 30000)
-        );
-        const result = await Promise.race([
-          window.firebaseAuth.loginWithGoogle(),
-          loginTimeout
-        ]);
+        const result = await window.firebaseAuth.loginWithGoogle();
 
-        console.log('loginWithGoogle result:', result);
-
-        // Si el método inició un signInWithRedirect, la página será redirigida
         if (result && result.redirect) {
           return; // redirección en curso
         }
 
         if (result && result.success) {
+          isDone = true;
+          if (checkPopupInterval) clearInterval(checkPopupInterval);
+          window.open = originalOpen;
+
           // Guardar sesión inmediatamente por si Firestore falla
           try {
             if (result.user && window.firebaseAuth && window.firebaseAuth.saveUserSession) {
@@ -164,23 +182,24 @@
             }
           })();
 
-          // Redirigir con retraso de 2s para que Firebase persista el token en IndexedDB
-          // antes de que el Dashboard intente leerlo.
+          // Redirigir al Dashboard de inmediato
           setTimeout(() => {
-            window.location.href = '../Dashboard/Dashboard.html';
-          }, 2000);
+            window.location.replace('/pages/Dashboard/Dashboard.html');
+          }, 600);
           return;
         }
 
         // Casos de error / cancelación
-        if (!result || (result.error !== 'auth/popup-closed-by-user' && result.error !== 'auth/cancelled-popup-request')) {
+        const isCancelled = result && (result.cancelled || result.error === 'auth/popup-closed-by-user' || result.error === 'auth/cancelled-popup-request' || result.error === 'auth/user-cancelled');
+        if (!result || (!isCancelled && !result.success)) {
           showAlert('Error', result?.message || 'No se pudo iniciar sesión con Google.', { variant: 'error' });
         }
         restoreButton();
       } catch (error) {
         console.error('Error inesperado en login con Google:', error);
-        showAlert('Error', 'Ocurrió un error al iniciar sesión con Google. Por favor intenta nuevamente.', { variant: 'error' });
         restoreButton();
+      } finally {
+        window.open = originalOpen;
       }
     });
   }
@@ -251,8 +270,9 @@
               );
               if (resend === 'confirm') {
                 await window.firebaseAuth.resendVerificationEmail(result.email, result.password);
-                showAlert('Correo Enviado', 'Revisa tu bandeja de entrada.', { variant: 'success' });
+                showAlert('Correo Enviado', 'Revisa tu bandeja de entrada o la carpeta de SPAM / Correo no deseado.', { variant: 'success' });
               }
+
             }, 200);
           }
         } else {
@@ -472,18 +492,19 @@
         });
 
         if (user && !recentLogout) {
-          window.location.href = '../Dashboard/Dashboard.html';
+          try { window.firebaseAuth?.saveUserSession(user); } catch (e) {}
+          window.location.replace('/pages/Dashboard/Dashboard.html');
         }
       } else {
         const isLoggedIn = localStorage.getItem('loggedIn');
         if (isLoggedIn === '1' && !recentLogout) {
-          window.location.href = '../Dashboard/Dashboard.html';
+          window.location.replace('/pages/Dashboard/Dashboard.html');
         }
       }
     } catch (err) {
       const isLoggedIn = localStorage.getItem('loggedIn');
       if (isLoggedIn === '1' && !recentLogout) {
-        window.location.href = '../Dashboard/Dashboard.html';
+        window.location.replace('/pages/Dashboard/Dashboard.html');
       }
     }
   })();

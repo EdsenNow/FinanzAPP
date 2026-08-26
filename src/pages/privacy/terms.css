@@ -5,27 +5,10 @@ body {
   background: #191724;
   color: #e0def4;
   min-height: 100vh;
-  scrollbar-width: thin;
-  scrollbar-color: #eb6f92 transparent;
+  scrollbar-width: none; /* Firefox */
 }
-
-body::-webkit-scrollbar {
-  width: 12px;
-  height: 12px;
-  background: transparent;
-}
-body::-webkit-scrollbar-track {
-  background: transparent;
-}
-body::-webkit-scrollbar-thumb {
-  background: #eb6f92;
-  border-radius: 12px;
-}
-body::-webkit-scrollbar-thumb:hover {
-  background: #eb6f92;
-}
-body::-webkit-scrollbar-corner {
-  background: transparent;
+::-webkit-scrollbar {
+  display: none; /* Chrome/Safari/Edge */
 }
 
 .bg {
@@ -73,8 +56,11 @@ nav {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: #e0def4;
   font-size: 16px;
+}
+.nav-logo-icon i {
+  color: #e0def4 !important;
 }
 .nav-brand-name {
   font-size: 1.1rem;

@@ -1,25 +1,26 @@
 @media (max-width: 768px) {
-  /* Mantener animaciones de fondo pero reducir opacidad */
-  body::before,
-  body::after,
-  .auth-container::before,
-  .auth-container::after,
-  .bg-circles::before,
-  .bg-circles::after,
-  .auth-header::before {
-    opacity: 0.35;
+  /* Ajustes para orbes animados en móvil */
+  .orb {
+    filter: blur(42px);
+    opacity: 0.78;
   }
+
+  .orb-1 { width: 340px; height: 340px; }
+  .orb-2 { width: 360px; height: 360px; }
+  .orb-3 { width: 290px; height: 290px; }
+  .orb-4 { width: 260px; height: 260px; }
+  .orb-5 { width: 300px; height: 300px; }
 
   body,
   html {
-    height: 100vh;
+    height: 100dvh;
     height: 100dvh;
     overflow: hidden;
   }
 
   #authScreens,
   .auth-container {
-    height: 100vh;
+    height: 100dvh;
     height: 100dvh;
     width: 100%;
     overflow: hidden;
@@ -34,7 +35,7 @@
   .auth-card {
     max-width: 100%;
     width: 100%;
-    min-height: 100vh;
+    min-height: 100dvh;
     min-height: 100dvh;
     border-radius: 0;
     padding: calc(40px + env(safe-area-inset-top)) 24px calc(32px + env(safe-area-inset-bottom));

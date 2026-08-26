@@ -95,14 +95,52 @@ class RenderizadorUI {
         statusClass = 'warning';
       }
       
+      let dateRangeText = '';
+      if (budget.startDate && budget.endDate) {
+        dateRangeText = `${this.formatDate(new Date(budget.startDate))} - ${this.formatDate(new Date(budget.endDate))}`;
+      } else {
+        const now = new Date();
+        let sDate, eDate;
+        if (budget.period === 'weekly') {
+          const day = now.getDay();
+          const diffToMonday = day === 0 ? -6 : 1 - day;
+          sDate = new Date(now);
+          sDate.setDate(now.getDate() + diffToMonday);
+          eDate = new Date(sDate);
+          eDate.setDate(sDate.getDate() + 6);
+        } else if (budget.period === 'biweekly') {
+          const day = now.getDay();
+          const diffToMonday = day === 0 ? -6 : 1 - day;
+          sDate = new Date(now);
+          sDate.setDate(now.getDate() + diffToMonday);
+          eDate = new Date(sDate);
+          eDate.setDate(sDate.getDate() + 13);
+        } else if (budget.period === 'yearly') {
+          sDate = new Date(now.getFullYear(), 0, 1);
+          eDate = new Date(now.getFullYear(), 11, 31);
+        } else {
+          sDate = new Date(now.getFullYear(), now.getMonth(), 1);
+          eDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        }
+        dateRangeText = `${this.formatDate(sDate)} - ${this.formatDate(eDate)}`;
+      }
+
       const card = document.createElement('div');
       card.className = 'budget-card';
       card.innerHTML = `
         <div class="card-top">
-          <h3>
-            <i class="fas fa-wallet"></i>
-            ${this.escapeHtml(budget.name)}
-          </h3>
+          <div class="category-info-box">
+            <h3>
+              <i class="fas fa-wallet"></i>
+              ${this.escapeHtml(budget.name)}
+            </h3>
+            ${dateRangeText ? `
+              <div class="budget-custom-duration">
+                <i class="fas fa-calendar-alt"></i>
+                <span>${dateRangeText}</span>
+              </div>
+            ` : ''}
+          </div>
           <span class="period-chip">${this.getPeriodText(budget.period)}</span>
         </div>
         

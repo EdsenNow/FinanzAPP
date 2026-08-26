@@ -1,3 +1,46 @@
+body.estadistica-page {
+  background: #191724;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+body.estadistica-page .app-container {
+  display: flex;
+  height: 100dvh;
+  min-height: 100dvh;
+  overflow: hidden;
+}
+
+body.estadistica-page .main-content {
+  flex-grow: 1;
+  padding: 20px;
+  height: 100dvh;
+  min-height: 100dvh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: auto;
+  scrollbar-color: var(--scrollbar-accent, #eb6f92) transparent;
+}
+
+body.estadistica-page .main-content::-webkit-scrollbar {
+  width: 14px;
+  height: 14px;
+  background: transparent;
+}
+
+body.estadistica-page .main-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+body.estadistica-page .main-content::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-accent, #eb6f92);
+  border-radius: 12px;
+}
+
+body.estadistica-page .main-content::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-accent-hover, #f08ca8);
+}
+
 .estadistica-page .page-header { 
   margin-bottom: 20px; 
 }
@@ -9,23 +52,23 @@
 }
 
 /* Forzar ancho fijo en los dropdowns de filtros */
-.estadistica-page .filter-controls #yearFilter {
-  min-width: 180px !important;
-  width: 180px !important;
+body.estadistica-page .filter-controls #yearFilter {
+  min-width: 180px;
+  width: 180px;
 }
 
-.estadistica-page .filter-controls #monthFilter {
-  min-width: 180px !important;
-  width: 180px !important;
+body.estadistica-page .filter-controls #monthFilter {
+  min-width: 180px;
+  width: 180px;
 }
 
-.estadistica-page .filter-controls #categoryFilter {
-  min-width: 200px !important;
-  width: 200px !important;
+body.estadistica-page .filter-controls #categoryFilter {
+  min-width: 200px;
+  width: 200px;
 }
 
-.estadistica-page .filter-controls .custom-dropdown {
-  width: auto !important;
+body.estadistica-page .filter-controls .custom-dropdown {
+  width: auto;
 }
 
 .estadistica-page .stats-insights {
@@ -49,22 +92,22 @@
   flex-shrink: 0;
 }
 
-.estadistica-page .stats-insights .insight-icon.primary { 
-  background: linear-gradient(#EB6F92) !important; 
-  color: #1F1D2E !important;
+body.estadistica-page .stats-insights .insight-icon.primary { 
+  background: linear-gradient(#EB6F92); 
+  color: #1F1D2E;
 }
-.estadistica-page .stats-insights .insight-icon.accent { 
-  background: linear-gradient(#2D957B) !important; 
-  color: #1F1D2E !important;
+body.estadistica-page .stats-insights .insight-icon.accent { 
+  background: linear-gradient(#2D957B); 
+  color: #1F1D2E;
 }
-.estadistica-page .stats-insights .insight-icon.success { 
-  background: linear-gradient(#c4a7e7) !important; 
-  color: #1F1D2E !important;
+body.estadistica-page .stats-insights .insight-icon.success { 
+  background: linear-gradient(#c4a7e7); 
+  color: #1F1D2E;
 }
 
 
-.estadistica-page .stats-insights .insight-icon i {
-  color: inherit !important;
+body.estadistica-page .stats-insights .insight-icon i {
+  color: inherit;
 }
 
 
@@ -148,16 +191,17 @@
 
 /* Espaciado específico para títulos de gráficos */
 .estadistica-page .stats-chart-card h3 {
-  padding-top: 30px;
+  padding-top: 0;
+  margin: 0 0 10px 0;
   font-size: 1.1rem;
   font-weight: 600;
   color: var(--text-primary);
 }
 
 .estadistica-page .stats-chart-card {
-  background:   #1f1d2e;
+  background: #1f1d2e;
   border-radius: 18px;
-  padding: 0;
+  padding: 24px 22px 28px 22px;
   transition: all 0.3s;
   overflow: hidden;
   display: flex;
@@ -249,10 +293,10 @@
 }
 
 /* Estilos específicos para canvas de gráficas */
-.estadistica-page .chart-wrap canvas {
-  display: block !important;
-  width: 100% !important;
-  height: 100% !important;
+body.estadistica-page .chart-wrap canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 /* Fallback si las gráficas no cargan */
@@ -313,19 +357,25 @@
   .estadistica-page .stats-insights {
     grid-template-columns: 1fr;
   }
+  .estadistica-page .stats-chart-card {
+    padding: 16px 12px 20px 12px;
+  }
   .estadistica-page .stats-chart-card.chart-full,
   .estadistica-page .stats-chart-card.chart-half,
   .estadistica-page .stats-chart-card.chart-third {
     grid-column: span 12;
   }
   .estadistica-page .chart-wrap {
-    height: 320px;
+    height: 300px;
   }
-  .estadistica-page .chart-wrap.compact {
+  .estadistica-page .stats-chart-card.chart-half .chart-wrap {
     height: 280px;
   }
+  .estadistica-page .chart-wrap.compact {
+    height: 240px;
+  }
   .estadistica-page .chart-wrap.gauge-wrap {
-    height: 260px;
+    height: 240px;
   }
 }
 .estadistica-page .custom-dropdown .custom-dropdown-options::-webkit-scrollbar { width: 6px; }
@@ -601,13 +651,13 @@
 
 /* Desactivar efectos hover/active en dispositivos móviles */
 @media (hover: none) and (pointer: coarse), (max-width: 980px) {
-  .summary-card:hover,
-  .btn-primary:hover,
-  .btn-secondary:hover,
-  .btn-danger:hover,
-  .btn-icon:hover,
-  .estadistica-page .stats-chart-card:hover {
-    transform: none !important;
-    box-shadow: none !important;
+  body.estadistica-page .summary-card:hover,
+  body.estadistica-page .btn-primary:hover,
+  body.estadistica-page .btn-secondary:hover,
+  body.estadistica-page .btn-danger:hover,
+  body.estadistica-page .btn-icon:hover,
+  body.estadistica-page .stats-chart-card:hover {
+    transform: none;
+    box-shadow: none;
   }
 }

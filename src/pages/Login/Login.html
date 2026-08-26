@@ -3,6 +3,27 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (!t) {
+          var s = localStorage.getItem('finanzapp:settings:v1');
+          if (s) {
+            var p = JSON.parse(s);
+            if (p && p.theme) t = p.theme;
+          }
+        }
+        if (t === 'light') {
+          document.documentElement.setAttribute('data-theme', 'light');
+          document.documentElement.style.backgroundColor = '#f5efea';
+        } else {
+          document.documentElement.setAttribute('data-theme', 'dark');
+          document.documentElement.style.backgroundColor = '#191724';
+        }
+      } catch (e) {}
+    })();
+  </script>
   <title>FinanzApp - Autenticación</title>
 
   <link rel="manifest" href="/Icons/site.webmanifest" />
@@ -15,30 +36,36 @@
   <link rel="stylesheet" href="/lib/fonts.css">
   <link rel="stylesheet" href="/lib/fontawesome/v5/css/all.min.css">
 
-  <link rel="stylesheet" href="/pages/Login/Login.css?v=202511120001">
-  <link rel="stylesheet" href="/pages/Login/styles/mobile.css?v=20260510">
-  <link rel="stylesheet" href="/pages/Login/styles/tema-oscuro.css?v=20260103" id="dark-css">
+  <link rel="stylesheet" href="/pages/Login/Login.css?v=20260824003">
+  <link rel="stylesheet" href="/pages/Login/styles/mobile.css?v=20260824003">
+  <link rel="stylesheet" href="/pages/Login/styles/tema-oscuro.css?v=20260824003" id="dark-css">
 
-  <link rel="stylesheet" href="/lib/UI.css?v=202511120001">
+  <link rel="stylesheet" href="/lib/UI.css?v=20260824003">
 
-  <script src="/lib/UI.js?v=202511120001"></script>
-
+  <script src="/lib/UI.js?v=20260505"></script>
   <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-app-compat.js" crossorigin="anonymous"></script>
   <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-app-check-compat.js" crossorigin="anonymous"></script>
   <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-auth-compat.js" crossorigin="anonymous"></script>
   <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore-compat.js" crossorigin="anonymous"></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
 
   <script src="/__config.js?v=2026080301"></script>
   <script src="/lib/FirebaseAuth.js?v=2026080301"></script>
   <script src="/lib/FirestoreDB.js?v=202511120001"></script>
-  
-  
 </head>
 <body>
+  <!-- Orbes brillantes y animados en el fondo -->
+  <div class="bg-orb-container" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <div class="orb orb-4"></div>
+    <div class="orb orb-5"></div>
+  </div>
+
   <div id="authScreens">
 
     <div class="auth-container" id="loginScreen">
-      <div class="bg-circles"></div>
       <div class="auth-card">
         <div class="auth-header">
           <div class="auth-logo">
