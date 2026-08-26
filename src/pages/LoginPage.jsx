@@ -18,7 +18,17 @@ import {
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { user, isGuest, signInWithGoogle, signInWithEmail, signUpWithEmail, sendPasswordReset, loginAsGuest, authError } = useAuthStore();
+  const { 
+    user, 
+    isGuest, 
+    signInWithGoogle, 
+    signInWithGoogleCredential,
+    signInWithEmail, 
+    signUpWithEmail, 
+    sendPasswordReset, 
+    loginAsGuest, 
+    authError 
+  } = useAuthStore();
   const { theme, toggleTheme } = useThemeStore();
 
   const [mode, setMode] = useState('login'); // 'login' | 'register' | 'reset'
@@ -36,9 +46,38 @@ export default function LoginPage() {
     }
   }, [user, navigate]);
 
+  // Initialize Google Identity Services (GIS) One Tap / Silent OAuth
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.google?.accounts?.id) {
+      try {
+        window.google.accounts.id.initialize({
+          client_id: "569331846575-djonqen9ib9jrek93o0hpjem189ppjsm.apps.googleusercontent.com",
+          callback: async (response) => {
+            if (response.credential) {
+              setLoading(true);
+              setErrorMessage(null);
+              try {
+                await signInWithGoogleCredential(response.credential);
+                navigate('/dashboard');
+              } catch (e) {
+                setErrorMessage(getFriendlyErrorMessage(e));
+              } finally {
+                setLoading(false);
+              }
+            }
+          },
+          auto_select: false,
+          cancel_on_tap_outside: true
+        });
+      } catch (e) {
+        console.warn('GIS One Tap init notice:', e);
+      }
+    }
+  }, [signInWithGoogleCredential, navigate]);
+
   const getFriendlyErrorMessage = (err) => {
     const code = err?.code || '';
-    if (code === 'auth/popup-closed-by-user') return 'La ventana de inicio de sesión de Google fue cerrada antes de completar el acceso.';
+    if (code === 'auth/popup-closed-by-user' || err?.error === 'popup_closed_by_user') return 'La ventana de inicio de sesión de Google fue cerrada antes de completar el acceso.';
     if (code === 'auth/unauthorized-domain') return 'El dominio local o actual no está en la lista de dominios autorizados de Firebase.';
     if (code === 'auth/invalid-credential' || code === 'auth/wrong-password' || code === 'auth/user-not-found') return 'Correo electrónico o contraseña incorrectos.';
     if (code === 'auth/email-already-in-use') return 'Ya existe una cuenta registrada con este correo electrónico.';
@@ -75,10 +114,10 @@ export default function LoginPage() {
     setErrorMessage(null);
     setLoading(true);
     try {
-      const user = await signInWithGoogle();
-      if (user) navigate('/dashboard');
+      const loggedUser = await signInWithGoogle();
+      if (loggedUser) navigate('/dashboard');
     } catch (err) {
-      if (err.code !== 'auth/popup-closed-by-user') {
+      if (err?.code !== 'auth/popup-closed-by-user' && err?.error !== 'popup_closed_by_user') {
         setErrorMessage(getFriendlyErrorMessage(err));
       }
     } finally {

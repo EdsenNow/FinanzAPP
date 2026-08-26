@@ -3,6 +3,8 @@ import {
   signInWithPopup, 
   signInWithRedirect, 
   getRedirectResult, 
+  signInWithCredential,
+  GoogleAuthProvider,
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
   sendPasswordResetEmail, 
@@ -12,10 +14,7 @@ import {
 } from 'firebase/auth';
 import { auth, googleProvider } from '../services/firebase';
 
-function isMobileOrRestrictedBrowser() {
-  const ua = navigator.userAgent.toLowerCase();
-  return /iphone|ipad|ipod|android|mobile|firefox/.test(ua);
-}
+const GOOGLE_CLIENT_ID = "569331846575-djonqen9ib9jrek93o0hpjem189ppjsm.apps.googleusercontent.com";
 
 export const useAuthStore = create((set, get) => ({
   user: null,
@@ -43,7 +42,7 @@ export const useAuthStore = create((set, get) => ({
         }
       })
       .catch((err) => {
-        console.warn('Redirect result error:', err);
+        console.warn('Redirect result notice:', err);
       });
 
     // Listen to auth state
@@ -59,15 +58,63 @@ export const useAuthStore = create((set, get) => ({
     return unsubscribe;
   },
 
+  signInWithGoogleCredential: async (idToken) => {
+    set({ loading: true, authError: null });
+    try {
+      const credential = GoogleAuthProvider.credential(idToken);
+      const res = await signInWithCredential(auth, credential);
+      set({ user: res.user, isGuest: false, loading: false });
+      localStorage.removeItem('isGuest');
+      return res.user;
+    } catch (err) {
+      set({ authError: err.message, loading: false });
+      throw err;
+    }
+  },
+
   signInWithGoogle: async () => {
     set({ loading: true, authError: null });
+
+    // Approach 1: Try direct Google Identity Services Token Client (immune to iframe / domain CORS blocks)
+    if (typeof window !== 'undefined' && window.google?.accounts?.oauth2) {
+      try {
+        const user = await new Promise((resolve, reject) => {
+          const client = window.google.accounts.oauth2.initTokenClient({
+            client_id: GOOGLE_CLIENT_ID,
+            scope: "email profile openid",
+            callback: async (tokenResponse) => {
+              if (tokenResponse.error) {
+                reject(tokenResponse);
+                return;
+              }
+              try {
+                const credential = GoogleAuthProvider.credential(null, tokenResponse.access_token);
+                const res = await signInWithCredential(auth, credential);
+                set({ user: res.user, isGuest: false, loading: false });
+                localStorage.removeItem('isGuest');
+                resolve(res.user);
+              } catch (e) {
+                reject(e);
+              }
+            },
+            error_callback: (err) => reject(err)
+          });
+          client.requestAccessToken({ prompt: 'select_account' });
+        });
+        return user;
+      } catch (gisErr) {
+        console.warn('GIS Token client fallback to Firebase popup:', gisErr);
+      }
+    }
+
+    // Approach 2: Standard Firebase popup
     try {
       const res = await signInWithPopup(auth, googleProvider);
       set({ user: res.user, isGuest: false, loading: false });
       localStorage.removeItem('isGuest');
       return res.user;
     } catch (err) {
-      console.warn('Popup failed, trying redirect fallback:', err);
+      console.warn('Popup fallback notice:', err);
       if (err.code === 'auth/popup-blocked' || err.code === 'auth/cancelled-popup-request') {
         try {
           await signInWithRedirect(auth, googleProvider);
