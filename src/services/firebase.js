@@ -17,7 +17,7 @@ const isLocalhost = typeof window !== 'undefined' && (
 
 const firebaseConfig = {
   apiKey: "AIzaSyCrOwLwoJlXyMloxNoaq13J3fvRFJcQcjg",
-  authDomain: isLocalhost ? "finanzapp-fb.firebaseapp.com" : (window.location?.hostname?.includes('byfinanzapp.com') ? "byfinanzapp.com" : "finanzapp-fb.firebaseapp.com"),
+  authDomain: "byfinanzapp.com",
   projectId: "finanzapp-fb",
   storageBucket: "finanzapp-fb.firebasestorage.app",
   messagingSenderId: "569331846575",
@@ -27,38 +27,17 @@ const firebaseConfig = {
 
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
-// Initialize Auth with explicit local persistence and popup redirect resolver
-// This avoids Firefox third-party iframe blocking and file:/// security warnings
-let authInstance;
-try {
-  authInstance = initializeAuth(app, {
-    persistence: browserLocalPersistence,
-    popupRedirectResolver: browserPopupRedirectResolver
-  });
-} catch (_) {
-  authInstance = getAuth(app);
-}
-
-export const auth = authInstance;
+export const auth = getAuth(app);
+auth.languageCode = 'es';
 export const db = getFirestore(app);
 
-// Initialize App Check: in production use reCAPTCHA v3, in localhost use debug provider
-if (typeof window !== 'undefined') {
+// Initialize App Check: in production use reCAPTCHA v3
+if (typeof window !== 'undefined' && !isLocalhost) {
   try {
-    if (isLocalhost) {
-      self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
-      initializeAppCheck(app, {
-        provider: new CustomProvider({
-          getToken: () => Promise.resolve({ token: 'debug-token', expireTimeMillis: Date.now() + 3600000 })
-        }),
-        isTokenAutoRefreshEnabled: true
-      });
-    } else {
-      initializeAppCheck(app, {
-        provider: new ReCaptchaV3Provider("6Lc0XnItAAAAAPBtdMopqdHuT3U5Q2Td8Bx5SErI"),
-        isTokenAutoRefreshEnabled: true
-      });
-    }
+    initializeAppCheck(app, {
+      provider: new ReCaptchaV3Provider("6Lc0XnItAAAAAPBtdMopqdHuT3U5Q2Td8Bx5SErI"),
+      isTokenAutoRefreshEnabled: true
+    });
   } catch (err) {
     console.warn('App Check initialization notice:', err);
   }
