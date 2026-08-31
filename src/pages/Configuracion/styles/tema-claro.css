@@ -29,6 +29,7 @@
 
   --config-page-bg: #faf4ed;
   --config-card-bg: #fffaf3;
+  --config-section-bg: #fffaf3;
   --config-card-border: #f2e9e1;
   --config-text: #575279;
   --config-muted: #797593;
@@ -44,6 +45,7 @@
   --mobile-nav-text: #9893a5;
   --mobile-nav-active-bg: rgba(180, 99, 122, 0.16);
   --mobile-nav-active-text: #b4637a;
+  --sidebar-bg: #faf4ed;
 }
 
 /* ---------- Layout ---------- */
@@ -213,7 +215,7 @@
 }
 
 [data-theme="light"] .btn-secondary {
-  background: #f5efea;
+  background: #fffaf3;
   color: var(--config-text);
   border: none;
 }
@@ -352,4 +354,83 @@
   border-top: 0;
   outline: none;
   box-shadow: none;
+}
+
+/* ---------- Tutorial Modal en Tema Claro ---------- */
+[data-theme="light"] .tutorial-modal .custom-alert-title {
+  color: #575279;
+}
+
+[data-theme="light"] .tutorial-modal .custom-alert-title i {
+  color: #b4637a;
+}
+
+[data-theme="light"] .tutorial-step-card {
+  background: #f5efea;
+}
+
+[data-theme="light"] .tutorial-step-title {
+  color: #575279;
+}
+
+[data-theme="light"] .tutorial-step-desc,
+[data-theme="light"] .tutorial-note {
+  color: #797593;
+}
+
+[data-theme="light"] .tutorial-step-badge,
+[data-theme="light"] .tutorial-step-badge.badge-step-1,
+[data-theme="light"] .tutorial-step-badge.badge-step-2,
+[data-theme="light"] .tutorial-step-badge.badge-step-3 {
+  background: rgba(180, 99, 122, 0.15);
+  color: #b4637a;
+}
+
+[data-theme="light"] .tutorial-btn-link {
+  background: #fef2f2;
+  color: #b4637a;
+  border: 2px solid #b4637a;
+}
+
+[data-theme="light"] .tutorial-btn-link:hover {
+  background: #fce7f3;
+  color: #b4637a;
+  box-shadow: 0 4px 12px rgba(180, 99, 122, 0.2);
+}
+
+[data-theme="light"] .tutorial-mockup-outer,
+[data-theme="light"] .tutorial-password-card {
+  background: #fffaf3;
+}
+
+[data-theme="light"] .tutorial-mockup-label {
+  color: #b4637a;
+}
+
+[data-theme="light"] .tutorial-mockup-input-row {
+  background: #fffaf3;
+  border: 2px solid #b4637a;
+}
+
+[data-theme="light"] .tutorial-mockup-val,
+[data-theme="light"] .tutorial-password-title {
+  color: #575279;
+}
+
+[data-theme="light"] .tutorial-mockup-btn {
+  background: #b4637a;
+  color: #fffaf3;
+}
+
+[data-theme="light"] .tutorial-password-subtitle {
+  color: #797593;
+}
+
+[data-theme="light"] .tutorial-password-code-box {
+  background: #fffaf3;
+  border: 2px dashed #b4637a;
+}
+
+[data-theme="light"] .tutorial-password-code {
+  color: #b4637a;
 }

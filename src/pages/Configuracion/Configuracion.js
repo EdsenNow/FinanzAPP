@@ -23,7 +23,8 @@
     confirmDelete: 'on',
     autoRenewBudgets: 'on',
     txPerPage: 'all',
-    showCents: 'on'
+    showCents: 'on',
+    censorAmounts: 'off'
   });
 
   const CURRENCY_LOCALE_MAP = {
@@ -77,6 +78,7 @@
 
     elements.preferencesForm = document.getElementById('preferencesForm');
     elements.themePreference = document.getElementById('themePreference');
+    elements.categoryViewPreference = document.getElementById('categoryViewPreference');
     elements.currencyPreference = document.getElementById('currencyPreference');
     elements.numberFormatPreference = document.getElementById('numberFormatPreference');
     elements.tooltipsPreference = document.getElementById('tooltipsPreference');
@@ -86,6 +88,7 @@
     elements.autoRenewBudgetsPreference = document.getElementById('autoRenewBudgetsPreference');
     elements.txPerPagePreference = document.getElementById('txPerPagePreference');
     elements.showCentsPreference = document.getElementById('showCentsPreference');
+    elements.censorAmountsPreference = document.getElementById('censorAmountsPreference');
     elements.formatPreview = document.getElementById('formatPreview');
     elements.preferencesStatus = document.getElementById('preferencesStatus');
 
@@ -123,82 +126,188 @@
     elements.importBackupInput?.addEventListener('change', onImportBackup);
     elements.clearDataBtn?.addEventListener('click', onClearData);
 
-    initGmailSection();
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'theme' && e.newValue) {
+        applyTheme(e.newValue, false);
+        setDropdownValue('themePreference', e.newValue);
+      }
+    });
+
+    initImapSection();
   }
 
-  // ── Sección Gmail ──────────────────────────────────────────────────────────
+  // ── Sección IMAP ──────────────────────────────────────────────────────────
 
-  function initGmailSection() {
-    const connectBtn = document.getElementById('gmailConnectBtn');
-    const discBtn    = document.getElementById('gmailDisconnectBtn');
+  function initImapSection() {
+    const saveBtn = document.getElementById('saveImapBtn');
+    const syncBtn = document.getElementById('syncImapBtn');
+    const openTutorialBtn = document.getElementById('openTutorialBtn');
+    const closeTutorialBtn = document.getElementById('closeTutorialBtn');
+    const tutorialModal = document.getElementById('tutorialModal');
+    const overlay = document.getElementById('alertOverlay');
+    
+    if (openTutorialBtn && tutorialModal) {
+      openTutorialBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        tutorialModal.classList.remove('hidden');
+        tutorialModal.style.display = 'block';
+        if (overlay) {
+          overlay.classList.remove('hidden');
+          overlay.style.display = 'block';
+        }
+      });
+    }
 
-    if (!connectBtn && !discBtn) return;
+    if (closeTutorialBtn && tutorialModal) {
+      closeTutorialBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        tutorialModal.classList.add('hidden');
+        tutorialModal.style.display = 'none';
+        if (overlay) {
+          overlay.classList.add('hidden');
+          overlay.style.display = 'none';
+        }
+      });
+    }
 
-    updateGmailStatus();
+    // Permitir cerrar haciendo clic en el overlay
+    if (overlay && tutorialModal) {
+      overlay.addEventListener('click', () => {
+        if (!tutorialModal.classList.contains('hidden') && tutorialModal.style.display !== 'none') {
+          tutorialModal.classList.add('hidden');
+          tutorialModal.style.display = 'none';
+          overlay.classList.add('hidden');
+          overlay.style.display = 'none';
+        }
+      });
+    }
 
-    connectBtn?.addEventListener('click', async () => {
-      connectBtn.disabled = true;
-      connectBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Conectando...';
+    const toggleBtn = document.getElementById('toggleImapPassword');
+    const passInput = document.getElementById('imapPassword');
+    const passIcon = document.getElementById('toggleImapPasswordIcon');
+
+    if (toggleBtn && passInput) {
+      toggleBtn.addEventListener('click', () => {
+        const isPassword = passInput.type === 'password';
+        passInput.type = isPassword ? 'text' : 'password';
+        if (passIcon) {
+          passIcon.className = isPassword ? 'far fa-eye-slash' : 'far fa-eye';
+        }
+      });
+    }
+    
+    if (!saveBtn) return;
+
+    // Cargar credenciales guardadas
+    loadImapCredentials();
+
+    saveBtn.addEventListener('click', async () => {
+      const email = document.getElementById('imapEmail').value.trim();
+      const password = document.getElementById('imapPassword').value.replace(/\s+/g, '').trim();
+      const senders = document.getElementById('imapSenders').value.split(',').map(s => s.trim()).filter(Boolean);
+
+      if (!email || !password || senders.length === 0) {
+        if (typeof window._configMostrarToast === 'function') {
+          window._configMostrarToast('Por favor completa todos los campos.', 'error');
+        }
+        return;
+      }
+
+      saveBtn.disabled = true;
+      saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+
       try {
-        await window.GmailAPI.signInInteractive();
-        updateGmailStatus();
-      } catch (err) {
-        if (err.message !== 'popup_blocked' && err.message !== 'popup_closed' && err.message !== 'popup_timeout') {
-          console.error('[Config] Error conectando Gmail:', err);
-          window._configMostrarToast(err.message || 'Error al conectar con Gmail.', 'error');
+        if (window.FirestoreDB) {
+          await window.FirestoreDB.saveImapSettings({ email, appPassword: password, targetSenders: senders });
+          if (syncBtn) syncBtn.style.display = 'inline-flex';
+          if (typeof window._configMostrarToast === 'function') {
+            window._configMostrarToast('Credenciales guardadas correctamente.', 'success');
+          }
+        }
+      } catch (e) {
+        console.error('Error al guardar IMAP', e);
+        if (typeof window._configMostrarToast === 'function') {
+          window._configMostrarToast('Error al guardar. Verifica tu conexión.', 'error');
         }
       } finally {
-        connectBtn.disabled = false;
-        connectBtn.innerHTML = '<i class="fas fa-plug"></i> Conectar Gmail';
-        updateGmailStatus();
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = '<i class="fas fa-save"></i> Guardar';
       }
     });
 
-    discBtn?.addEventListener('click', () => {
-      window.GmailAPI?.signOut();
-      updateGmailStatus();
-    });
+    if (syncBtn) {
+      syncBtn.addEventListener('click', async () => {
+        syncBtn.disabled = true;
+        syncBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sincronizando...';
+
+        try {
+          if (window.SyncAPI && typeof window.SyncAPI.syncImapOnDemand === 'function') {
+            const result = await window.SyncAPI.syncImapOnDemand();
+            
+            if (result && Array.isArray(result.transactions) && result.transactions.length > 0) {
+              try {
+                const rawExisting = localStorage.getItem('finanzapp:gmail:pending_notifications') || '[]';
+                let existing = Array.isArray(JSON.parse(rawExisting)) ? JSON.parse(rawExisting) : [];
+                const existingKeys = new Set(existing.map(n => n.id || `${n.amount}_${n.description}_${n.date}`));
+
+                for (const tx of result.transactions) {
+                  const key = tx.id || `${tx.amount}_${tx.description}_${tx.date}`;
+                  if (!existingKeys.has(key)) {
+                    existing.push({
+                      id: tx.id || ('notif_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7)),
+                      amount: tx.amount,
+                      description: tx.description || 'Transacción Bancaria',
+                      subject: tx.subject || '',
+                      date: tx.date || new Date().toISOString(),
+                      type: tx.type || 'expense',
+                      timestamp: Date.now()
+                    });
+                    existingKeys.add(key);
+                  }
+                }
+
+                localStorage.setItem('finanzapp:gmail:pending_notifications', JSON.stringify(existing));
+                localStorage.setItem('finanzapp:gmail:notifications', JSON.stringify(existing));
+                window.dispatchEvent(new CustomEvent('finanzapp:gmail:notifications-updated'));
+              } catch (err) {
+                console.warn('Error saving notifications to localStorage', err);
+              }
+            }
+
+            if (typeof window._configMostrarToast === 'function') {
+              window._configMostrarToast('Sincronización completada: ' + (result.count || 0) + ' transacciones nuevas.', 'success');
+            }
+          } else {
+            throw new Error('SyncAPI no disponible');
+          }
+        } catch (e) {
+          console.error(e);
+          if (typeof window._configMostrarToast === 'function') {
+            window._configMostrarToast(e.message || 'Error al sincronizar.', 'error');
+          }
+        } finally {
+          syncBtn.disabled = false;
+          syncBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Sincronizar';
+        }
+      });
+    }
   }
-
-  function waitForGmailAPI(cb) {
-    if (window.GmailAPI) { cb(); return; }
-    let n = 0;
-    const t = setInterval(() => {
-      if (window.GmailAPI) { clearInterval(t); cb(); }
-      else if (++n > 30) clearInterval(t);
-    }, 100);
-  }
-
-  function updateGmailStatus() {
-    const dot     = document.getElementById('gmailStatusDot');
-    const text    = document.getElementById('gmailStatusText');
-    const conBtn  = document.getElementById('gmailConnectBtn');
-    const discBtn = document.getElementById('gmailDisconnectBtn');
-    if (!dot) return;
-
-    waitForGmailAPI(async () => {
-      if (!window.GmailAPI.isSignedIn() && typeof window.GmailAPI.ensureSession === 'function') {
-        await window.GmailAPI.ensureSession();
+  
+  async function loadImapCredentials() {
+    if (!window.FirestoreDB) return;
+    try {
+      const settings = await window.FirestoreDB.getImapSettings();
+      if (settings) {
+        if (settings.email) document.getElementById('imapEmail').value = settings.email;
+        if (settings.appPassword) document.getElementById('imapPassword').value = settings.appPassword;
+        if (settings.targetSenders) document.getElementById('imapSenders').value = settings.targetSenders.join(', ');
+        const syncBtn = document.getElementById('syncImapBtn');
+        if (syncBtn) syncBtn.style.display = 'inline-flex';
       }
-
-      if (window.GmailAPI.isSignedIn()) {
-        dot.style.background  = '';
-        dot.classList.remove('dot-disconnected');
-        dot.classList.add('dot-connected');
-        text.textContent      = 'Conectado';
-        conBtn.style.display  = 'none';
-        discBtn.style.display = '';
-      } else {
-        dot.style.background  = '';
-        dot.classList.remove('dot-connected');
-        dot.classList.add('dot-disconnected');
-        text.textContent      = 'Desconectado';
-        conBtn.style.display  = '';
-        discBtn.style.display = 'none';
-      }
-    });
+    } catch (e) {
+      console.warn('Error loading IMAP settings', e);
+    }
   }
-
 
   // --- Custom dropdown helpers ---
 
@@ -262,6 +371,13 @@
 
           setDropdownValue(dd.id, val);
           dd.classList.remove('open');
+
+          if (dd.id === 'themePreference') {
+            applyTheme(val, true);
+            state.settings.theme = val;
+            persistSettings();
+          }
+
           updateFormatPreview();
         });
       });
@@ -277,6 +393,7 @@
   function sanitizeSettings(raw) {
     const safe = {
       theme: raw?.theme === 'light' ? 'light' : 'dark',
+      categoryViewMode: raw?.categoryViewMode === 'compact' ? 'compact' : 'extended',
       currency: CURRENCY_LOCALE_MAP[raw?.currency] ? raw.currency : DEFAULT_SETTINGS.currency,
       numberFormat: raw?.numberFormat === 'eu' ? 'eu' : 'us',
       tooltips: raw?.tooltips === 'off' ? 'off' : 'on',
@@ -285,7 +402,8 @@
       confirmDelete: raw?.confirmDelete === 'off' ? 'off' : 'on',
       autoRenewBudgets: raw?.autoRenewBudgets === 'off' ? 'off' : 'on',
       txPerPage: ['10','25','50','all'].includes(String(raw?.txPerPage)) ? String(raw.txPerPage) : '10',
-      showCents: raw?.showCents === 'off' ? 'off' : 'on'
+      showCents: raw?.showCents === 'off' ? 'off' : 'on',
+      censorAmounts: raw?.censorAmounts === 'on' ? 'on' : 'off'
     };
     return safe;
   }
@@ -310,6 +428,7 @@
 
   function applySettingsToForm() {
     setDropdownValue('themePreference', state.settings.theme || 'dark');
+    setDropdownValue('categoryViewPreference', state.settings.categoryViewMode || 'extended');
     setDropdownValue('currencyPreference', state.settings.currency);
     setDropdownValue('numberFormatPreference', state.settings.numberFormat);
     setDropdownValue('tooltipsPreference', state.settings.tooltips || 'on');
@@ -319,11 +438,13 @@
     setDropdownValue('autoRenewBudgetsPreference', state.settings.autoRenewBudgets || 'on');
     setDropdownValue('txPerPagePreference', state.settings.txPerPage || 'all');
     setDropdownValue('showCentsPreference', state.settings.showCents || 'on');
+    setDropdownValue('censorAmountsPreference', state.settings.censorAmounts || 'off');
   }
 
   function readSettingsFromForm() {
     return sanitizeSettings({
       theme: getDropdownValue('themePreference') || state.settings.theme,
+      categoryViewMode: getDropdownValue('categoryViewPreference') || state.settings.categoryViewMode,
       currency: getDropdownValue('currencyPreference'),
       numberFormat: getDropdownValue('numberFormatPreference'),
       tooltips: getDropdownValue('tooltipsPreference'),
@@ -332,7 +453,8 @@
       confirmDelete: getDropdownValue('confirmDeletePreference'),
       autoRenewBudgets: getDropdownValue('autoRenewBudgetsPreference'),
       txPerPage: getDropdownValue('txPerPagePreference'),
-      showCents: getDropdownValue('showCentsPreference')
+      showCents: getDropdownValue('showCentsPreference'),
+      censorAmounts: getDropdownValue('censorAmountsPreference') || state.settings.censorAmounts
     });
   }
 
@@ -367,6 +489,24 @@
       if (state.settings.theme) {
         localStorage.setItem('theme', state.settings.theme);
       }
+      // Actualizar flag global y clase para censura inmediata en esta misma pestaña
+      try {
+        if (window.Core?.helpers && window.Helpers) {
+          window.Helpers.applyAppSettings();
+        } else if (window.Helpers) {
+          window.Helpers.applyAppSettings();
+        }
+        // Toggle clase global
+        const censored = state.settings.censorAmounts === 'on';
+        document.documentElement.classList.toggle('censor-amounts', censored);
+        if (document.body) document.body.classList.toggle('censor-amounts', censored);
+        window.__appCensorAmounts = censored;
+      } catch {}
+      // Notificar a otras pestañas / páginas
+      try {
+        window.dispatchEvent(new CustomEvent('finanzapp:settings:updated', { detail: state.settings }));
+        window.dispatchEvent(new StorageEvent('storage', { key: SETTINGS_KEY, newValue: JSON.stringify(state.settings) }));
+      } catch {}
     } catch {
       window._configMostrarToast('No se pudieron guardar las preferencias.', 'error');
     }
@@ -383,10 +523,10 @@
 
 
   function toggleTheme() {
-    const next = (localStorage.getItem('theme') || state.settings.theme) === 'light' ? 'dark' : 'light';
-    applyTheme(next, true);
-
+    const current = document.documentElement.getAttribute('data-theme') || localStorage.getItem('theme') || state.settings.theme || 'dark';
+    const next = current === 'light' ? 'dark' : 'light';
     state.settings.theme = next;
+    applyTheme(next, true);
     persistSettings();
     applySettingsToForm();
     updateFormatPreview();
@@ -396,9 +536,15 @@
     const normalized = theme === 'light' ? 'light' : 'dark';
     document.documentElement.setAttribute('data-theme', normalized);
     document.body.setAttribute('data-theme', normalized);
+    document.documentElement.style.backgroundColor = normalized === 'light' ? '#f5efea' : '#191724';
+    document.body.style.backgroundColor = normalized === 'light' ? '#f5efea' : '#191724';
 
     if (persist) {
       localStorage.setItem('theme', normalized);
+      try {
+        state.settings.theme = normalized;
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify(state.settings));
+      } catch (e) {}
     }
 
     updateThemeIcon(normalized);
@@ -419,6 +565,7 @@
     const showCents = getDropdownValue('showCentsPreference') !== 'off';
 
     const sample = 1234.56;
+    // La vista previa nunca se censura, incluso si "Censurar montos" está activado
     const money = formatCurrencyBySettings(sample, { currency, numberFormat, showCents });
 
     const date = formatDatePreview(new Date(), { numberFormat });
@@ -739,7 +886,7 @@
   async function onClearData() {
     const result = await confirmAction(
       'Reiniciar datos financieros',
-      'Se eliminaran todas las categorias, transacciones y presupuestos de este usuario.',
+      'Se eliminaran todas tus categorias y presupuestos. Esta accion no se puede deshacer.',
       { emphasis: 'danger' }
     );
 
@@ -756,18 +903,116 @@
         budgets: {}
       };
 
+      // Guardar estado vacio via DataStore (local + Firestore si hay sesion)
       await store.save(emptyState);
       state.snapshot = emptyState;
 
+      // Asegurar persistencia en Firestore directamente, incluso si DataStore.save
+      // no pudo sincronizar por falta de sesion inicial (race con waitForAuth).
+      // IMPORTANTE: borrar también las subcolecciones antiguas `transactions` y
+      // `categories` que FirestoreDB.loadAll rescata automáticamente si el
+      // documento principal queda vacío. Sin borrarlas, los 95 transacciones
+      // y 12 categorías vuelven a aparecer tras el reinicio.
       try {
+        if (window.FirestoreDB && window.firebase) {
+          if (!window.FirestoreDB.initialized || !window.FirestoreDB.currentUserId) {
+            try {
+              const uid = await window.FirestoreDB.waitForAuth(3000);
+              if (uid) {
+                await window.FirestoreDB.init(uid);
+                window.FirestoreDB.setCurrentUser(uid);
+              }
+            } catch {}
+          }
+          if (window.FirestoreDB.initialized && window.FirestoreDB.currentUserId && window.FirestoreDB.db) {
+            const userRef = window.FirestoreDB._userDoc();
+            // Borrar subcolecciones legacy que causan el rescate
+            try {
+              const txSnap = await userRef.collection('transactions').get();
+              const catSnap = await userRef.collection('categories').get();
+              const allDocs = [...(txSnap.docs || []), ...(catSnap.docs || [])];
+              if (allDocs.length > 0) {
+                // Firestore limita a 500 ops por batch
+                const chunks = [];
+                for (let i = 0; i < allDocs.length; i += 450) chunks.push(allDocs.slice(i, i + 450));
+                for (const chunk of chunks) {
+                  const batch = window.FirestoreDB.db.batch();
+                  chunk.forEach(d => batch.delete(d.ref));
+                  await batch.commit();
+                }
+                console.log('[Configuracion] Subcolecciones antiguas borradas:', allDocs.length, 'docs');
+              }
+            } catch (e) {
+              console.warn('[Configuracion] No se pudieron borrar subcolecciones:', e);
+            }
+            await window.FirestoreDB.saveAll(emptyState);
+          }
+        }
+      } catch (e) {
+        console.warn('[Configuracion] No se pudo limpiar Firestore directamente:', e);
+      }
+
+      // Limpieza exhaustiva de localStorage: borrar TODAS las variantes
+      // prefijadas por usuario y claves legacy, para evitar que boot() de
+      // Categorias re-hidrate datos antiguos o vuelva a sembrar defaults.
+      try {
+        const prefix = 'finanzapp:data:v1';
+        // Recoger todos los uids que aparecen en localStorage
+        const uids = new Set();
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i);
+          if (!k || !k.startsWith(prefix + ':')) continue;
+          const parts = k.split(':');
+          // formato: finanzapp:data:v1:{uid}:categories|transactions|budgets
+          if (parts.length >= 4) {
+            const uid = parts.slice(3, parts.length - 1).join(':');
+            if (uid) uids.add(uid);
+          }
+        }
+        // Incluir tambien uid actual por si no habia claves aún
+        try {
+          const raw = localStorage.getItem('authUser');
+          if (raw && raw !== 'guest') {
+            const u = JSON.parse(raw);
+            const cur = u.uid || u.email || 'guest';
+            if (cur) uids.add(cur);
+          } else {
+            uids.add('guest');
+          }
+        } catch { uids.add('guest'); }
+
+        uids.forEach(uid => {
+          try {
+            localStorage.setItem(`${prefix}:${uid}:categories`, '[]');
+            localStorage.setItem(`${prefix}:${uid}:transactions`, '[]');
+            localStorage.setItem(`${prefix}:${uid}:budgets`, '{}');
+          } catch {}
+        });
+
+        // Claves legacy / fallback que usan Presupuestos/Categorias
         localStorage.setItem('categories', '[]');
         localStorage.setItem('transactions', '[]');
-        localStorage.setItem('finanzapp:budgets', '[]');
         localStorage.setItem('budgets', '{}');
+        localStorage.setItem('finanzapp:budgets', JSON.stringify([]));
+        // Tambien limpiar posibles objetos sueltos
+        try { localStorage.removeItem('finanzapp:budgets:backup'); } catch {}
       } catch (e) {}
 
+      // Notificar a las demas paginas / pestañas que los datos fueron reiniciados
+      try {
+        window.dispatchEvent(new CustomEvent('finanzapp:data:updated', { detail: emptyState }));
+        if (window.DataEvents && typeof window.DataEvents.emit === 'function') {
+          window.DataEvents.emit('datos:actualizados', emptyState);
+          window.DataEvents.emit('transactionChanged', { action: 'clearAll' });
+        }
+      } catch {}
+
       await refreshDataSummary();
-      setStatus(elements.backupStatus, 'Datos reiniciados correctamente.', 'success');
+      if (typeof window._configMostrarToast === 'function') {
+        window._configMostrarToast('Categorias y presupuestos eliminados correctamente.', 'success');
+      } else {
+        setStatus(elements.backupStatus, 'Categorias y presupuestos eliminados correctamente.', 'success');
+      }
     } catch (error) {
       console.error('Error reiniciando datos:', error);
       setStatus(elements.backupStatus, 'No fue posible reiniciar los datos.', 'error');
@@ -794,8 +1039,15 @@
     elements.backupMeta.textContent = `Ultimo respaldo: ${date.toLocaleString('es-ES')}`;
   }
 
-  function setStatus(target, text, type) {
+  const _statusTimers = new WeakMap();
+
+  function setStatus(target, text, type, duration = 5000) {
     if (!target) return;
+
+    if (_statusTimers.has(target)) {
+      clearTimeout(_statusTimers.get(target));
+      _statusTimers.delete(target);
+    }
 
     target.textContent = text;
     target.classList.remove('is-success', 'is-error');
@@ -804,6 +1056,15 @@
       target.classList.add('is-error');
     } else if (type === 'success') {
       target.classList.add('is-success');
+    }
+
+    if (duration > 0 && text) {
+      const timer = setTimeout(() => {
+        target.textContent = '';
+        target.classList.remove('is-success', 'is-error');
+        _statusTimers.delete(target);
+      }, duration);
+      _statusTimers.set(target, timer);
     }
   }
 
@@ -824,9 +1085,16 @@
       toast.classList.add('hide');
       setTimeout(() => { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 400);
     }
-    window._configMostrarToast = function (message, variant) {
+    window._configMostrarToast = function (message, variant, duration = 5000) {
       if (window.__appTooltips === false) return;
       const container = _getToastContainer();
+      
+      // Limpiar toasts anteriores para no acumular mensajes
+      Array.from(container.children).forEach(child => {
+        if (child._t) { clearTimeout(child._t); child._t = null; }
+        if (child.parentNode) child.parentNode.removeChild(child);
+      });
+
       const toast = document.createElement('div');
       toast.className = 'toast toast-' + (variant || 'success');
       toast.setAttribute('role', variant === 'error' ? 'alert' : 'status');
@@ -843,12 +1111,7 @@
       toast.append(content, btn);
       container.appendChild(toast);
       requestAnimationFrame(() => toast.classList.add('show'));
-      toast._t = setTimeout(() => _hideToast(toast), 3000);
-      while (container.children.length > 3) {
-        const first = container.firstElementChild;
-        if (first._t) { clearTimeout(first._t); first._t = null; }
-        if (first.parentNode) first.parentNode.removeChild(first);
-      }
+      toast._t = setTimeout(() => _hideToast(toast), duration);
     };
   })();
 
@@ -861,9 +1124,28 @@
 
     if (result !== 'confirm') return;
 
-    localStorage.removeItem('loggedIn');
-    localStorage.removeItem('authUser');
-    window.location.href = '../Login/Login.html';
+    try {
+      sessionStorage.setItem('finanzapp:logged_out', '1');
+      localStorage.setItem('logoutTimestamp', Date.now().toString());
+
+      if (window.firebaseAuth && typeof window.firebaseAuth.logout === 'function') {
+        await window.firebaseAuth.logout();
+      } else if (window.firebase && typeof window.firebase.auth === 'function') {
+        try {
+          await window.firebase.auth().signOut();
+        } catch (e) {
+          console.warn('Error en signOut de Firebase:', e);
+        }
+      }
+    } catch (err) {
+      console.error('Error durante el cierre de sesión:', err);
+    } finally {
+      sessionStorage.setItem('finanzapp:logged_out', '1');
+      localStorage.setItem('logoutTimestamp', Date.now().toString());
+      localStorage.removeItem('loggedIn');
+      localStorage.removeItem('authUser');
+      window.location.replace('/pages/Login/Login.html?logout=true');
+    }
   }
 
   function confirmAction(title, message, options = {}) {

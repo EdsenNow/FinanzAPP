@@ -1,0 +1,208 @@
+Created At: 2026-08-30T02:15:27-04:00
+Completed At: 2026-08-30T02:15:27-04:00
+File Path: `file:///c:/Users/edsen/OneDrive/Documentos/Proyectos%20de%20Programacion/VisualStudioCode%20Projects/Finanzas%20Personales/src/pages/Configuracion/Configuracion.html`
+Total Lines: 558
+Total Bytes: 28018
+Showing lines 1 to 200
+The following code has been modified to include a line number before every line, in the format: <line_number>: <original_line>. Please note that any changes targeting the original code should remove the line number, colon, and leading space.
+1: <!DOCTYPE html>
+2: <html lang="es">
+3: <head>
+4:   <meta charset="UTF-8"/>
+5:   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+6:   <script>
+7:     (function () {
+8:       try {
+9:         var t = localStorage.getItem('theme');
+10:         if (!t) {
+11:           var s = localStorage.getItem('finanzapp:settings:v1');
+12:           if (s) {
+13:             var p = JSON.parse(s);
+14:             if (p && p.theme) t = p.theme;
+15:           }
+16:         }
+17:         if (t === 'light') {
+18:           document.documentElement.setAttribute('data-theme', 'light');
+19:           document.documentElement.style.backgroundColor = '#f5efea';
+20:         } else {
+21:           document.documentElement.setAttribute('data-theme', 'dark');
+22:           document.documentElement.style.backgroundColor = '#191724';
+23:         }
+24:       } catch (e) {}
+25:     })();
+26:   </script>
+27:   <title>FinanzApp - Configuracion</title>
+28: 
+29:   <link rel="manifest" href="/Icons/site.webmanifest" />
+30:   <link rel="icon" href="/Icons/favicon.ico" sizes="any" />
+31:   <link rel="icon" type="image/png" sizes="32x32" href="/Icons/favicon-32x32.png" />
+32:   <link rel="icon" type="image/png" sizes="16x16" href="/Icons/favicon-16x16.png" />
+33:   <link rel="apple-touch-icon" href="/Icons/apple-touch-icon.png" />
+34: 
+35:   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" crossorigin="anonymous">
+36:   <link rel="stylesheet" href="/lib/fonts.css">
+37:   <link rel="stylesheet" href="/lib/fontawesome/v5/css/all.min.css">
+38: 
+39:   <link rel="stylesheet" href="/pages/Categorias/Categorias.css?v=20260824003">
+40:   <link rel="stylesheet" href="/lib/UI.css?v=20260824003">
+41:   <link rel="stylesheet" href="/pages/Configuracion/Configuracion.css?v=202608280441">
+42:   <link rel="stylesheet" href="/pages/Configuracion/styles/tema-oscuro.css?v=20260824003" id="dark-css">
+43:   <link rel="stylesheet" href="/pages/Configuracion/styles/tema-claro.css?v=20260824003" id="light-css">
+44:   <link rel="stylesheet" href="/pages/Configuracion/styles/mobile-nav.css?v=20260824003">
+45: 
+46:   <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-app-compat.js" crossorigin="anonymous"></script>
+47:   <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-app-check-compat.js" crossorigin="anonymous"></script>
+48:   <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-auth-compat.js" crossorigin="anonymous"></script>
+49:   <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore-compat.js" crossorigin="anonymous"></script>
+50:   <script src="/__config.js"></script>
+51:   
+52:   <script src="/lib/FirestoreDB.js?v=202511120001"></script>
+53: 
+54:   <script>try { localStorage.setItem('finanzapp:debug', 'off'); } catch (e) {}</script>
+55:   <script src="/lib/Debug.js?v=202511120001"></script>
+56:   <script src="/lib/Events.js?v=202511120001"></script>
+57:   <script src="/lib/UI.js?v=20260505"></script>
+58:   <script src="/lib/Helpers.js?v=202605170003"></script>
+59:   <script src="/lib/DataStore.js?v=202511120001"></script>
+60:   <script src="/lib/BasePage.js?v=20260601"></script>
+61: 
+62:   <!-- DOMPurify: sanitización automática de innerHTML contra XSS -->
+63:   <script src="https://cdn.jsdelivr.net/npm/dompurify@3.4.14/dist/purify.min.js" crossorigin="anonymous"></script>
+64:   <script>
+65:     (function () {
+66:       const _d = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML');
+67:       Object.defineProperty(Element.prototype, 'innerHTML', {
+68:         set(v) { _d.set.call(this, typeof v === 'string' ? DOMPurify.sanitize(v, { FORCE_BODY: false }) : v); },
+69:         get: _d.get,
+70:         configurable: true,
+71:       });
+72:     })();
+73:   </script>
+74: </head>
+75: <body class="config-page">
+76:   <div class="app-container">
+77:     <aside class="sidebar" id="sidebar">
+78:       <div class="sidebar-header">
+79:         <div class="logo">
+80:           <div class="logo-icon"><i class="fas fa-wallet"></i></div>
+81:           <span class="logo-text">FinanzApp</span>
+82:         </div>
+83:       </div>
+84:       <nav class="nav-links">
+85:         <a href="../Categorias/Categorias.html" class="nav-item">
+86:           <i class="fas fa-home"></i>
+87:           <span>Categorías</span>
+88:         </a>
+89:         <a href="../Presupuestos/Presupuestos.html" class="nav-item">
+90:           <i class="fas fa-wallet"></i>
+91:           <span>Presupuestos</span>
+92:         </a>
+93:         <a href="../Estadistica/Estadistica.html" class="nav-item">
+94:           <i class="fas fa-chart-pie"></i>
+95:           <span>Estadisticas</span>
+96:         </a>
+97:         <a href="../Configuracion/Configuracion.html" class="nav-item active" aria-current="page">
+98:           <i class="fas fa-cog"></i>
+99:           <span>Configuracion</span>
+100:         </a>
+101:       </nav>
+102:       <div class="sidebar-footer">
+103:         <div class="user-profile">
+104:           <div class="user-avatar">U</div>
+105:           <div class="user-info" id="userInfoHover">
+106:             <div class="user-name">Usuario</div>
+107:             <div class="user-email"></div>
+108:           </div>
+109:           <button class="btn btn-icon app-tooltip" id="themeToggle" data-tooltip="Cambiar tema">
+110:             <i class="fas fa-moon"></i>
+111:           </button>
+112:           <button class="btn btn-icon app-tooltip" id="logoutButton" data-tooltip="Cerrar sesión">
+113:             <i class="fas fa-sign-out-alt"></i>
+114:           </button>
+115:         </div>
+116: 
+117:         <div id="profileTooltip" class="profile-tooltip">
+118:           <div class="tooltip-name"></div>
+119:           <div class="tooltip-email"></div>
+120:         </div>
+121:       </div>
+122:     </aside>
+123: 
+124:     <main class="main-content">
+125: 
+126:       <section class="config-grid" aria-label="Secciones de configuracion">
+127:         <article class="config-card profile-card">
+128:           <div class="profile-main">
+129:             <div class="profile-avatar-large" id="profileAvatarLarge">U</div>
+130:             <div>
+131:               <p class="profile-name" id="profileName">Usuario</p>
+132:               <p class="profile-email" id="profileEmail">correo@ejemplo.com</p>
+133:             </div>
+134:           </div>
+135:         </article>
+136: 
+137:         <article class="config-card preferences-card">
+138:           <h2 class="card-title">Preferencias generales</h2>
+139:           <form id="preferencesForm" class="settings-form" novalidate>
+140:             
+141:             <!-- Grupo 1: Visualización y Formato -->
+142:             <div class="settings-section">
+143:               <div class="settings-section-header">
+144:                 <span class="section-icon-badge"><i class="fas fa-palette"></i></span>
+145:                 <span>Visualización y Formato</span>
+146:               </div>
+147: 
+148:               <div class="setting-row">
+149:                 <label>Tema</label>
+150:                 <div class="custom-dropdown" id="themePreference">
+151:                   <div class="custom-dropdown-selected" data-value="dark" tabindex="0">
+152:                     <span>Oscuro</span>
+153:                     <i class="fas fa-chevron-down"></i>
+154:                   </div>
+155:                   <div class="custom-dropdown-options">
+156:                     <div class="custom-dropdown-option selected" data-value="dark">Oscuro</div>
+157:                     <div class="custom-dropdown-option" data-value="light">Claro</div>
+158:                   </div>
+159:                 </div>
+160:               </div>
+161: 
+162:               <div class="setting-row">
+163:                 <label>Estilo de Categorías</label>
+164:                 <div class="custom-dropdown" id="categoryViewPreference">
+165:                   <div class="custom-dropdown-selected" data-value="extended" tabindex="0">
+166:                     <span>Extendido</span>
+167:                     <i class="fas fa-chevron-down"></i>
+168:                   </div>
+169:                   <div class="custom-dropdown-options">
+170:                     <div class="custom-dropdown-option selected" data-value="extended">Extendido</div>
+171:                     <div class="custom-dropdown-option" data-value="compact">Compacto</div>
+172:                   </div>
+173:                 </div>
+174:               </div>
+175: 
+176:               <div class="setting-row">
+177:                 <label>Moneda principal</label>
+178:                 <div class="custom-dropdown" id="currencyPreference">
+179:                   <div class="custom-dropdown-selected" data-value="DOP" tabindex="0">
+180:                     <span>Peso Dominicano (RD$)</span>
+181:                     <i class="fas fa-chevron-down"></i>
+182:                   </div>
+183:                   <div class="custom-dropdown-options">
+184:                     <div class="custom-dropdown-option selected" data-value="DOP">Peso Dominicano (RD$)</div>
+185:                     <div class="custom-dropdown-option" data-value="USD">Dólar ($)</div>
+186:                     <div class="custom-dropdown-option" data-value="EUR">Euro (€)</div>
+187:                   </div>
+188:                 </div>
+189:               </div>
+190: 
+191:               <div class="setting-row">
+192:                 <label>Formato numérico</label>
+193:                 <div class="custom-dropdown" id="numberFormatPreference">
+194:                   <div class="custom-dropdown-selected" data-value="us" tabindex="0">
+195:                     <span>1,234.56</span>
+196:                     <i class="fas fa-chevron-down"></i>
+197:                   </div>
+198:                   <div class="custom-dropdown-options">
+199:                     <div class="custom-dropdown-option selected" data-value="us">1,234.56</div>
+200:                     <div class="custom-dropdown-option" data-value="eu">1.234,56</div>
+The above content does NOT show the entire file contents. If you need to view any lines of the file which were not shown to complete your task, call this tool again to view those lines.

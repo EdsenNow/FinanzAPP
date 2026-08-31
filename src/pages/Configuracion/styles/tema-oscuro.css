@@ -2,15 +2,16 @@
 [data-theme="dark"] {
   --gmail-dot-connected: #31748f;
   --gmail-dot-disconnected: #eb6f92;
-  --config-page-bg: linear-gradient(135deg, #191724 0%, #1f1d2e 100%);
-  --config-card-bg: rgba(37, 35, 58, 0.9);
+  --config-page-bg: #191724;
+  --config-card-bg: #1f1d2e;
+  --config-section-bg: #232136;
   --config-card-border: rgba(255, 255, 255, 0.08);
   --config-text: #e0def4;
   --config-muted: #b6b2d1;
   --config-input-bg: #26233a;
   --config-input-border: rgba(255, 255, 255, 0.14);
   --config-pill-bg: rgba(235, 111, 146, 0.18);
-  --config-pill-text: #f6c177;
+  --config-pill-text: #eb6f92;
   --config-focus: rgba(235, 111, 146, 0.35);
   --config-success: #9ccfd8;
   --config-danger: #eb6f92;
@@ -19,4 +20,37 @@
   --mobile-nav-text: #b6b2d1;
   --mobile-nav-active-bg: rgba(235, 111, 146, 0.18);
   --mobile-nav-active-text: #f6c177;
+  --sidebar-bg: #1f1d2e;
+}
+
+[data-theme="dark"] .logo-text,
+[data-theme="dark"] .user-name {
+  color: #e0def4;
+}
+
+[data-theme="dark"] .user-email {
+  color: #eb6f92;
+}
+
+[data-theme="dark"] .nav-item {
+  color: #908caa;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid transparent;
+}
+
+[data-theme="dark"] .nav-item:hover {
+  background: #f19cb4;
+  color: #ffffff;
+  transform: translateX(4px);
+  border-color: #f19cb4;
+}
+
+[data-theme="dark"] .nav-item.active {
+  background: #eb6f92;
+  color: #ffffff;
+  border-color: #eb6f92;
+}
+
+[data-theme="dark"] .logo-icon {
+  background: #eb6f92;
 }

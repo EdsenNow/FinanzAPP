@@ -1,0 +1,229 @@
+Created At: 2026-08-30T02:15:32-04:00
+Completed At: 2026-08-30T02:15:32-04:00
+File Path: `file:///c:/Users/edsen/OneDrive/Documentos/Proyectos%20de%20Programacion/VisualStudioCode%20Projects/Finanzas%20Personales/src/pages/Configuracion/Configuracion.html`
+Total Lines: 558
+Total Bytes: 28018
+Showing lines 200 to 420
+The following code has been modified to include a line number before every line, in the format: <line_number>: <original_line>. Please note that any changes targeting the original code should remove the line number, colon, and leading space.
+200:                     <div class="custom-dropdown-option" data-value="eu">1.234,56</div>
+201:                   </div>
+202:                 </div>
+203:               </div>
+204: 
+205:               <div class="setting-row">
+206:                 <label>Mostrar centavos</label>
+207:                 <div class="custom-dropdown" id="showCentsPreference">
+208:                   <div class="custom-dropdown-selected" data-value="on" tabindex="0">
+209:                     <span>Activado</span>
+210:                     <i class="fas fa-chevron-down"></i>
+211:                   </div>
+212:                   <div class="custom-dropdown-options">
+213:                     <div class="custom-dropdown-option selected" data-value="on">Activado</div>
+214:                     <div class="custom-dropdown-option" data-value="off">Desactivado</div>
+215:                   </div>
+216:                 </div>
+217:               </div>
+218: 
+219:               <div class="setting-row">
+220:                 <label>Formato de fecha</label>
+221:                 <div class="custom-dropdown" id="dateFormatPreference">
+222:                   <div class="custom-dropdown-selected" data-value="dmy" tabindex="0">
+223:                     <span>DD/MM/AAAA</span>
+224:                     <i class="fas fa-chevron-down"></i>
+225:                   </div>
+226:                   <div class="custom-dropdown-options">
+227:                     <div class="custom-dropdown-option selected" data-value="dmy">DD/MM/AAAA</div>
+228:                     <div class="custom-dropdown-option" data-value="mdy">MM/DD/AAAA</div>
+229:                   </div>
+230:                 </div>
+231:               </div>
+232: 
+233:               <div class="preview-row">
+234:                 <span class="preview-label">Vista previa</span>
+235:                 <div class="format-preview" id="formatPreview">$1,234.56 · 10 / 05 / 2026</div>
+236:               </div>
+237:             </div>
+238: 
+239:             <!-- Grupo 2: Operaciones y Presupuestos -->
+240:             <div class="settings-section">
+241:               <div class="settings-section-header">
+242:                 <span class="section-icon-badge"><i class="fas fa-wallet"></i></span>
+243:                 <span>Operaciones y Presupuestos</span>
+244:               </div>
+245: 
+246:               <div class="setting-row">
+247:                 <label>Transacciones por página</label>
+248:                 <div class="custom-dropdown" id="txPerPagePreference">
+249:                   <div class="custom-dropdown-selected" data-value="all" tabindex="0">
+250:                     <span>Sin límite</span>
+251:                     <i class="fas fa-chevron-down"></i>
+252:                   </div>
+253:                   <div class="custom-dropdown-options">
+254:                     <div class="custom-dropdown-option" data-value="10">10</div>
+255:                     <div class="custom-dropdown-option" data-value="25">25</div>
+256:                     <div class="custom-dropdown-option" data-value="50">50</div>
+257:                     <div class="custom-dropdown-option selected" data-value="all">Sin límite</div>
+258:                   </div>
+259:                 </div>
+260:               </div>
+261: 
+262:               <div class="setting-row">
+263:                 <label>Reiniciar presupuestos automáticamente</label>
+264:                 <div class="custom-dropdown" id="autoRenewBudgetsPreference">
+265:                   <div class="custom-dropdown-selected" data-value="on" tabindex="0">
+266:                     <span>Activado</span>
+267:                     <i class="fas fa-chevron-down"></i>
+268:                   </div>
+269:                   <div class="custom-dropdown-options">
+270:                     <div class="custom-dropdown-option selected" data-value="on">Activado</div>
+271:                     <div class="custom-dropdown-option" data-value="off">Desactivado</div>
+272:                   </div>
+273:                 </div>
+274:               </div>
+275: 
+276:               <div class="setting-row">
+277:                 <label>Confirmar al eliminar</label>
+278:                 <div class="custom-dropdown" id="confirmDeletePreference">
+279:                   <div class="custom-dropdown-selected" data-value="on" tabindex="0">
+280:                     <span>Activado</span>
+281:                     <i class="fas fa-chevron-down"></i>
+282:                   </div>
+283:                   <div class="custom-dropdown-options">
+284:                     <div class="custom-dropdown-option selected" data-value="on">Activado</div>
+285:                     <div class="custom-dropdown-option" data-value="off">Desactivado</div>
+286:                   </div>
+287:                 </div>
+288:               </div>
+289:             </div>
+290: 
+291:             <!-- Grupo 3: Interacción y Accesibilidad -->
+292:             <div class="settings-section">
+293:               <div class="settings-section-header">
+294:                 <span class="section-icon-badge"><i class="fas fa-bell"></i></span>
+295:                 <span>Interacción y Ayudas</span>
+296:               </div>
+297: 
+298:               <div class="setting-row">
+299:                 <label>Avisos emergentes</label>
+300:                 <div class="custom-dropdown" id="tooltipsPreference">
+301:                   <div class="custom-dropdown-selected" data-value="on" tabindex="0">
+302:                     <span>Activado</span>
+303:                     <i class="fas fa-chevron-down"></i>
+304:                   </div>
+305:                   <div class="custom-dropdown-options">
+306:                     <div class="custom-dropdown-option selected" data-value="on">Activado</div>
+307:                     <div class="custom-dropdown-option" data-value="off">Desactivado</div>
+308:                   </div>
+309:                 </div>
+310:               </div>
+311: 
+312:               <div class="setting-row">
+313:                 <label>Atajos de teclado</label>
+314:                 <div class="custom-dropdown" id="shortcutsPreference">
+315:                   <div class="custom-dropdown-selected" data-value="on" tabindex="0">
+316:                     <span>Activado</span>
+317:                     <i class="fas fa-chevron-down"></i>
+318:                   </div>
+319:                   <div class="custom-dropdown-options">
+320:                     <div class="custom-dropdown-option selected" data-value="on">Activado</div>
+321:                     <div class="custom-dropdown-option" data-value="off">Desactivado</div>
+322:                     <div class="custom-dropdown-option shortcut-view-option" data-value="view"><i class="fas fa-keyboard" aria-hidden="true"></i> Ver atajos disponibles</div>
+323:                   </div>
+324:                 </div>
+325:               </div>
+326: 
+327:               <div class="shortcuts-panel hidden" id="shortcutsList" aria-label="Lista de atajos de teclado">
+328:                 <ul class="shortcuts-list">
+329:                   <li><kbd>?</kbd> Mostrar esta ayuda</li>
+330:                   <li><kbd>/</kbd> Buscar transaccion</li>
+331:                   <li><kbd>n</kbd> Nueva categoria</li>
+332:                   <li><kbd>s</kbd> Abrir menu Exportar</li>
+333:                   <li><kbd>j</kbd> Exportar JSON</li>
+334:                   <li><kbd>p</kbd> Exportar PDF</li>
+335:                   <li><kbd>i</kbd> Importar datos</li>
+336:                   <li><kbd>y</kbd> Abrir filtro Año</li>
+337:                   <li><kbd>m</kbd> Abrir filtro Mes</li>
+338:                   <li><kbd>l</kbd> Limpiar filtros</li>
+339:                   <li><kbd>Shift</kbd> + <kbd>Delete</kbd> Eliminar todas las categorias</li>
+340:                   <li><kbd>Esc</kbd> Cerrar dialogos o menus</li>
+341:                 </ul>
+342:                 <p class="shortcuts-note">Los atajos se desactivan mientras escribes en un campo de texto.</p>
+343:               </div>
+344:             </div>
+345:             <div class="settings-actions">
+346:               <button class="btn btn-primary" type="submit" id="savePreferencesBtn">
+347:                 <i class="fas fa-save" aria-hidden="true"></i> Guardar
+348:               </button>
+349:               <button class="btn btn-secondary" type="button" id="resetPreferencesBtn">
+350:                 <i class="fas fa-undo" aria-hidden="true"></i> Restablecer
+351:               </button>
+352:             </div>
+353:           </form>
+354:           <p class="settings-status" id="preferencesStatus" aria-live="polite"></p>
+355:         </article>
+356: 
+357:         <div class="config-right-stack">
+358:           <article class="config-card data-card">
+359:             <h2 class="card-title">Datos y respaldos</h2>
+360:             <p class="helper-text">Exporta o importa un respaldo completo de categorias, transacciones y presupuestos.</p>
+361: 
+362:             <div class="data-actions">
+363:               <button class="btn btn-secondary app-tooltip" type="button" id="exportBackupBtn" data-tooltip="Exportar respaldo (descargar JSON)">
+364:                 <i class="fas fa-file-export" aria-hidden="true"></i> Exportar respaldo
+365:               </button>
+366:               <label class="btn btn-secondary file-label" for="importBackupInput">
+367:                 <i class="fas fa-file-import" aria-hidden="true"></i> Importar respaldo
+368:               </label>
+369:               <input type="file" id="importBackupInput" class="hidden" accept="application/json" aria-hidden="true">
+370:               <button class="btn btn-danger" type="button" id="clearDataBtn">
+371:                 <i class="fas fa-trash" aria-hidden="true"></i> Reiniciar datos
+372:               </button>
+373:             </div>
+374: 
+375:             <div class="data-stats-grid">
+376:               <div class="data-stat-item">
+377:                 <span class="stat-number" id="categoriesCount">0</span>
+378:                 <span class="stat-label">Categorias</span>
+379:               </div>
+380:               <div class="data-stat-item">
+381:                 <span class="stat-number" id="transactionsCount">0</span>
+382:                 <span class="stat-label">Transacciones</span>
+383:               </div>
+384:               <div class="data-stat-item">
+385:                 <span class="stat-number" id="budgetsCount">0</span>
+386:                 <span class="stat-label">Presupuestos</span>
+387:               </div>
+388:             </div>
+389: 
+390:             <p class="settings-status" id="backupStatus" aria-live="polite"></p>
+391:           </article>
+392: 
+393:           <!-- ===== Sincronización Bancaria ===== -->
+394:           <article class="config-card quick-actions-card">
+395:             <h2 class="card-title">Sincronización de Gastos Bancarios</h2>
+396:             <p class="helper-text gmail-helper-text">
+397:               Conecta de forma segura tu correo para que FinanzApp lea automáticamente las notificaciones y comprobantes de tus bancos.
+398:             </p>
+399: 
+400:             <form id="imapConfigForm" class="settings-form">
+401:               <div class="setting-row">
+402:                 <div class="setting-label-col" style="display: flex; flex-direction: column; justify-content: center;">
+403:                   <label for="imapEmail" style="margin: 0; font-weight: 500;">Correo Electrónico</label>
+404:                   <small style="display: block; color: var(--config-muted); font-size: 12px; margin-top: 4px;">Tu correo de Gmail</small>
+405:                 </div>
+406:                 <div class="setting-control">
+407:                   <input type="email" id="imapEmail" class="form-control" placeholder="tu-correo@gmail.com" required>
+408:                 </div>
+409:               </div>
+410:               
+411:               <div class="setting-row">
+412:                 <div class="setting-label-col" style="display: flex; flex-direction: column; align-items: flex-start; justify-content: center;">
+413:                   <label for="imapPassword" style="margin: 0; font-weight: 500;">Contraseña de App</label>
+414:                   <button type="button" id="openTutorialBtn" class="btn btn-secondary btn-sm" style="display: inline-block; margin-top: 8px; font-size: 12px; padding: 4px 12px; background: var(--config-pill-bg); color: var(--config-pill-text); border: 1px solid var(--config-focus); border-radius: 12px; cursor: pointer; z-index: 10;" onclick="document.getElementById('tutorialModal').style.display = 'block'; const ov = document.getElementById('alertOverlay'); if(ov) ov.style.display = 'block';">
+415:                     <i class="fas fa-question-circle"></i> ¿Cómo generar una?
+416:                   </button>
+417:                 </div>
+418:                 <div class="setting-control">
+419:                   <input type="password" id="imapPassword" class="form-control" placeholder="16 letras sin espacios" required>
+420:                 </div>
+The above content does NOT show the entire file contents. If you need to view any lines of the file which were not shown to complete your task, call this tool again to view those lines.

@@ -3,27 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <script>
-    (function () {
-      try {
-        var t = localStorage.getItem('theme');
-        if (!t) {
-          var s = localStorage.getItem('finanzapp:settings:v1');
-          if (s) {
-            var p = JSON.parse(s);
-            if (p && p.theme) t = p.theme;
-          }
-        }
-        if (t === 'light') {
-          document.documentElement.setAttribute('data-theme', 'light');
-          document.documentElement.style.backgroundColor = '#f5efea';
-        } else {
-          document.documentElement.setAttribute('data-theme', 'dark');
-          document.documentElement.style.backgroundColor = '#191724';
-        }
-      } catch (e) {}
-    })();
-  </script>
+  <script src="/pages/Configuracion/inline-02dbe95ee4d1.js?v=1788099417852"></script>
   <title>FinanzApp - Configuracion</title>
 
   <link rel="manifest" href="/Icons/site.webmanifest" />
@@ -36,9 +16,9 @@
   <link rel="stylesheet" href="/lib/fonts.css">
   <link rel="stylesheet" href="/lib/fontawesome/v5/css/all.min.css">
 
-  <link rel="stylesheet" href="/pages/Dashboard/Dashboard.css?v=20260824003">
+  <link rel="stylesheet" href="/pages/Categorias/Categorias.css?v=20260824003">
   <link rel="stylesheet" href="/lib/UI.css?v=20260824003">
-  <link rel="stylesheet" href="/pages/Configuracion/Configuracion.css?v=20260824003">
+  <link rel="stylesheet" href="/pages/Configuracion/Configuracion.css?v=202608280441">
   <link rel="stylesheet" href="/pages/Configuracion/styles/tema-oscuro.css?v=20260824003" id="dark-css">
   <link rel="stylesheet" href="/pages/Configuracion/styles/tema-claro.css?v=20260824003" id="light-css">
   <link rel="stylesheet" href="/pages/Configuracion/styles/mobile-nav.css?v=20260824003">
@@ -47,30 +27,22 @@
   <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-app-check-compat.js" crossorigin="anonymous"></script>
   <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-auth-compat.js" crossorigin="anonymous"></script>
   <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore-compat.js" crossorigin="anonymous"></script>
-  <script src="/__config.js"></script>
+  <script src="/__config.js?v=1788099417852"></script>
   
-  <script src="/lib/FirestoreDB.js?v=202511120001"></script>
+  <script src="/lib/FirestoreDB.js?v=1788099417852"></script>
+  <script src="/lib/FirebaseAuth.js?v=1788099417852"></script>
 
-  <script>try { localStorage.setItem('finanzapp:debug', 'off'); } catch (e) {}</script>
-  <script src="/lib/Debug.js?v=202511120001"></script>
-  <script src="/lib/Events.js?v=202511120001"></script>
-  <script src="/lib/UI.js?v=20260505"></script>
-  <script src="/lib/Helpers.js?v=202605170003"></script>
-  <script src="/lib/DataStore.js?v=202511120001"></script>
-  <script src="/lib/BasePage.js?v=20260601"></script>
+  <script src="/pages/Configuracion/inline-4b19d59b7165.js?v=1788099417852"></script>
+  <script src="/lib/Debug.js?v=1788099417852"></script>
+  <script src="/lib/Events.js?v=1788099417852"></script>
+  <script src="/lib/UI.js?v=1788099417852"></script>
+  <script src="/lib/Helpers.js?v=1788099417852"></script>
+  <script src="/lib/DataStore.js?v=1788099417852"></script>
+  <script src="/lib/BasePage.js?v=1788099417852"></script>
 
   <!-- DOMPurify: sanitización automática de innerHTML contra XSS -->
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3.4.14/dist/purify.min.js" crossorigin="anonymous"></script>
-  <script>
-    (function () {
-      const _d = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML');
-      Object.defineProperty(Element.prototype, 'innerHTML', {
-        set(v) { _d.set.call(this, typeof v === 'string' ? DOMPurify.sanitize(v, { FORCE_BODY: false }) : v); },
-        get: _d.get,
-        configurable: true,
-      });
-    })();
-  </script>
+  <script src="/pages/Configuracion/inline-c6402f00d07c.js?v=1788099417852"></script>
 </head>
 <body class="config-page">
   <div class="app-container">
@@ -82,9 +54,9 @@
         </div>
       </div>
       <nav class="nav-links">
-        <a href="../Dashboard/Dashboard.html" class="nav-item">
+        <a href="../Categorias/Categorias.html" class="nav-item">
           <i class="fas fa-home"></i>
-          <span>Dashboard</span>
+          <span>Categorías</span>
         </a>
         <a href="../Presupuestos/Presupuestos.html" class="nav-item">
           <i class="fas fa-wallet"></i>
@@ -107,10 +79,10 @@
             <div class="user-email"></div>
           </div>
           <button class="btn btn-icon app-tooltip" id="themeToggle" data-tooltip="Cambiar tema">
-            <svg class="lucide icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+            <i class="fas fa-moon"></i>
           </button>
           <button class="btn btn-icon app-tooltip" id="logoutButton" data-tooltip="Cerrar sesión">
-            <svg class="lucide icon-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline class="logout-arrow" points="16 17 21 12 16 7"/><line class="logout-arrow" x1="21" x2="9" y1="12" y2="12"/></svg>
+            <i class="fas fa-sign-out-alt"></i>
           </button>
         </div>
 
@@ -160,6 +132,20 @@
               </div>
 
               <div class="setting-row">
+                <label>Estilo de Categorías</label>
+                <div class="custom-dropdown" id="categoryViewPreference">
+                  <div class="custom-dropdown-selected" data-value="extended" tabindex="0">
+                    <span>Extendido</span>
+                    <i class="fas fa-chevron-down"></i>
+                  </div>
+                  <div class="custom-dropdown-options">
+                    <div class="custom-dropdown-option selected" data-value="extended">Extendido</div>
+                    <div class="custom-dropdown-option" data-value="compact">Compacto</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="setting-row">
                 <label>Moneda principal</label>
                 <div class="custom-dropdown" id="currencyPreference">
                   <div class="custom-dropdown-selected" data-value="DOP" tabindex="0">
@@ -198,6 +184,20 @@
                   <div class="custom-dropdown-options">
                     <div class="custom-dropdown-option selected" data-value="on">Activado</div>
                     <div class="custom-dropdown-option" data-value="off">Desactivado</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="setting-row">
+                <label>Censurar Contenido</label>
+                <div class="custom-dropdown" id="censorAmountsPreference">
+                  <div class="custom-dropdown-selected" data-value="off" tabindex="0">
+                    <span>Desactivado</span>
+                    <i class="fas fa-chevron-down"></i>
+                  </div>
+                  <div class="custom-dropdown-options">
+                    <div class="custom-dropdown-option selected" data-value="off">Desactivado</div>
+                    <div class="custom-dropdown-option" data-value="on">Activado</div>
                   </div>
                 </div>
               </div>
@@ -376,27 +376,60 @@
             <p class="settings-status" id="backupStatus" aria-live="polite"></p>
           </article>
 
-          <!-- ===== Notificaciones bancarias ===== -->
+          <!-- ===== Sincronización Bancaria ===== -->
           <article class="config-card quick-actions-card">
-            <h2 class="card-title">Notificaciones bancarias</h2>
+            <h2 class="card-title">Sincronización de Gastos Bancarios</h2>
             <p class="helper-text gmail-helper-text">
-              FinanzApp monitorea tu Gmail y detecta transacciones de tus bancos automáticamente.<br>
+              Conecta de forma segura tu correo para que FinanzApp lea automáticamente las notificaciones y comprobantes de tus bancos.
             </p>
 
-            <!-- Estado de conexión -->
-            <div class="gmail-status-row">
-              <span id="gmailStatusLabel" class="gmail-status-label">
-                <span id="gmailStatusDot" class="gmail-status-dot"></span>
-                <span id="gmailStatusText">No conectado</span>
-              </span>
-              <button class="btn btn-primary btn-sm" id="gmailConnectBtn" style="display:none;">
-                <i class="fas fa-plug"></i> Conectar Gmail
-              </button>
-              <button class="btn btn-secondary btn-sm" id="gmailDisconnectBtn" style="display:none;">
-                <i class="fas fa-unlink"></i> Desconectar
-              </button>
-            </div>
+            <form id="imapConfigForm" class="imap-form">
+              <div class="setting-row">
+                <div class="setting-label-col" style="display: flex; flex-direction: column; justify-content: center;">
+                  <label for="imapEmail" style="margin: 0; font-weight: 500;">Correo Electrónico</label>
+                  <small style="display: block; color: var(--config-muted); font-size: 12px; margin-top: 2px;">Tu correo de Gmail</small>
+                </div>
+                <div class="setting-control">
+                  <input type="email" id="imapEmail" class="form-control" placeholder="tu-correo@gmail.com" required>
+                </div>
+              </div>
+              
+              <div class="setting-row">
+                <div class="setting-label-col" style="display: flex; flex-direction: column; align-items: flex-start; justify-content: center;">
+                  <label for="imapPassword" style="margin: 0; font-weight: 500;">Contraseña de App</label>
+                  <button type="button" id="openTutorialBtn" class="btn btn-secondary btn-sm" style="display: inline-block; margin-top: 4px; font-size: 11px; padding: 3px 10px; background: var(--config-pill-bg); color: var(--config-pill-text); border: 1px solid var(--config-focus); border-radius: 12px; cursor: pointer;">
+                    <i class="fas fa-question-circle"></i> ¿Cómo generar una?
+                  </button>
+                </div>
+                <div class="setting-control">
+                  <div class="password-wrapper">
+                    <input type="password" id="imapPassword" class="form-control" placeholder="16 letras sin espacios" required>
+                    <button type="button" class="toggle-password-btn" id="toggleImapPassword" aria-label="Mostrar u ocultar contraseña">
+                      <i class="far fa-eye" id="toggleImapPasswordIcon"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
 
+              <div class="setting-row">
+                <div class="setting-label-col" style="display: flex; flex-direction: column; justify-content: center;">
+                  <label for="imapSenders" style="margin: 0; font-weight: 500;">Bancos a monitorear</label>
+                  <small style="display: block; color: var(--config-muted); font-size: 12px; margin-top: 2px;">Separados por comas</small>
+                </div>
+                <div class="setting-control">
+                  <input type="text" id="imapSenders" class="form-control" placeholder="notificaciones@bbva.com, alertas@bhd.com" required>
+                </div>
+              </div>
+
+              <div class="imap-actions-row" style="display: flex; gap: 10px; align-items: center; margin-top: 4px;">
+                <button type="button" id="saveImapBtn" class="btn btn-primary">
+                  <i class="fas fa-save"></i> Guardar
+                </button>
+                <button type="button" id="syncImapBtn" class="btn btn-secondary" style="display: none;">
+                  <i class="fas fa-sync-alt"></i> Sincronizar
+                </button>
+              </div>
+            </form>
           </article>
         </div>
 
@@ -405,6 +438,73 @@
   </div>
 
   <div class="alert-overlay hidden" id="alertOverlay"></div>
+
+  <!-- Modal Tutorial IMAP / Google App Password -->
+  <div class="custom-alert tutorial-modal hidden" id="tutorialModal" role="dialog" aria-modal="true" tabindex="-1">
+    <h3 class="custom-alert-title">
+      <i class="fas fa-key"></i> Contraseña de Aplicación
+    </h3>
+    <div class="custom-alert-message">
+      
+      <!-- Paso 1 -->
+      <div class="tutorial-step-card">
+        <div class="tutorial-step-header">
+          <span class="tutorial-step-title">1. Inicia sesión en Google</span>
+          <span class="tutorial-step-badge badge-step-1">Paso 1</span>
+        </div>
+        <p class="tutorial-step-desc">Abre el enlace oficial, selecciona tu cuenta e ingresa tu clave o huella:</p>
+        <a href="https://accounts.google.com/AccountChooser?continue=https%3A%2F%2Fmyaccount.google.com%2Fapppasswords" target="_blank" rel="noopener noreferrer" class="tutorial-btn-link">
+          <i class="fab fa-google"></i> Abrir Contraseñas de Aplicaciones <i class="fas fa-external-link-alt" style="font-size: 11px;"></i>
+        </a>
+        <small class="tutorial-note">* Google te pedirá verificar tu identidad antes de entrar.</small>
+        <small class="tutorial-note" style="display: block; margin-top: 4px;">* <strong>Requisito:</strong> Debes tener activada la <em>Verificación en 2 pasos</em> en Google para que esta opción esté disponible.</small>
+      </div>
+
+      <!-- Paso 2 -->
+      <div class="tutorial-step-card">
+        <div class="tutorial-step-header">
+          <span class="tutorial-step-title">2. Escribe "FinanzApp" y pulsa "Crear"</span>
+          <span class="tutorial-step-badge badge-step-2">Paso 2</span>
+        </div>
+        <p class="tutorial-step-desc">En la pantalla de Google, ponle nombre a la app y pulsa <strong>Crear</strong>:</p>
+        
+        <!-- Mockup Google Step 1 -->
+        <div class="tutorial-mockup-outer">
+          <div class="tutorial-mockup-label">Nombre de la aplicación</div>
+          <div class="tutorial-mockup-input-row">
+            <span class="tutorial-mockup-val">FinanzApp</span>
+            <span class="tutorial-mockup-btn">Crear</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Paso 3 -->
+      <div class="tutorial-step-card">
+        <div class="tutorial-step-header">
+          <span class="tutorial-step-title">3. Copia tus 16 letras generadas</span>
+          <span class="tutorial-step-badge badge-step-3">Paso 3</span>
+        </div>
+        <p class="tutorial-step-desc">Google te mostrará tu clave generada en una ventana:</p>
+        
+        <!-- Mockup Google Modal Step 2 -->
+        <div class="tutorial-password-card">
+          <div class="tutorial-password-title">Contraseña de aplicación generada</div>
+          <div class="tutorial-password-subtitle">Tu contraseña de aplicación para el dispositivo</div>
+          <div class="tutorial-password-code-box">
+            <span class="tutorial-password-code">xxxx xxxx xxxx xxxx</span>
+          </div>
+        </div>
+        
+        <small class="tutorial-note">Copia esas 16 letras y pégalas en FinanzApp sin los espacios.</small>
+      </div>
+
+    </div>
+
+    <div class="custom-alert-buttons" style="display: flex; justify-content: center; width: 100%; margin-top: 16px;">
+      <button type="button" class="btn btn-primary" id="closeTutorialBtn" style="width: 100%; padding: 13px; border-radius: 22px; font-weight: 700; font-size: 14px; letter-spacing: 0.5px; text-transform: uppercase;">ENTENDIDO</button>
+    </div>
+  </div>
+
   <div class="custom-alert hidden" id="customAlert" role="alertdialog" aria-modal="true" aria-labelledby="alertTitle" aria-describedby="alertMessage" tabindex="-1">
     <h3 class="custom-alert-title" id="alertTitle">Advertencia</h3>
     <p class="custom-alert-message" id="alertMessage"></p>
@@ -414,9 +514,9 @@
   </div>
 
   <nav class="mobile-bottom-nav" aria-label="Navegacion movil">
-    <a href="../Dashboard/Dashboard.html" class="mobile-nav-item">
+    <a href="../Categorias/Categorias.html" class="mobile-nav-item">
       <i class="fas fa-home" aria-hidden="true"></i>
-      <span class="mobile-nav-label">Dashboard</span>
+      <span class="mobile-nav-label">Categorías</span>
     </a>
     <a href="../Presupuestos/Presupuestos.html" class="mobile-nav-item">
       <i class="fas fa-wallet" aria-hidden="true"></i>
@@ -438,8 +538,28 @@
     <a href="/pages/privacy/terms.html" target="_blank" rel="noopener">Condiciones del Servicio</a>
   </div>
 
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <script src="/lib/GmailAPI.js?v=202605180003"></script>
-  <script src="/pages/Configuracion/Configuracion.js?v=202605170003"></script>
-</body>
+  <script src="/lib/SyncAPI.js?v=1788099417852"></script>
+  <script src="/pages/Configuracion/Configuracion.js?v=1788099417852"></script>
+  
+
+    <script>
+      (function() {
+        if ('caches' in window) {
+          caches.keys().then(function(names) {
+            for (var i = 0; i < names.length; i++) {
+              caches.delete(names[i]);
+            }
+          });
+        }
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations().then(function(registrations) {
+            for (var i = 0; i < registrations.length; i++) {
+              registrations[i].unregister();
+            }
+          });
+        }
+      })();
+      //# sourceURL=/sw-cleanup.js
+    </script>
+  </body>
 </html>

@@ -176,6 +176,25 @@ body.categorias-page .app-container {
 .nav-logo-icon i {
   color: #e0def4 !important;
 }
+.logo-icon::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    45deg, 
+    transparent 30%, 
+    rgba(255, 255, 255, 0.1) 50%, 
+    transparent 70%
+  );
+  transform: translateX(-100%);
+  transition: transform 0.6s;
+}
+.logo-icon:hover::before {
+  transform: translateX(100%);
+}
 .nav-links { 
   display: flex;
   flex-direction: column;
@@ -608,7 +627,7 @@ body.categorias-page .main-content::-webkit-scrollbar-thumb:hover {
   margin-left: auto;
 }
 .summary-card {
-  background: var(--card-bg);
+  background: var(--summary-card-bg, var(--card-bg));
   border-radius: 22px;
   padding: 20px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -624,20 +643,16 @@ body.categorias-page .main-content::-webkit-scrollbar-thumb:hover {
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
-.summary-card .card-title i, .card-title svg.lucide,
-.summary-card .card-title svg.lucide { 
+.summary-card .card-title i { 
   color: var(--gray-light);
 }
-.summary-card.income .card-title i, .card-title svg.lucide,
-.summary-card.income .card-title svg.lucide { 
+.summary-card.income .card-title i { 
   color: var(--success);
 }
-.summary-card.expenses .card-title i, .card-title svg.lucide,
-.summary-card.expenses .card-title svg.lucide { 
+.summary-card.expenses .card-title i { 
   color: var(--danger);
 }
-.summary-card.balance .card-title i, .card-title svg.lucide,
-.summary-card.balance .card-title svg.lucide { 
+.summary-card.balance .card-title i { 
   color: var(--accent);
 }
 .summary-card .card-value { 
@@ -701,10 +716,10 @@ body.categorias-page .main-content::-webkit-scrollbar-thumb:hover {
 }
 
 .btn-secondary:hover { 
-  border-color: var(--danger, var(--primary));
-  background: color-mix(in srgb, var(--danger, var(--primary)) 10%, var(--card-bg));
-  color: var(--danger, var(--primary));
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--danger, var(--primary)) 25%, transparent);
+  border-color: #eb6f92;
+  background: color-mix(in srgb, #eb6f92 10%, var(--card-bg));
+  color: #eb6f92;
+  box-shadow: 0 0 0 2px color-mix(in srgb, #eb6f92 25%, transparent);
 }
 
 
@@ -960,6 +975,10 @@ body.categorias-page .main-content::-webkit-scrollbar-thumb:hover {
 .form-control:focus { 
   outline: none;
 }
+.form-control::placeholder {
+  color: var(--gray-light);
+  font-weight: 400;
+}
 
 /* ====== MODO COMPACTO ====== */
 .category-card.compact-mode:not(.tx-expanded) .transaction-list {
@@ -1062,47 +1081,6 @@ body.categorias-page .transaction-list {
   width: 100%;
 }
 
-.tx-amount-group {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-.tx-icon-sm {
-  width: 20px;
-  height: 20px;
-  border-radius: 6px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-.tx-icon-sm.income {
-  background: rgba(0, 201, 167, 0.14);
-  color: #00C9A7;
-}
-.tx-icon-sm.expense {
-  background: rgba(235, 111, 146, 0.13);
-  color: #EB6F92;
-}
-.tx-icon-sm svg.lucide {
-  width: 12px;
-  height: 12px;
-  stroke-width: 2.4;
-}
-.btn-icon--sm {
-  width: 22px;
-  height: 22px;
-}
-.btn-icon--sm svg.lucide {
-  width: 12px;
-  height: 12px;
-  stroke-width: 1.9;
-  opacity: 0.85;
-}
-.btn-icon--sm:hover svg.lucide {
-  opacity: 1;
-}
-
 .transaction-actions { 
   display: flex;
   align-items: center;
@@ -1161,7 +1139,31 @@ body.categorias-page .transaction-list {
 }
 
 .transaction-amount::before {
-  display: none;
+  content: '';
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-family: 'Font Awesome 5 Free';
+  font-weight: 900;
+  flex-shrink: 0;
+}
+
+.transaction-amount.income::before {
+  content: '\f062'; 
+  background: color-mix(in srgb, var(--success) 15%, var(--card-bg));
+  color: var(--success);
+  border: 1px solid color-mix(in srgb, var(--success) 30%, transparent);
+}
+
+.transaction-amount.expense::before {
+  content: '\f063'; 
+  background: color-mix(in srgb, var(--danger) 15%, var(--card-bg));
+  color: var(--danger);
+  border: 1px solid color-mix(in srgb, var(--danger) 30%, transparent);
 }
 
 .transaction-amount.income { 
@@ -1208,14 +1210,10 @@ body.categorias-page .transaction-desc[title]:hover::before {
   color: var(--gray);
   text-align: center;
 }
-.empty-state i,
-.empty-state svg.lucide { 
-  width: 64px;
-  height: 64px;
-  font-size: 64px;
+.empty-state i { 
+  font-size: 108px;
   margin: 0;
   color: var(--primary);
-  stroke-width: 1.6;
 }
 .modal {
   position: fixed;
@@ -1366,14 +1364,14 @@ body.categorias-page select.form-control option:checked {
   gap: 12px;
 }
 
-.custom-dropdown-selected i, .custom-dropdown-selected svg.lucide {
+.custom-dropdown-selected i {
   transition: transform 0.3s ease;
   color: var(--gray);
   font-size: 12px;
   flex-shrink: 0;
 }
 
-.custom-dropdown.open .custom-dropdown-selected i, .custom-dropdown.open .custom-dropdown-selected svg.lucide {
+.custom-dropdown.open .custom-dropdown-selected i {
   transform: rotate(180deg);
 }
 .custom-dropdown-options {
@@ -1417,7 +1415,7 @@ body.categorias-page select.form-control option:checked {
 }
 .custom-dropdown-option.selected {
   background: var(--primary);
-  color: #ffffff;
+
 }
 
 #datePickerModal {
@@ -1697,7 +1695,7 @@ body.categorias-page .filter-controls #categoryFilter {
 }
 .search-input {
   background: transparent;
-  color: var(--gray-light);
+  color: #6e6a86;
   font-size: 14px;
   padding: 6px 2px;
 }
@@ -1711,7 +1709,7 @@ body.categorias-page .filter-controls #categoryFilter {
   border: none;
 }
 .filter-group .btn-icon#clearSearchBtn:hover {
-  color: var(--gray-light);
+  color: var(--gray);
 }
 @media (min-width: 900px) {
   .card-header:has(.header-actions) .card-title {
@@ -1753,13 +1751,13 @@ body.categorias-page .filter-controls #categoryFilter {
   min-width: 200px;
 }
 
-.custom-dropdown.open .custom-dropdown-selected i, .custom-dropdown.open .custom-dropdown-selected svg.lucide { 
+.custom-dropdown.open .custom-dropdown-selected i { 
   color: var(--primary);
 }
 
 .custom-dropdown .custom-dropdown-option.selected:hover {
   background: var(--primary);
-  color: #ffffff;
+  color: #e0def4;
 }
 
 .custom-dropdown-options::-webkit-scrollbar {
@@ -1816,33 +1814,24 @@ body.categorias-page .filter-controls #categoryFilter {
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 25%, transparent);
 }
 .category-type-btn i,
-.category-type-btn svg.lucide,
-.transaction-type-btn i,
-.transaction-type-btn svg.lucide {
+.transaction-type-btn i {
   font-size: 16px;
   opacity: 0.8;
   transition: opacity 0.18s ease;
 }
 .category-type-btn.active i,
-.category-type-btn.active svg.lucide,
-.transaction-type-btn.active i,
-.transaction-type-btn.active svg.lucide {
+.transaction-type-btn.active i {
   opacity: 1;
 }
 .category-type-btn[data-value="income"] i,
-.category-type-btn[data-value="income"] svg.lucide,
-.transaction-type-btn[data-value="income"] i,
-.transaction-type-btn[data-value="income"] svg.lucide {
+.transaction-type-btn[data-value="income"] i {
   color: var(--success);
 }
 .category-type-btn[data-value="expense"] i,
-.category-type-btn[data-value="expense"] svg.lucide,
-.transaction-type-btn[data-value="expense"] i,
-.transaction-type-btn[data-value="expense"] svg.lucide {
+.transaction-type-btn[data-value="expense"] i {
   color: var(--danger);
 }
-.category-type-btn[data-value=""] i,
-.category-type-btn[data-value=""] svg.lucide {
+.category-type-btn[data-value=""] i {
   color: var(--accent);
 }
 .category-type-btn[data-value="income"].active,
@@ -1932,12 +1921,12 @@ body.categorias-page .filter-controls #categoryFilter {
   box-shadow: var(--shadow-md);
 }
 .transaction-type-btn[data-value="income"] {
-  border: 2px solid var(--success);
-  background: color-mix(in srgb, var(--success) 15%);
+  border-color: color-mix(in srgb, var(--success) 30%, var(--card-border));
+  background: color-mix(in srgb, var(--success) 15%, var(--card-bg));
 }
 .transaction-type-btn[data-value="expense"] {
-  border: 2px solid var(--danger);
-  background: color-mix(in srgb, var(--danger) 15%);
+  border-color: color-mix(in srgb, var(--danger) 30%, var(--card-border));
+  background: color-mix(in srgb, var(--danger) 15%, var(--card-bg));
 }
 .transaction-type-btn[data-value="income"].active {
   border-color: var(--success);
@@ -2299,7 +2288,6 @@ div.amount-chip.expense {
   body.categorias-page .chart-container:hover,
   body.categorias-page .btn-primary:hover,
   body.categorias-page .btn-secondary:hover,
-  body.categorias-page #clearFiltersBtn.btn.btn-secondary:hover,
   body.categorias-page .btn-danger:hover,
   body.categorias-page .btn-icon:hover,
   body.categorias-page .transaction-item:hover,
@@ -2320,33 +2308,25 @@ div.amount-chip.expense {
 
 .gmail-bell-btn {
   position: relative;
-  padding: 10px 10px;
-  overflow: visible;
+  padding: 10 10px;
 }
 
-#gmailBellBtn svg.lucide {
-  width: 20px;
-  height: 20px;
-}
-
-#gmailBadge.gmail-badge {
+.gmail-badge {
   position: absolute;
-  top: 1px;
-  right: 1px;
-  width: 22px;
-  min-width: 22px;
-  height: 22px;
-  padding: 0;
-  border-radius: 50%;
-  background: var(--primary, #eb6f92);
+  top: 2px;
+  right: 2px;
+  background: var(--primary);
   color: #fff;
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 99px;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 0 3px;
   pointer-events: none;
-  letter-spacing: 0;
 }
 
 .gmail-badge.hidden { display: none; }
@@ -2513,7 +2493,7 @@ div.amount-chip.expense {
   75% { transform: rotate(-6deg); }
   100% { transform: rotate(0deg); }
 }
-#clearAllCategoriesBtn:hover svg.lucide,
+#clearAllCategoriesBtn:hover i.fa-trash,
 .mobile-actions-btn.danger[data-action="deleteAll"]:hover i,
 .category-menu-item[data-action="eliminarCategoria"]:hover i,
 #mobileNotificationsClearBtn:hover i,
@@ -2563,8 +2543,8 @@ div.amount-chip.expense {
   85% { transform: rotate(-5deg); }
   100% { transform: rotate(0); }
 }
-.category-type-btn:hover svg.lucide,
-.transaction-type-btn:hover svg.lucide {
+.category-type-btn:hover i.fa-balance-scale,
+.transaction-type-btn:hover i.fa-balance-scale {
   animation: icon-balance-weigh 0.8s ease-in-out;
 }
 
@@ -2573,7 +2553,7 @@ div.amount-chip.expense {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.1); }
 }
-.date-picker-btn:hover svg.lucide,
+.date-picker-btn:hover i.fa-calendar-alt,
 .btn-icon[onclick="openDatePicker('edit')"]:hover i {
   animation: icon-calendar-calm 1s ease-in-out infinite;
 }
@@ -2588,7 +2568,7 @@ div.amount-chip.expense {
   75% { transform: rotate(10deg); transform-origin: top center; }
   100% { transform: rotate(0); transform-origin: top center; }
 }
-#gmailBellBtn:hover svg.lucide,
+#gmailBellBtn:hover i.fa-bell,
 .mobile-actions-btn[data-action="notifications"]:hover i {
   animation: icon-bell-ring 0.7s ease-in-out;
 }
@@ -2598,7 +2578,7 @@ div.amount-chip.expense {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.15); }
 }
-#addCategoryBtn:hover svg.lucide,
+#addCategoryBtn:hover i.fa-plus,
 #mobileCreateAction:hover i {
   animation: icon-plus-calm 1s ease-in-out infinite;
 }
@@ -2609,7 +2589,7 @@ div.amount-chip.expense {
   50% { transform: translateX(3px) translateY(-3px); }
   100% { transform: translateX(0) translateY(0); }
 }
-#exportDropdownBtn:hover svg.lucide,
+#exportDropdownBtn:hover i.fa-file-export,
 .mobile-actions-btn[data-action="export"]:hover i {
   animation: lucide-export-mimic-dash 0.5s ease-in-out;
 }
@@ -2621,7 +2601,7 @@ div.amount-chip.expense {
   70% { transform: translateY(-2px); }
   100% { transform: translateY(0); }
 }
-#importStateBtn:hover svg.lucide,
+#importStateBtn:hover i.fa-file-import,
 .mobile-actions-btn[data-action="import"]:hover i {
   animation: lucide-import-mimic-dash 0.5s ease-in-out;
 }
@@ -2633,8 +2613,8 @@ div.amount-chip.expense {
   55% { transform: translateY(15px); opacity: 0; }
   100% { transform: translateY(0); opacity: 1; }
 }
-.category-type-btn:hover svg.lucide,
-.transaction-type-btn:hover svg.lucide {
+.category-type-btn:hover i.fa-arrow-up,
+.transaction-type-btn:hover i.fa-arrow-up {
   animation: icon-arrow-elevator-up 0.6s ease-in-out;
 }
 
@@ -2645,7 +2625,7 @@ div.amount-chip.expense {
   55% { transform: translateY(-15px); opacity: 0; }
   100% { transform: translateY(0); opacity: 1; }
 }
-.category-type-btn:hover svg.lucide,
-.transaction-type-btn:hover svg.lucide {
+.category-type-btn:hover i.fa-arrow-down,
+.transaction-type-btn:hover i.fa-arrow-down {
   animation: icon-arrow-elevator-down 0.6s ease-in-out;
 }

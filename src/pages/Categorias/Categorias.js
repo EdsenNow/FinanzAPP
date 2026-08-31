@@ -1808,16 +1808,16 @@ function configurarListenersCategoria(tarjeta, categoryId) {
         document.querySelectorAll('.category-card.tx-expanded').forEach(otherCard => {
           if (otherCard !== card) {
             otherCard.classList.remove('tx-expanded');
-            const btn = otherCard.querySelector('.compact-toggle-btn');
-            if (btn) { btn.innerHTML = `<i data-lucide="chevron-down"></i>`; if(window.lucide) lucide.createIcons(); }
+            const otherIcon = otherCard.querySelector('.compact-toggle-btn i');
+            if (otherIcon) otherIcon.className = 'fas fa-chevron-down';
           }
         });
 
         // Alternar la actual
         card.classList.toggle('tx-expanded', !isCurrentlyExpanded);
-        if (target) {
-          target.innerHTML = `<i data-lucide="${!isCurrentlyExpanded ? 'chevron-up' : 'chevron-down'}"></i>`;
-          if(window.lucide) lucide.createIcons();
+        const icon = target.querySelector('i');
+        if (icon) {
+          icon.className = !isCurrentlyExpanded ? 'fas fa-chevron-up' : 'fas fa-chevron-down';
         }
       }
       return;
@@ -1929,11 +1929,10 @@ function renderizarCategorias() {
   if (datosUsuario.categories.length === 0) {
     categoriesContainer.innerHTML = `
       <div class="empty-state">
-        <i data-lucide="tags"></i>
+        <i class="fas fa-tags"></i>
         <p>No hay categorías creadas. Agrega tu primera categoría.</p>
       </div>
     `;
-    if(window.lucide) lucide.createIcons();
     actualizarResumenFinanciero();
     return;
   }
@@ -1946,11 +1945,10 @@ function renderizarCategorias() {
   if (hayFiltrosActivos && totalTransaccionesFiltradas === 0) {
     categoriesContainer.innerHTML = `
       <div class="empty-state">
-        <i data-lucide="filter"></i>
+        <i class="fas fa-filter"></i>
         <p>No se encontraron transacciones para los filtros seleccionados.</p>
       </div>
     `;
-    if(window.lucide) lucide.createIcons();
     actualizarResumenFinanciero();
     return;
   }
@@ -1971,11 +1969,10 @@ function renderizarCategorias() {
       mensajeFiltro += '.';
       categoriesContainer.innerHTML = `
         <div class="empty-state">
-          <i data-lucide="filter"></i>
+          <i class="fas fa-filter"></i>
           <p>${mensajeFiltro}</p>
         </div>
       `;
-      if(window.lucide) lucide.createIcons();
       actualizarResumenFinanciero();
       return;
     }
@@ -2008,11 +2005,11 @@ function renderizarCategorias() {
         <div class="form-group">
           <div class="transaction-type-selector" id="transaction-type-${category.id}">
             <button type="button" class="transaction-type-btn" data-value="income">
-              <i data-lucide="arrow-up"></i>
+              <i class="fas fa-arrow-up"></i>
               <span>Ingreso</span>
             </button>
             <button type="button" class="transaction-type-btn" data-value="expense">
-              <i data-lucide="arrow-down"></i>
+              <i class="fas fa-arrow-down"></i>
               <span>Gasto</span>
             </button>
           </div>
@@ -2041,9 +2038,9 @@ function renderizarCategorias() {
     const paginaActual = Math.min(paginaCategorias.get(category.id) || 0, totalPaginas - 1);
     paginaCategorias.set(category.id, paginaActual);
     const txPagina = txPerPage === Infinity ? txOrdenadas : txOrdenadas.slice(paginaActual * txPerPage, (paginaActual + 1) * txPerPage);
-    const fechaIcon = sortFecha === 'newest' ? 'arrow-down-narrow-wide' : 'arrow-up-narrow-wide';
+    const fechaIcon = sortFecha === 'newest' ? 'fa-sort-amount-down' : 'fa-sort-amount-up';
     const fechaLabel = sortFecha === 'newest' ? 'Más reciente primero' : 'Más antiguo primero';
-    const montoIcon = sortMonto === 'amount-desc' ? 'arrow-down-narrow-wide' : sortMonto === 'amount-asc' ? 'arrow-up-narrow-wide' : 'dollar-sign';
+    const montoIcon = sortMonto === 'amount-desc' ? 'fa-sort-numeric-down' : sortMonto === 'amount-asc' ? 'fa-sort-numeric-up' : 'fa-dollar-sign';
     const montoLabel = sortMonto === 'amount-desc' ? 'Mayor monto primero' : sortMonto === 'amount-asc' ? 'Menor monto primero' : 'Ordenar por monto';
     const montoClass = sortMonto === 'amount-desc' ? ' sort-btn--desc' : sortMonto === 'amount-asc' ? ' sort-btn--asc' : '';
     const mostrarTooltipFiltrosTx = esVistaEscritorio();
@@ -2071,7 +2068,7 @@ function renderizarCategorias() {
           aria-label="Arrastrar para reordenar"
           ${category.isPinned ? 'disabled' : ''}
         >
-          <i data-lucide="grip-horizontal" aria-hidden="true"></i>
+          <i class="fas fa-grip-lines" aria-hidden="true"></i>
         </button>
   <div class="category-name">${esc(category.name)}</div>
         
@@ -2083,7 +2080,7 @@ function renderizarCategorias() {
             aria-label="Opciones de categoría"
             data-category-id="${category.id}"
           >
-            <i data-lucide="ellipsis" aria-hidden="true"></i>
+            <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
           </button>
           
           <div class="category-menu" id="category-menu-${category.id}">
@@ -2092,7 +2089,7 @@ function renderizarCategorias() {
               data-action="alternarFijado"
               data-category-id="${category.id}"
             >
-              <i data-lucide="pin"></i>
+              <i class="fas fa-thumbtack"></i>
               ${category.isPinned ? 'Desfijar' : 'Fijar categoría'}
             </button>
             <button
@@ -2100,7 +2097,7 @@ function renderizarCategorias() {
               data-action="editarCategoria"
               data-category-id="${category.id}"
             >
-              <i data-lucide="pencil"></i>
+              <i class="fas fa-edit"></i>
               Renombrar
             </button>
             <button
@@ -2108,7 +2105,7 @@ function renderizarCategorias() {
               data-action="limpiarTransacciones"
               data-category-id="${category.id}"
             >
-              <i data-lucide="eraser"></i>
+              <i class="fas fa-eraser"></i>
               Limpiar transacciones
             </button>
             <button
@@ -2116,7 +2113,7 @@ function renderizarCategorias() {
               data-action="eliminarCategoria"
               data-category-id="${category.id}"
             >
-              <i data-lucide="trash-2"></i>
+              <i class="fas fa-trash"></i>
               Eliminar categoría
             </button>
           </div>
@@ -2127,21 +2124,21 @@ function renderizarCategorias() {
         <div class="ie-summary">
           ${category.fixedType === 'income' ? `
             <div class="amount-chip income" title="Ingresos">
-              <i data-lucide="arrow-up" aria-hidden="true"></i>
+              <i class="fas fa-arrow-up" aria-hidden="true"></i>
               ${formatCurrency(totalIngresos)}
             </div>
           ` : category.fixedType === 'expense' ? `
             <div class="amount-chip expense" title="Total Gastos: ${formatCurrency(totalGastos)}">
-              <i data-lucide="arrow-down" aria-hidden="true"></i>
+              <i class="fas fa-arrow-down" aria-hidden="true"></i>
               ${formatCurrency(totalGastos)}
             </div>
           ` : `
             <div class="amount-chip income" title="Total Ingresos: ${formatCurrency(totalIngresos)}">
-              <i data-lucide="arrow-up" aria-hidden="true"></i>
+              <i class="fas fa-arrow-up" aria-hidden="true"></i>
               ${formatCurrency(totalIngresos)}
             </div>
             <div class="amount-chip expense" title="Total Gastos: ${formatCurrency(totalGastos)}">
-              <i data-lucide="arrow-down" aria-hidden="true"></i>
+              <i class="fas fa-arrow-down" aria-hidden="true"></i>
               ${formatCurrency(totalGastos)}
             </div>
           `}
@@ -2163,7 +2160,7 @@ function renderizarCategorias() {
           <div class="date-picker-wrapper">
             <input type="text" class="form-control date-picker-input" id="transaction-date-${category.id}" placeholder="Seleccionar fecha" readonly aria-label="Fecha para ${esc(category.name)}">
             <button type="button" class="date-picker-btn" data-action="abrirSelectorFecha" data-category-id="${category.id}">
-              <i data-lucide="calendar"></i>
+              <i class="fas fa-calendar-alt"></i>
             </button>
           </div>
           <div class="inline-warning" id="date-error-${category.id}">Por favor, ingresa una fecha válida</div>
@@ -2174,7 +2171,7 @@ function renderizarCategorias() {
       ${viewMode === 'compact' ? `
       <div class="compact-tx-toggle" style="margin-top: 10px; text-align: center;">
         <button class="btn btn-secondary btn-sm compact-toggle-btn" style="width: 100%; padding: 8px; border-radius: 8px; font-weight: 500;" data-action="toggleTransactions" data-category-id="${category.id}">
-          <i data-lucide="chevron-down"></i> Ver transacciones (${txVisibles.length})
+          <i class="fas fa-chevron-down"></i> Ver transacciones (${txVisibles.length})
         </button>
       </div>
       ` : ''}
@@ -2185,10 +2182,10 @@ function renderizarCategorias() {
             <span class="transaction-count">${txVisibles.length} ${txVisibles.length === 1 ? 'transacción' : 'transacciones'}${totalPaginas > 1 ? ` · Pág. ${paginaActual + 1}/${totalPaginas}` : ''}</span>
             <div class="sort-btn-group">
               <button class="sort-btn btn-icon" data-action="sortFecha" data-category-id="${category.id}"${fechaTitleAttr}>
-                <i data-lucide="${fechaIcon}"></i>
+                <i class="fas ${fechaIcon}"></i>
               </button>
               <button class="sort-btn btn-icon${montoClass}" data-action="sortMonto" data-category-id="${category.id}"${montoTitleAttr}>
-                <i data-lucide="${montoIcon}"></i>
+                <i class="fas ${montoIcon}"></i>
               </button>
             </div>
           </div>
@@ -2196,13 +2193,10 @@ function renderizarCategorias() {
         ${txPagina.map(t => `
           <div class="transaction-item">
             <div class="transaction-item-header">
-              <div class="tx-amount-group">
-                <span class="tx-icon-sm ${t.type}"><i data-lucide="${t.type === 'income' ? 'arrow-up' : 'arrow-down'}"></i></span>
-                <span class="transaction-amount ${t.type}" title="${t.type === 'income' ? 'Ingreso: ' : 'Gasto: '}${formatCurrency(t.amount)}">${formatCurrency(t.amount)}</span>
-              </div>
+              <div class="transaction-amount ${t.type}" title="${t.type === 'income' ? 'Ingreso: ' : 'Gasto: '}${formatCurrency(t.amount)}">${formatCurrency(t.amount)}</div>
               <div class="transaction-actions">
-                <button class="btn-icon btn-icon--sm" data-action="editarTransaccion" data-category-id="${category.id}" data-transaction-id="${t.id}" aria-label="Editar transacción de ${esc(category.name)}"><i data-lucide="pencil"></i></button>
-                <button class="btn-icon btn-icon--sm" data-action="eliminarTransaccion" data-category-id="${category.id}" data-transaction-id="${t.id}" aria-label="Eliminar transacción de ${esc(category.name)}"><i data-lucide="trash-2"></i></button>
+                <button class="btn-icon" data-action="editarTransaccion" data-category-id="${category.id}" data-transaction-id="${t.id}" aria-label="Editar transacción de ${esc(category.name)}"><i class="fas fa-edit"></i></button>
+                <button class="btn-icon" data-action="eliminarTransaccion" data-category-id="${category.id}" data-transaction-id="${t.id}" aria-label="Eliminar transacción de ${esc(category.name)}"><i class="fas fa-trash"></i></button>
               </div>
             </div>
             <div class="transaction-desc" title="${esc(t.description || 'Sin descripción')}">${esc(t.description || 'Sin descripción')}</div>
@@ -2211,9 +2205,9 @@ function renderizarCategorias() {
         `).join('')}
         ${totalPaginas > 1 ? `
           <div class="tx-pagination">
-            <button class="btn-icon tx-page-btn" data-action="txPrevPage" data-category-id="${category.id}" ${paginaActual === 0 ? 'disabled' : ''} aria-label="Página anterior"><i data-lucide="chevron-left"></i></button>
+            <button class="btn-icon tx-page-btn" data-action="txPrevPage" data-category-id="${category.id}" ${paginaActual === 0 ? 'disabled' : ''} aria-label="Página anterior"><i class="fas fa-chevron-left"></i></button>
             <span class="tx-page-info">${paginaActual + 1} / ${totalPaginas}</span>
-            <button class="btn-icon tx-page-btn" data-action="txNextPage" data-category-id="${category.id}" ${paginaActual >= totalPaginas - 1 ? 'disabled' : ''} aria-label="Página siguiente"><i data-lucide="chevron-right"></i></button>
+            <button class="btn-icon tx-page-btn" data-action="txNextPage" data-category-id="${category.id}" ${paginaActual >= totalPaginas - 1 ? 'disabled' : ''} aria-label="Página siguiente"><i class="fas fa-chevron-right"></i></button>
           </div>
         ` : ''}
       </div>
@@ -2342,8 +2336,6 @@ function renderizarCategorias() {
   });
 
   actualizarResumenFinanciero();
-  if(window.lucide) lucide.createIcons();
-  if(window.refreshLucide) window.refreshLucide();
 }
 
 /**
@@ -2646,7 +2638,7 @@ function editarTransaccion(categoryId, transactionId) {
       typeSelect.dataset.mode = 'fixed';
       typeSelect.innerHTML = `
         <div class="type-chip ${fixed}">
-          <i data-lucide="${fixed === 'income' ? 'arrow-up' : 'arrow-down'}"></i>
+          <i class="fas ${fixed === 'income' ? 'fa-arrow-up' : 'fa-arrow-down'}"></i>
           <span>${fixed === 'income' ? 'Ingreso' : 'Gasto'}</span>
         </div>`;
       typeSelect.style.opacity = '0.85';
@@ -2657,7 +2649,7 @@ function editarTransaccion(categoryId, transactionId) {
       if (!hint) {
         hint = document.createElement('div');
         hint.id = 'editTypeFixedHint';
-        hint.innerHTML = '<i data-lucide="lock" style="margin-right:6px;"></i><em>Tipo definido por la categoría</em>';
+        hint.innerHTML = '<i class="fas fa-lock" style="margin-right:6px;"></i><em>Tipo definido por la categoría</em>';
         hint.style.marginTop = '6px';
         hint.style.color = 'var(--muted, var(--gray))';
         hint.style.fontSize = '12px';
@@ -2670,11 +2662,11 @@ function editarTransaccion(categoryId, transactionId) {
       if (!typeSelect.querySelector('.transaction-type-btn')) {
         typeSelect.innerHTML = `
           <button type="button" class="transaction-type-btn" data-value="income">
-            <i data-lucide="arrow-up"></i>
+            <i class="fas fa-arrow-up"></i>
             <span>Ingreso</span>
           </button>
           <button type="button" class="transaction-type-btn" data-value="expense">
-            <i data-lucide="arrow-down"></i>
+            <i class="fas fa-arrow-down"></i>
             <span>Gasto</span>
           </button>`;
       }
@@ -3048,7 +3040,6 @@ function configurarListenersFiltros() {
     } else if (tipoFiltro === 'month') {
       filtrosActuales.month = value === '' ? null : parseInt(value);
     }
-    actualizarIndicadorFiltros();
     aplicarFiltrosAntirrebote();
   };
 
@@ -3195,7 +3186,7 @@ function configurarListenersEventos() {
       } catch (e) {}
 
       const icon = btn?.querySelector('i');
-      if (icon) icon.className = theme === 'light' ? 'moon' : 'sun';
+      if (icon) icon.className = theme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
 
       try { renderizarGraficos(); } catch {}
     };
@@ -3503,57 +3494,8 @@ function configurarListenersEventos() {
 
   const ejecutarEliminarTodasCategorias = async () => {
     datosUsuario.categories = [];
-    // Limpieza exhaustiva local para evitar re-hidratación
-    try {
-      const prefix = 'finanzapp:data:v1';
-      const uids = new Set();
-      for (let i = 0; i < localStorage.length; i++) {
-        const k = localStorage.key(i);
-        if (!k || !k.startsWith(prefix + ':')) continue;
-        const parts = k.split(':');
-        if (parts.length >= 4) {
-          const uid = parts.slice(3, parts.length - 1).join(':');
-          if (uid) uids.add(uid);
-        }
-      }
-      try {
-        const raw = localStorage.getItem('authUser');
-        if (raw && raw !== 'guest') {
-          const u = JSON.parse(raw);
-          const cur = u.uid || u.email || 'guest';
-          if (cur) uids.add(cur);
-        } else { uids.add('guest'); }
-      } catch { uids.add('guest'); }
-      uids.forEach(uid => {
-        try {
-          localStorage.setItem(`${prefix}:${uid}:categories`, '[]');
-          localStorage.setItem(`${prefix}:${uid}:transactions`, '[]');
-          localStorage.setItem(`${prefix}:${uid}:budgets`, '{}');
-        } catch {}
-      });
-      localStorage.setItem('categories', '[]');
-      localStorage.setItem('transactions', '[]');
-      localStorage.setItem('finanzapp:budgets', '[]');
-      localStorage.setItem('budgets', '{}');
-    } catch {}
-    // Borrar subcolecciones Firestore para evitar rescate en loadAll()
-    try {
-      if (window.FirestoreDB && window.FirestoreDB.db && window.FirestoreDB.currentUserId) {
-        const userRef = window.FirestoreDB._userDoc();
-        const txSnap = await userRef.collection('transactions').get();
-        const catSnap = await userRef.collection('categories').get();
-        const allDocs = [...(txSnap.docs || []), ...(catSnap.docs || [])];
-        if (allDocs.length > 0) {
-          const chunks = [];
-          for (let i = 0; i < allDocs.length; i += 450) chunks.push(allDocs.slice(i, i + 450));
-          for (const chunk of chunks) {
-            const batch = window.FirestoreDB.db.batch();
-            chunk.forEach(d => batch.delete(d.ref));
-            await batch.commit();
-          }
-        }
-      }
-    } catch (e) { console.warn('No se pudieron borrar subcolecciones al eliminar categorías', e); }
+    localStorage.removeItem('categories');
+    localStorage.removeItem('transactions');
     marcarCambioDatos();
     await persist();
     
@@ -3805,7 +3747,6 @@ function configurarListenersEventos() {
       }
 
       if (searchInput) searchInput.value = '';
-      actualizarIndicadorFiltros();
       aplicarFiltrosAntirrebote();
 
       if (hadActiveFilters) {
@@ -3819,7 +3760,6 @@ function configurarListenersEventos() {
   if (searchInput) {
     searchInput.addEventListener('input', (e) => {
       filtrosActuales.searchTerm = e.target.value;
-      actualizarIndicadorFiltros();
       aplicarFiltrosAntirrebote();
     });
   }
@@ -3828,7 +3768,6 @@ function configurarListenersEventos() {
     clearSearchBtn.addEventListener('click', () => {
       filtrosActuales.searchTerm = '';
       if (searchInput) searchInput.value = '';
-      actualizarIndicadorFiltros();
       aplicarFiltrosAntirrebote();
     });
   }
@@ -4200,7 +4139,7 @@ class GmailNotificationManager {
             </div>
             <div class="gmail-notif-item-bottom">
               <span class="gmail-notif-detail">${subjectText}</span>
-              ${formattedDate ? `<span class="gmail-notif-date"><i data-lucide="calendar"></i>${formattedDate}</span>` : ''}
+              ${formattedDate ? `<span class="gmail-notif-date"><i class="far fa-calendar-alt"></i>${formattedDate}</span>` : ''}
             </div>
           </div>
         `;
