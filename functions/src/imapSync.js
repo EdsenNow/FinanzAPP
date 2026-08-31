@@ -41,18 +41,29 @@ async function syncImapTransactions(email, appPassword, targetSenders, uid) {
     let lock = await client.getMailboxLock('INBOX');
 
     try {
-      // Si es la primera sincronización, busca todos los correos históricos (hasta 1 año hacia atrás)
-      // Si ya se sincronizó antes, busca desde la última fecha sincronizada
+      // Buscar correos de los últimos 365 días o desde la última sincronización
       const searchSince = lastSyncAt ? lastSyncAt : new Date(Date.now() - 365 * 24 * 60 * 60 * 1000);
 
-      const searchCriteria = {
-        since: searchSince,
-        or: targetSenders.map(sender => ({ from: sender }))
-      };
+      // Buscar mensajes por cada remitente de forma individual para evitar el fallo de sintaxis de IMAP con múltiples OR
+      const matchedUids = new Set();
+      for (const sender of targetSenders) {
+        const cleanSender = String(sender).trim();
+        if (!cleanSender) continue;
+        try {
+          const results = await client.search({
+            since: searchSince,
+            from: cleanSender
+          }, { uid: true });
+          if (Array.isArray(results)) {
+            results.forEach(id => matchedUids.add(id));
+          }
+        } catch (searchErr) {
+          console.warn(`[IMAP] Fallo al buscar remitente ${cleanSender}:`, searchErr?.message || searchErr);
+        }
+      }
 
-      const searchResults = await client.search(searchCriteria);
-
-      if (searchResults && searchResults.length > 0) {
+      if (matchedUids.size > 0) {
+        const searchResults = Array.from(matchedUids);
         for await (const message of client.fetch(searchResults, { source: true, uid: true })) {
           const rawEmail = message.source;
           const parsedMail = await simpleParser(rawEmail);

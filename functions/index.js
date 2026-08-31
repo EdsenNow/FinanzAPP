@@ -493,6 +493,43 @@ app.post('/gmail/stopWatch', async (req, res) => {
   }
 });
 
+const { syncImapTransactions } = require('./src/imapSync');
+
+app.post('/syncImap', async (req, res) => {
+  const uid = (req.body && req.body.uid) || req.query.uid;
+  if (!uid) return res.status(400).json({ error: 'missing uid' });
+
+  try {
+    const caller = await verifyUserRequest(req, uid);
+    if (!caller) return res.status(403).json({ error: 'unauthorized' });
+
+    const doc = await admin.firestore().collection('users').doc(uid).get();
+    const data = doc.exists ? doc.data() : null;
+    const imapSettings = data?.imapSettings || data?.imap || {};
+    
+    if (!imapSettings.email || !imapSettings.appPassword) {
+      return res.status(400).json({ error: 'Faltan credenciales IMAP (correo o contraseña de aplicación).' });
+    }
+    
+    const targetSenders = imapSettings.targetSenders || [];
+    if (!targetSenders.length) {
+      return res.status(400).json({ error: 'No se han configurado remitentes (bancos) a escanear.' });
+    }
+
+    const result = await syncImapTransactions(
+      imapSettings.email,
+      imapSettings.appPassword,
+      targetSenders,
+      uid
+    );
+
+    res.json(result);
+  } catch (err) {
+    console.error('/syncImap error', err);
+    res.status(500).json({ error: err.message || 'Error interno al sincronizar IMAP' });
+  }
+});
+
 const REGION = process.env.FUNCTIONS_REGION || 'us-central1';
 
 function regioned(runWithOptions = null) {
