@@ -213,6 +213,13 @@
         return;
       }
 
+      if (password.length !== 16) {
+        if (typeof window._configMostrarToast === 'function') {
+          window._configMostrarToast(`La Contraseña de App de Google debe tener exactamente 16 letras (sin espacios). La que ingresaste tiene ${password.length} caracteres.`, 'error');
+        }
+        return;
+      }
+
       saveBtn.disabled = true;
       saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
 

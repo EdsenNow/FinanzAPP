@@ -150,7 +150,10 @@ async function syncImapTransactions(email, appPassword, targetSenders, uid) {
     return { success: true, count: newTransactionsCount, transactions: newTransactions };
   } catch (error) {
     console.error('Error en IMAP Sync:', error);
-    throw new Error(error.message || 'No se pudo conectar a IMAP. Verifica el correo y la Contraseña de Aplicación.');
+    if (error.authenticationFailed || (error.response && String(error.response).includes('AUTHENTICATIONFAILED')) || (error.message && String(error.message).includes('AUTHENTICATIONFAILED'))) {
+      throw new Error('Error de autenticación en Gmail: La Contraseña de Aplicación o el correo son incorrectos. Asegúrate de generar una contraseña de app de 16 letras en tu cuenta de Google.');
+    }
+    throw new Error(error.responseText || error.message || 'No se pudo conectar a IMAP. Verifica el correo y la Contraseña de Aplicación.');
   }
 }
 
