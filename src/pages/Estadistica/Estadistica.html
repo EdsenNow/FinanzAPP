@@ -3,6 +3,25 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (!t) {
+          var s = localStorage.getItem('finanzapp:settings:v1');
+          if (s) {
+            var p = JSON.parse(s);
+            if (p && p.theme) t = p.theme;
+          }
+        }
+        var theme = (t === 'light') ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', theme);
+        document.documentElement.style.backgroundColor = (theme === 'light') ? '#faf4ed' : '#191724';
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
   <title>FinanzApp - Estadísticas</title>
 
   <link rel="manifest" href="/Icons/site.webmanifest" />

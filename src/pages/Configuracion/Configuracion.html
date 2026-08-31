@@ -3,7 +3,25 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <script src="/pages/Configuracion/inline-02dbe95ee4d1.js?v=1788099417852"></script>
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (!t) {
+          var s = localStorage.getItem('finanzapp:settings:v1');
+          if (s) {
+            var p = JSON.parse(s);
+            if (p && p.theme) t = p.theme;
+          }
+        }
+        var theme = (t === 'light') ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', theme);
+        document.documentElement.style.backgroundColor = (theme === 'light') ? '#faf4ed' : '#191724';
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
   <title>FinanzApp - Configuracion</title>
 
   <link rel="manifest" href="/Icons/site.webmanifest" />
@@ -16,7 +34,6 @@
   <link rel="stylesheet" href="/lib/fonts.css">
   <link rel="stylesheet" href="/lib/fontawesome/v5/css/all.min.css">
 
-  <link rel="stylesheet" href="/pages/Categorias/Categorias.css?v=20260824003">
   <link rel="stylesheet" href="/lib/UI.css?v=20260824003">
   <link rel="stylesheet" href="/pages/Configuracion/Configuracion.css?v=202608280441">
   <link rel="stylesheet" href="/pages/Configuracion/styles/tema-oscuro.css?v=20260824003" id="dark-css">
@@ -27,12 +44,12 @@
   <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-app-check-compat.js" crossorigin="anonymous"></script>
   <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-auth-compat.js" crossorigin="anonymous"></script>
   <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore-compat.js" crossorigin="anonymous"></script>
-  <script src="/__config.js?v=1788099417852"></script>
+  <script src="/__config.js"></script>
   
   <script src="/lib/FirestoreDB.js?v=1788099417852"></script>
   <script src="/lib/FirebaseAuth.js?v=1788099417852"></script>
 
-  <script src="/pages/Configuracion/inline-4b19d59b7165.js?v=1788099417852"></script>
+  <script>try{localStorage.setItem('finanzapp:debug','off');}catch(e){}</script>
   <script src="/lib/Debug.js?v=1788099417852"></script>
   <script src="/lib/Events.js?v=1788099417852"></script>
   <script src="/lib/UI.js?v=1788099417852"></script>
@@ -42,7 +59,17 @@
 
   <!-- DOMPurify: sanitización automática de innerHTML contra XSS -->
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3.4.14/dist/purify.min.js" crossorigin="anonymous"></script>
-  <script src="/pages/Configuracion/inline-c6402f00d07c.js?v=1788099417852"></script>
+  <script>
+    (function () {
+      const _d = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML');
+      Object.defineProperty(Element.prototype, 'innerHTML', {
+        set(v) { _d.set.call(this, typeof v === 'string' ? DOMPurify.sanitize(v, { FORCE_BODY: false }) : v); },
+        get: _d.get,
+        configurable: true,
+        enumerable: true
+      });
+    })();
+  </script>
 </head>
 <body class="config-page">
   <div class="app-container">

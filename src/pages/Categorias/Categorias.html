@@ -3,7 +3,25 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <script src="/pages/Categorias/inline-02dbe95ee4d1.js?v=1788099418340"></script>
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (!t) {
+          var s = localStorage.getItem('finanzapp:settings:v1');
+          if (s) {
+            var p = JSON.parse(s);
+            if (p && p.theme) t = p.theme;
+          }
+        }
+        var theme = (t === 'light') ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', theme);
+        document.documentElement.style.backgroundColor = (theme === 'light') ? '#faf4ed' : '#191724';
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
   <title>FinanzApp - Categorias</title>
 
   <link rel="manifest" href="/Icons/site.webmanifest" />
@@ -28,11 +46,11 @@
   <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-app-check-compat.js" crossorigin="anonymous"></script>
   <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-auth-compat.js" crossorigin="anonymous"></script>
   <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore-compat.js" crossorigin="anonymous"></script>
-  <script src="/__config.js?v=1788099418340"></script>
+  <script src="/__config.js"></script>
   
   <script src="/lib/FirestoreDB.js?v=1788099418340"></script>
   
-  <script src="/pages/Categorias/inline-e8aa9c3c1451.js?v=1788099418340"></script>
+  <script>try{localStorage.setItem('finanzapp:debug','off');}catch(e){}</script>
   <script src="/lib/Debug.js?v=1788099418340"></script>
   <script src="/lib/Events.js?v=1788099418340"></script>
   <script src="/lib/UI.js?v=1788099418340"></script>
@@ -42,14 +60,26 @@
 
   <!-- DOMPurify: sanitización automática de innerHTML contra XSS -->
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3.4.14/dist/purify.min.js" crossorigin="anonymous"></script>
-  <script src="/pages/Categorias/inline-c6402f00d07c.js?v=1788099418340"></script>
+  <script>
+    (function () {
+      const _d = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML');
+      Object.defineProperty(Element.prototype, 'innerHTML', {
+        set(v) { _d.set.call(this, typeof v === 'string' ? DOMPurify.sanitize(v, { FORCE_BODY: false }) : v); },
+        get: _d.get,
+        configurable: true,
+        enumerable: true
+      });
+    })();
+  </script>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" crossorigin="anonymous"></script>
 
   <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js" crossorigin="anonymous" integrity="sha384-QCIdq2UMVEoSRhR3ZWZwdz2/pivLowr+eokFMdYyukq7qI26VYRxFa4Nl6FKetmL"></script>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin="anonymous" integrity="sha384-JcnsjUPPylna1s1fvi1u12X5qjY5OL56iySh75FdtrwhO/SWXgMjoVqcKyIIWOLk"></script>
-  <script src="/pages/Categorias/inline-b61d68cf99d4.js?v=1788099418340"></script>
+  <script>
+    window.jsPDF = window.jspdf ? window.jspdf.jsPDF : null;
+  </script>
 
   <script src="/pages/Categorias/modules/GestorTablas.js?v=1788099418340"></script>
   <script src="/pages/Categorias/modules/ProcesadorDatos.js?v=1788099418340"></script>
