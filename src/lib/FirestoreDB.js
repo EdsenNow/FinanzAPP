@@ -310,6 +310,54 @@ class FirestoreDB {
     }
   }
 
+  async saveImapSettings(settings) {
+    if (!await this.ensureUserContext()) {
+      throw new Error('No hay sesión de usuario activa en Firestore');
+    }
+    const dataToSave = {
+      email: settings.email || '',
+      appPassword: settings.appPassword || '',
+      targetSenders: settings.targetSenders || [],
+      updatedAt: new Date().toISOString()
+    };
+
+    await this._userDoc().set({
+      imapSettings: dataToSave
+    }, { merge: true });
+
+    if (this.currentUserId) {
+      localStorage.setItem(`finanzapp:imap_settings:${this.currentUserId}`, JSON.stringify(dataToSave));
+    }
+    return true;
+  }
+
+  async getImapSettings() {
+    if (!await this.ensureUserContext()) {
+      const authUser = localStorage.getItem('authUser');
+      const uid = authUser ? JSON.parse(authUser).uid : null;
+      if (uid) {
+        const cached = localStorage.getItem(`finanzapp:imap_settings:${uid}`);
+        return cached ? JSON.parse(cached) : null;
+      }
+      return null;
+    }
+
+    try {
+      const doc = await this._userDoc().get();
+      if (doc.exists && doc.data()?.imapSettings) {
+        return doc.data().imapSettings;
+      }
+    } catch (e) {
+      console.warn('[FirestoreDB] Error reading imapSettings from Firestore:', e);
+    }
+
+    if (this.currentUserId) {
+      const cached = localStorage.getItem(`finanzapp:imap_settings:${this.currentUserId}`);
+      return cached ? JSON.parse(cached) : null;
+    }
+    return null;
+  }
+
   // Métodos stub de compatibilidad (el guardado real usa saveAll)
   async saveTransactions(transactions) { return true; }
   async loadTransactions() { return []; }
