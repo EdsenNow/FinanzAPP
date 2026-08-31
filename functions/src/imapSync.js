@@ -99,11 +99,13 @@ async function syncImapTransactions(email, appPassword, targetSenders, uid) {
 
       if (matchedUids.size > 0) {
         const searchResults = Array.from(matchedUids);
-        for await (const message of client.fetch(searchResults, { source: true, uid: true })) {
+        for await (const message of client.fetch(searchResults, { source: true }, { uid: true })) {
           const rawEmail = message.source;
           const parsedMail = await simpleParser(rawEmail);
           
           const messageId = parsedMail.messageId || `imap-${message.uid}`;
+          const subject = parsedMail.subject || '';
+          console.log(`[IMAP Sync] Procesando correo: "${subject}"`);
           
           const docRef = transactionsRef.doc(messageId);
           const docSnap = await docRef.get();
