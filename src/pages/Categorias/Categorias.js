@@ -832,8 +832,8 @@ async function boot() {
 
       if (Array.isArray(saved.transactions) && saved.transactions.length > 0) {
         saved.transactions.forEach(t => {
-          const tDate = (t.date && typeof t.date === 'string') ? new Date(t.date) : t.date;
-          const cat = saved.categories.find(c => String(c.id) === String(t.categoryId));
+          const tDate = (t.date && typeof t.date === 'string') ? new Date(t.date) : (t.date || new Date());
+          const cat = saved.categories.find(c => String(c.id) === String(t.categoryId) || (t.categoryId && String(c.name).toLowerCase() === String(t.categoryId).toLowerCase()));
           if (cat) {
             if (!cat.transactions) cat.transactions = [];
             const exists = cat.transactions.some(ct => String(ct.id) === String(t.id));
@@ -845,10 +845,12 @@ async function boot() {
       }
 
       Object.assign(datosUsuario, saved);
+      marcarCambioDatos();
     } else {
       // Solo para usuario completamente nuevo sin datos previos
       const changed = asegurarCategoriasPredeterminadas();
       if (changed) await persist();
+      marcarCambioDatos();
     }
   } catch (err) {
     console.error('Error en boot():', err);
@@ -3960,8 +3962,14 @@ class CategoriasApp extends BasePage {
    * @protected
    */
   _bindCrossTabEvents() {
-    if (!window.DataEvents) return;
-    window.DataEvents.on('datos:actualizados', async () => {
+    if (window.DataEvents) {
+      window.DataEvents.on('datos:actualizados', async () => {
+        await boot();
+        marcarCambioDatos();
+        cargarTablero();
+      });
+    }
+    window.addEventListener('finanzapp:data:updated', async () => {
       await boot();
       marcarCambioDatos();
       cargarTablero();
