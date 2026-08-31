@@ -10,9 +10,27 @@ const { extractTransactionData } = require('./emailParser');
  * @param {Array<string>} targetSenders Arreglo de correos de bancos a escanear.
  * @param {string} uid UID de Firebase del usuario para guardar en Firestore.
  */
+function extractTextFromEmail(parsedMail) {
+  if (parsedMail.text && parsedMail.text.trim().length > 10) {
+    return parsedMail.text;
+  }
+  const html = parsedMail.html || '';
+  if (!html) return parsedMail.text || '';
+  return html
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 async function syncImapTransactions(email, appPassword, targetSenders, uid) {
-  if (!email || !appPassword || !targetSenders || !targetSenders.length) {
-    throw new Error('Faltan credenciales IMAP o remitentes objetivo.');
+  if (!email || !appPassword || !Array.isArray(targetSenders) || targetSenders.length === 0) {
+    throw new Error('Credenciales o remitentes no configurados.');
   }
 
   const client = new ImapFlow({
@@ -35,26 +53,17 @@ async function syncImapTransactions(email, appPassword, targetSenders, uid) {
   try {
     const userDocSnap = await userDocRef.get();
     const userData = userDocSnap.exists ? userDocSnap.data() : {};
-    const lastSyncAtRaw = userData?.imapSettings?.lastSyncAt || userData?.imap?.lastSyncAt;
-    const lastSyncAt = lastSyncAtRaw ? new Date(lastSyncAtRaw) : null;
 
     await client.connect();
     let lock = await client.getMailboxLock('INBOX');
 
     try {
-      // Buscar mensajes por cada remitente de forma individual
-      // Si es la primera vez (sin lastSyncAt), busca todo el histórico de esos bancos.
-      // En sincronizaciones posteriores, solo busca correos recibidos desde lastSyncAt.
       const matchedUids = new Set();
       for (const sender of targetSenders) {
         const cleanSender = String(sender).trim();
         if (!cleanSender) continue;
         try {
-          const searchQuery = { from: cleanSender };
-          if (lastSyncAt) {
-            searchQuery.since = lastSyncAt;
-          }
-          const results = await client.search(searchQuery, { uid: true });
+          const results = await client.search({ from: cleanSender }, { uid: true });
           if (Array.isArray(results)) {
             results.forEach(id => matchedUids.add(id));
           }
@@ -71,22 +80,24 @@ async function syncImapTransactions(email, appPassword, targetSenders, uid) {
           
           const messageId = parsedMail.messageId || `imap-${message.uid}`;
           
-          // Escudo anti-duplicados por messageId
           const docRef = transactionsRef.doc(messageId);
           const docSnap = await docRef.get();
           
           if (!docSnap.exists) {
-            const textBody = parsedMail.text || '';
+            const textBody = extractTextFromEmail(parsedMail);
             const subject = parsedMail.subject || '';
             const dateHeader = parsedMail.date || new Date();
             
             const txnData = extractTransactionData(subject, dateHeader, textBody);
             
-            if (txnData && !txnData.ignored) {
+            if (txnData && !txnData.ignored && txnData.amount) {
               const formattedDate = new Date(txnData.date || dateHeader).toISOString();
               const newTx = {
                 id: messageId,
-                ...txnData,
+                amount: txnData.amount,
+                description: txnData.description || subject,
+                subject,
+                type: txnData.type || 'expense',
                 date: formattedDate,
                 source: 'imap',
                 originalMessageId: messageId,
@@ -106,6 +117,19 @@ async function syncImapTransactions(email, appPassword, targetSenders, uid) {
                 ignored: true,
                 reason: txnData.reason || 'Sin transacción financiera relevante',
                 createdAt: admin.firestore.FieldValue.serverTimestamp()
+              });
+            }
+          } else {
+            const existing = docSnap.data();
+            if (existing && !existing.ignored && existing.amount) {
+              newTransactions.push({
+                id: docRef.id,
+                amount: existing.amount,
+                description: existing.description || existing.subject || 'Transacción Bancaria',
+                subject: existing.subject || '',
+                type: existing.type || 'expense',
+                date: existing.date ? (existing.date.toDate ? existing.date.toDate().toISOString() : new Date(existing.date).toISOString()) : new Date().toISOString(),
+                source: 'imap'
               });
             }
           }
