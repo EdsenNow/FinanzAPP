@@ -3989,20 +3989,32 @@ window.agregarTransaccion = agregarTransaccion;
  */
 class GmailNotificationManager {
   constructor() {
-    this.STORAGE_KEY = 'finanzapp:gmail:pending_notifications';
     this.notifications = this._loadNotifications();
     this.init();
   }
 
+  _getStorageKey() {
+    let uid = window.firebase?.auth?.()?.currentUser?.uid;
+    if (!uid) {
+      try {
+        const rawAuth = localStorage.getItem('authUser');
+        if (rawAuth) {
+          const parsed = JSON.parse(rawAuth);
+          uid = parsed.uid;
+        }
+      } catch {}
+    }
+    return uid ? `finanzapp:gmail:pending_notifications:${uid}` : 'finanzapp:gmail:pending_notifications';
+  }
+
   _isRealTransactionNotif(notif) {
-    if (!notif) return false;
+    if (!notif || !notif.amount) return false;
+    if (notif.source === 'imap' || notif.amount > 0) return true;
     const text = `${notif.description || ''} ${notif.subject || ''}`;
     const spamRegex = /(estado de cuenta|extracto|resumen de cuenta|resumen de saldo|balance de cuenta|balance mensual|informe de cuenta|estado de tarjeta|resumen mensual|alerta de inicio de sesi[oó]n|intento de acceso|cambio de contrase[nñ]a|empleo|vacante|postula|bolet[ií]n|newsletter|publicidad|descuento|ofert|promoci[oó]n|suscr[ií]bete|unsubscribe|darse de baja|ver en navegador|tienes hamb|lugares nuevos|soluciones|ahorro\s*🎨|bolsa de trabajo|linkedIn|glassdoor|indeed|career|hiring|trabajo|pide tu s[uú]per|como pides tu comida|c[oó]digo de verificaci[oó]n|verificar tu correo|clave temporal|otp|security code)/i;
     if (spamRegex.test(text)) return false;
-    const bankTxnKeywords = /(monto|importe|cargo|compra|consumo|d[eé]bito|debito|pago|transacci[oó]n|recibo|factura|viaje|transferencia|notificaci[oó]n|alerta|aprobada|banco|bhd|popular|banreservas|scotiabank|visa|mastercard|paypal|stripe|voucher)/i;
-    return bankTxnKeywords.test(text);
+    return true;
   }
-
 
   _sortList(list) {
     if (!Array.isArray(list)) return [];
@@ -4017,7 +4029,12 @@ class GmailNotificationManager {
 
   _loadNotifications() {
     try {
-      const raw = localStorage.getItem(this.STORAGE_KEY);
+      const key = this._getStorageKey();
+      let raw = localStorage.getItem(key);
+      if (!raw) {
+        raw = localStorage.getItem('finanzapp:gmail:pending_notifications');
+      }
+      if (!raw) return [];
       const items = Array.isArray(JSON.parse(raw)) ? JSON.parse(raw) : [];
       const filtered = items.filter(item => this._isRealTransactionNotif(item));
       return this._sortList(filtered);
@@ -4028,8 +4045,8 @@ class GmailNotificationManager {
 
   _saveNotifications() {
     this.notifications = this._sortList(this.notifications);
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.notifications));
-    localStorage.setItem('finanzapp:gmail:notifications', JSON.stringify(this.notifications));
+    const key = this._getStorageKey();
+    localStorage.setItem(key, JSON.stringify(this.notifications));
     this.updateBadges();
     this.renderList();
     if (typeof window.renderMobileNotificationsMenu === 'function') {
@@ -4065,7 +4082,15 @@ class GmailNotificationManager {
     this._saveNotifications();
   }
 
-  clearAll() {
+  async clearAll() {
+    if (this.notifications.length === 0) return;
+    
+    const result = await (typeof window.showAlert === 'function'
+      ? window.showAlert('Limpiar Notificaciones', '¿Estás seguro de que deseas eliminar todas las notificaciones?', { variant: 'confirm', emphasis: 'danger' })
+      : Promise.resolve(confirm('¿Estás seguro de que deseas eliminar todas las notificaciones?')));
+      
+    if (result !== 'confirm' && result !== true) return;
+    
     this.notifications = [];
     this._saveNotifications();
   }
@@ -4095,52 +4120,78 @@ class GmailNotificationManager {
     const footerEl = document.getElementById('gmailNotifFooter');
     if (!listEl) return;
 
-    this.notifications = this._sortList(this.notifications);
+    try {
+      this.notifications = this._sortList(this.notifications);
 
-    if (!this.notifications.length) {
-      listEl.innerHTML = '<p class="gmail-notif-empty" style="text-align:center; color:#888; padding:20px 10px;">Sin notificaciones bancarias pendientes.</p>';
-      if (footerEl) footerEl.style.display = 'none';
-      return;
-    }
+      if (!this.notifications.length) {
+        listEl.innerHTML = '<p class="gmail-notif-empty" style="text-align:center; color:#888; padding:20px 10px;">Sin notificaciones bancarias pendientes.</p>';
+        if (footerEl) footerEl.style.display = 'none';
+        return;
+      }
 
-    if (footerEl) footerEl.style.display = 'flex';
+      if (footerEl) footerEl.style.display = 'flex';
 
-    listEl.innerHTML = this.notifications.map(n => {
-      const formattedAmount = (n.amount || 0).toLocaleString('es-DO', { minimumFractionDigits: 2 });
-      const formattedDate = n.date ? formatDate(n.date) : '';
-      const subjectText = (n.subject && n.subject !== n.description) ? n.subject : (n.description || 'Notificación bancaria');
-      return `
-        <div class="gmail-notif-item" data-id="${n.id}">
-          <div class="gmail-notif-item-top">
-            <span class="gmail-notif-merchant">${n.description || 'Comercio'}</span>
-            <span class="gmail-notif-amount">$${formattedAmount}</span>
-          </div>
-          <div class="gmail-notif-item-bottom">
-            <span class="gmail-notif-detail">${subjectText}</span>
-            ${formattedDate ? `<span class="gmail-notif-date"><i class="far fa-calendar-alt"></i>${formattedDate}</span>` : ''}
-          </div>
-        </div>
-      `;
-    }).join('');
-
-
-
-    listEl.querySelectorAll('.gmail-notif-item').forEach(item => {
-      item.addEventListener('click', () => {
-        const id = item.getAttribute('data-id');
-        const notif = this.notifications.find(n => n.id === id);
-        if (notif) {
-          this.togglePanel(false);
-          abrirModalRevisarGmail(notif, id);
+      listEl.innerHTML = this.notifications.map(n => {
+        const numAmount = Number(n.amount) || 0;
+        let formattedAmount;
+        try {
+          if (window.Core?.helpers?.formatCurrency) {
+            formattedAmount = window.Core.helpers.formatCurrency(numAmount);
+          } else {
+            const raw = JSON.parse(localStorage.getItem('finanzapp:settings:v1') || '{}');
+            if (raw?.censorAmounts === 'on') {
+              formattedAmount = '$ ••••';
+            } else {
+              formattedAmount = `$${numAmount.toLocaleString('es-DO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            }
+          }
+        } catch {
+          formattedAmount = `$${numAmount.toLocaleString('es-DO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
         }
+        let formattedDate = '';
+        try {
+          if (n.date) {
+            const rawDate = (n.date && typeof n.date.toDate === 'function') ? n.date.toDate() : n.date;
+            formattedDate = typeof formatDate === 'function' ? formatDate(rawDate) : new Date(rawDate).toLocaleDateString();
+          }
+        } catch (_) {}
+
+        const subjectText = (n.subject && n.subject !== n.description) ? n.subject : (n.description || 'Notificación bancaria');
+        return `
+          <div class="gmail-notif-item" data-id="${n.id}">
+            <div class="gmail-notif-item-top">
+              <span class="gmail-notif-merchant">${n.description || 'Comercio'}</span>
+              <span class="gmail-notif-amount">${formattedAmount}</span>
+            </div>
+            <div class="gmail-notif-item-bottom">
+              <span class="gmail-notif-detail">${subjectText}</span>
+              ${formattedDate ? `<span class="gmail-notif-date"><i class="far fa-calendar-alt"></i>${formattedDate}</span>` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      listEl.querySelectorAll('.gmail-notif-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const id = item.getAttribute('data-id');
+          const notif = this.notifications.find(n => n.id === id);
+          if (notif) {
+            this.togglePanel(false);
+            abrirModalRevisarGmail(notif, id);
+          }
+        });
       });
-    });
+    } catch (err) {
+      console.error('Error rendering notification list:', err);
+    }
   }
 
   positionPanel() {
     const panel = document.getElementById('gmailNotifPanel');
     const bellBtn = document.getElementById('gmailBellBtn');
     if (!panel) return;
+
+    panel.style.zIndex = '999999';
 
     if (!bellBtn || bellBtn.offsetParent === null) {
       panel.style.top = '70px';
@@ -4150,9 +4201,8 @@ class GmailNotificationManager {
     }
 
     const rect = bellBtn.getBoundingClientRect();
-    const panelWidth = Math.min(340, window.innerWidth - 32);
-
-    const top = Math.round(rect.bottom + 8);
+    const panelWidth = Math.min(360, window.innerWidth - 32);
+    const top = Math.max(10, Math.round(rect.bottom + 8));
     let right = Math.round(window.innerWidth - rect.right);
 
     if (right < 16) right = 16;
@@ -4170,17 +4220,27 @@ class GmailNotificationManager {
     const overlay = document.getElementById('gmailNotifOverlay');
     if (!panel) return;
 
-    const isHidden = panel.classList.contains('hidden');
+    const isHidden = panel.classList.contains('hidden') || panel.style.display === 'none';
     const shouldShow = typeof show === 'boolean' ? show : isHidden;
 
     if (shouldShow) {
       panel.classList.remove('hidden');
+      panel.style.display = 'flex';
+      panel.style.zIndex = '999999';
       this.positionPanel();
-      if (overlay) overlay.classList.remove('hidden');
+      if (overlay) {
+        overlay.classList.remove('hidden');
+        overlay.style.display = 'block';
+        overlay.style.zIndex = '999998';
+      }
       this.renderList();
     } else {
       panel.classList.add('hidden');
-      if (overlay) overlay.classList.add('hidden');
+      panel.style.display = 'none';
+      if (overlay) {
+        overlay.classList.add('hidden');
+        overlay.style.display = 'none';
+      }
     }
   }
 
@@ -4189,40 +4249,213 @@ class GmailNotificationManager {
 
     const bellBtn = document.getElementById('gmailBellBtn');
     if (bellBtn) {
-      bellBtn.addEventListener('click', (e) => {
+      bellBtn.onclick = (e) => {
+        e.preventDefault();
         e.stopPropagation();
         this.togglePanel();
-      });
+      };
     }
 
     const closeBtn = document.getElementById('gmailNotifClose');
     if (closeBtn) {
-      closeBtn.addEventListener('click', () => this.togglePanel(false));
+      closeBtn.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.togglePanel(false);
+      };
     }
 
     const overlay = document.getElementById('gmailNotifOverlay');
     if (overlay) {
-      overlay.addEventListener('click', () => this.togglePanel(false));
+      overlay.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.togglePanel(false);
+      };
     }
 
     const clearBtn = document.getElementById('gmailClearAllBtn');
     if (clearBtn) {
-      clearBtn.addEventListener('click', () => this.clearAll());
+      clearBtn.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.clearAll();
+      };
     }
 
     window.addEventListener('resize', () => {
       const panel = document.getElementById('gmailNotifPanel');
-      if (panel && !panel.classList.contains('hidden')) {
+      if (panel && !panel.classList.contains('hidden') && panel.style.display !== 'none') {
         this.positionPanel();
       }
     });
 
     window.addEventListener('scroll', () => {
       const panel = document.getElementById('gmailNotifPanel');
-      if (panel && !panel.classList.contains('hidden')) {
+      if (panel && !panel.classList.contains('hidden') && panel.style.display !== 'none') {
         this.positionPanel();
       }
     }, { passive: true });
+
+    document.addEventListener('click', (e) => {
+      const panel = document.getElementById('gmailNotifPanel');
+      const bell = document.getElementById('gmailBellBtn');
+      if (panel && !panel.classList.contains('hidden') && panel.style.display !== 'none') {
+        if (!panel.contains(e.target) && (!bell || !bell.contains(e.target))) {
+          this.togglePanel(false);
+        }
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const panel = document.getElementById('gmailNotifPanel');
+        if (panel && !panel.classList.contains('hidden') && panel.style.display !== 'none') {
+          this.togglePanel(false);
+        }
+      }
+    });
+
+    window.addEventListener('finanzapp:gmail:open-review', (e) => {
+      const id = e?.detail?.id;
+      if (!id) return;
+      const notif = this.notifications.find(n => n.id === id);
+      if (notif) {
+        this.togglePanel(false);
+        abrirModalRevisarGmail(notif, id);
+      }
+    });
+
+    window.addEventListener('finanzapp:gmail:clear-all', () => {
+      this.clearAll();
+    });
+
+    window.addEventListener('finanzapp:gmail:notifications-updated', () => {
+      this.notifications = this._loadNotifications();
+      this.updateBadges();
+      this.renderList();
+    });
+
+    window.addEventListener('storage', (e) => {
+      const key = this._getStorageKey();
+      if (e.key === key || e.key === 'finanzapp:gmail:pending_notifications' || e.key === 'finanzapp:gmail:notifications') {
+        this.notifications = this._loadNotifications();
+        this.updateBadges();
+        this.renderList();
+      }
+    });
+
+    if (window.firebase && window.firebase.auth) {
+      window.firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+          this.notifications = this._loadNotifications();
+          this.updateBadges();
+          this.renderList();
+          this.syncFromFirestore();
+        }
+      });
+    }
+
+    this.syncFromFirestore();
+  }
+
+  async syncFromFirestore() {
+    try {
+      let uid = window.firebase?.auth?.()?.currentUser?.uid;
+      if (!uid) {
+        try {
+          const rawAuth = localStorage.getItem('authUser');
+          if (rawAuth) uid = JSON.parse(rawAuth).uid;
+        } catch {}
+      }
+      if (!uid || !window.firebase?.firestore) {
+        return;
+      }
+      const db = window.firebase.firestore();
+      const firestoreNotifs = [];
+
+      // 1. Obtener de la subcolección transactions del usuario
+      try {
+        const snap = await db.collection('users').doc(uid).collection('transactions').get();
+        if (!snap.empty) {
+          snap.forEach(doc => {
+            const d = doc.data();
+            if (d && !d.ignored && !d.processed && d.amount) {
+              firestoreNotifs.push({
+                id: doc.id,
+                amount: d.amount,
+                description: d.description || d.merchant || d.subject || 'Transacción Bancaria',
+                subject: d.subject || '',
+                date: d.date ? (d.date.toDate ? d.date.toDate().toISOString() : new Date(d.date).toISOString()) : new Date().toISOString(),
+                type: d.type || 'expense',
+                timestamp: d.createdAt ? (d.createdAt.toMillis ? d.createdAt.toMillis() : Date.now()) : Date.now(),
+                source: d.source || 'imap'
+              });
+            }
+          });
+        }
+      } catch (subErr) {
+        console.warn('[GmailNotifManager] Error leyendo subcolección transactions:', subErr);
+      }
+
+      // 2. Obtener también de transactions en el documento raíz
+      try {
+        const userDoc = await db.collection('users').doc(uid).get();
+        if (userDoc.exists) {
+          const uData = userDoc.data();
+          if (Array.isArray(uData.transactions)) {
+            uData.transactions.forEach(t => {
+              if (t && t.amount && (t.source === 'imap' || !t.categoryId)) {
+                firestoreNotifs.push({
+                  id: t.id || t.originalMessageId || `imap_${t.amount}_${t.date}`,
+                  amount: t.amount,
+                  description: t.description || t.subject || 'Transacción Bancaria',
+                  subject: t.subject || '',
+                  date: t.date || new Date().toISOString(),
+                  type: t.type || 'expense',
+                  timestamp: t.timestamp || Date.now(),
+                  source: t.source || 'imap'
+                });
+              }
+            });
+          }
+        }
+      } catch (rootErr) {
+        console.warn('[GmailNotifManager] Error leyendo documento raíz:', rootErr);
+      }
+
+      // Filtrar transacciones ya asignadas a categorías
+      const assignedIds = new Set();
+      if (typeof datosUsuario !== 'undefined' && Array.isArray(datosUsuario.categories)) {
+        datosUsuario.categories.forEach(c => {
+          (c.transactions || []).forEach(tx => {
+            if (tx.id) assignedIds.add(String(tx.id));
+            if (tx.originalMessageId) assignedIds.add(String(tx.originalMessageId));
+          });
+        });
+      }
+
+      const currentMap = new Map();
+      firestoreNotifs.forEach(n => {
+        if (!assignedIds.has(String(n.id))) {
+          currentMap.set(n.id || `${n.amount}_${n.description}_${n.date}`, n);
+        }
+      });
+
+      this._loadNotifications().forEach(n => {
+        if (!assignedIds.has(String(n.id))) {
+          const key = n.id || `${n.amount}_${n.description}_${n.date}`;
+          if (!currentMap.has(key)) currentMap.set(key, n);
+        }
+      });
+
+      this.notifications = this._sortList(Array.from(currentMap.values()));
+      this._saveNotifications();
+      this.updateBadges();
+      this.renderList();
+    } catch (e) {
+      console.warn('[GmailNotifManager] Error syncing notifications from Firestore', e);
+    }
   }
 }
 

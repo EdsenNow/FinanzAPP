@@ -3998,7 +3998,16 @@ class GmailNotificationManager {
   }
 
   _getStorageKey() {
-    const uid = window.firebase?.auth?.()?.currentUser?.uid;
+    let uid = window.firebase?.auth?.()?.currentUser?.uid;
+    if (!uid) {
+      try {
+        const rawAuth = localStorage.getItem('authUser');
+        if (rawAuth) {
+          const parsed = JSON.parse(rawAuth);
+          uid = parsed.uid;
+        }
+      } catch {}
+    }
     return uid ? `finanzapp:gmail:pending_notifications:${uid}` : 'finanzapp:gmail:pending_notifications';
   }
 
@@ -4024,10 +4033,12 @@ class GmailNotificationManager {
 
   _loadNotifications() {
     try {
-      const user = window.firebase?.auth?.()?.currentUser;
-      if (!user) return [];
       const key = this._getStorageKey();
-      const raw = localStorage.getItem(key);
+      let raw = localStorage.getItem(key);
+      if (!raw) {
+        raw = localStorage.getItem('finanzapp:gmail:pending_notifications');
+      }
+      if (!raw) return [];
       const items = Array.isArray(JSON.parse(raw)) ? JSON.parse(raw) : [];
       const filtered = items.filter(item => this._isRealTransactionNotif(item));
       return this._sortList(filtered);
@@ -4345,10 +4356,6 @@ class GmailNotificationManager {
           this.updateBadges();
           this.renderList();
           this.syncFromFirestore();
-        } else {
-          this.notifications = [];
-          this.updateBadges();
-          this.renderList();
         }
       });
     }
@@ -4358,43 +4365,92 @@ class GmailNotificationManager {
 
   async syncFromFirestore() {
     try {
-      const user = window.firebase ? window.firebase.auth().currentUser : null;
-      if (!user || !window.firebase.firestore) {
-        this.notifications = [];
-        this.updateBadges();
-        this.renderList();
+      let uid = window.firebase?.auth?.()?.currentUser?.uid;
+      if (!uid) {
+        try {
+          const rawAuth = localStorage.getItem('authUser');
+          if (rawAuth) uid = JSON.parse(rawAuth).uid;
+        } catch {}
+      }
+      if (!uid || !window.firebase?.firestore) {
         return;
       }
       const db = window.firebase.firestore();
-      const snap = await db.collection('users').doc(user.uid).collection('transactions')
-        .where('source', '==', 'imap')
-        .limit(100)
-        .get();
-
       const firestoreNotifs = [];
-      if (!snap.empty) {
-        snap.forEach(doc => {
-          const d = doc.data();
-          if (d && !d.ignored && d.amount) {
-            firestoreNotifs.push({
-              id: doc.id,
-              amount: d.amount,
-              description: d.description || d.merchant || 'Transacción Bancaria',
-              subject: d.subject || '',
-              date: d.date ? (d.date.toDate ? d.date.toDate().toISOString() : new Date(d.date).toISOString()) : new Date().toISOString(),
-              type: d.type || 'expense',
-              timestamp: d.createdAt ? (d.createdAt.toMillis ? d.createdAt.toMillis() : Date.now()) : Date.now(),
-              source: 'imap'
+
+      // 1. Obtener de la subcolección transactions del usuario
+      try {
+        const snap = await db.collection('users').doc(uid).collection('transactions').get();
+        if (!snap.empty) {
+          snap.forEach(doc => {
+            const d = doc.data();
+            if (d && !d.ignored && !d.processed && d.amount) {
+              firestoreNotifs.push({
+                id: doc.id,
+                amount: d.amount,
+                description: d.description || d.merchant || d.subject || 'Transacción Bancaria',
+                subject: d.subject || '',
+                date: d.date ? (d.date.toDate ? d.date.toDate().toISOString() : new Date(d.date).toISOString()) : new Date().toISOString(),
+                type: d.type || 'expense',
+                timestamp: d.createdAt ? (d.createdAt.toMillis ? d.createdAt.toMillis() : Date.now()) : Date.now(),
+                source: d.source || 'imap'
+              });
+            }
+          });
+        }
+      } catch (subErr) {
+        console.warn('[GmailNotifManager] Error leyendo subcolección transactions:', subErr);
+      }
+
+      // 2. Obtener también de transactions en el documento raíz
+      try {
+        const userDoc = await db.collection('users').doc(uid).get();
+        if (userDoc.exists) {
+          const uData = userDoc.data();
+          if (Array.isArray(uData.transactions)) {
+            uData.transactions.forEach(t => {
+              if (t && t.amount && (t.source === 'imap' || !t.categoryId)) {
+                firestoreNotifs.push({
+                  id: t.id || t.originalMessageId || `imap_${t.amount}_${t.date}`,
+                  amount: t.amount,
+                  description: t.description || t.subject || 'Transacción Bancaria',
+                  subject: t.subject || '',
+                  date: t.date || new Date().toISOString(),
+                  type: t.type || 'expense',
+                  timestamp: t.timestamp || Date.now(),
+                  source: t.source || 'imap'
+                });
+              }
             });
           }
+        }
+      } catch (rootErr) {
+        console.warn('[GmailNotifManager] Error leyendo documento raíz:', rootErr);
+      }
+
+      // Filtrar transacciones ya asignadas a categorías
+      const assignedIds = new Set();
+      if (typeof datosUsuario !== 'undefined' && Array.isArray(datosUsuario.categories)) {
+        datosUsuario.categories.forEach(c => {
+          (c.transactions || []).forEach(tx => {
+            if (tx.id) assignedIds.add(String(tx.id));
+            if (tx.originalMessageId) assignedIds.add(String(tx.originalMessageId));
+          });
         });
       }
 
       const currentMap = new Map();
-      firestoreNotifs.forEach(n => currentMap.set(n.id || `${n.amount}_${n.description}_${n.date}`, n));
+      firestoreNotifs.forEach(n => {
+        if (!assignedIds.has(String(n.id))) {
+          currentMap.set(n.id || `${n.amount}_${n.description}_${n.date}`, n);
+        }
+      });
+
       this._loadNotifications().forEach(n => {
-        const key = n.id || `${n.amount}_${n.description}_${n.date}`;
-        if (!currentMap.has(key)) currentMap.set(key, n);
+        if (!assignedIds.has(String(n.id))) {
+          const key = n.id || `${n.amount}_${n.description}_${n.date}`;
+          if (!currentMap.has(key)) currentMap.set(key, n);
+        }
       });
 
       this.notifications = this._sortList(Array.from(currentMap.values()));
@@ -4402,7 +4458,7 @@ class GmailNotificationManager {
       this.updateBadges();
       this.renderList();
     } catch (e) {
-      console.warn('Error syncing notifications from Firestore', e);
+      console.warn('[GmailNotifManager] Error syncing notifications from Firestore', e);
     }
   }
 }
