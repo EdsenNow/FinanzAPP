@@ -55,7 +55,16 @@ async function syncImapTransactions(email, appPassword, targetSenders, uid) {
     const userData = userDocSnap.exists ? userDocSnap.data() : {};
 
     await client.connect();
-    let lock = await client.getMailboxLock('INBOX');
+    const mailboxes = await client.list();
+    const allMailBox = mailboxes.find(m => 
+      m.specialUse === '\\All' || 
+      m.path === '[Gmail]/All Mail' || 
+      m.path === '[Gmail]/Todos' ||
+      m.name === 'All Mail' ||
+      m.name === 'Todos'
+    );
+    const mailboxPath = allMailBox ? allMailBox.path : 'INBOX';
+    let lock = await client.getMailboxLock(mailboxPath);
 
     try {
       const matchedUids = new Set();
@@ -70,7 +79,23 @@ async function syncImapTransactions(email, appPassword, targetSenders, uid) {
         } catch (searchErr) {
           console.warn(`[IMAP] Fallo al buscar remitente ${cleanSender}:`, searchErr?.message || searchErr);
         }
+
+        if (cleanSender.includes('@')) {
+          const domain = cleanSender.split('@')[1];
+          if (domain) {
+            try {
+              const domResults = await client.search({ from: domain }, { uid: true });
+              if (Array.isArray(domResults)) {
+                domResults.forEach(id => matchedUids.add(id));
+              }
+            } catch (searchErr) {
+              console.warn(`[IMAP] Fallo al buscar dominio ${domain}:`, searchErr?.message || searchErr);
+            }
+          }
+        }
       }
+
+      console.log(`[IMAP Sync] Mailbox: ${mailboxPath} - UIDs encontrados: ${matchedUids.size}`);
 
       if (matchedUids.size > 0) {
         const searchResults = Array.from(matchedUids);
