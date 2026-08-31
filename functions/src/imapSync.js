@@ -35,25 +35,26 @@ async function syncImapTransactions(email, appPassword, targetSenders, uid) {
   try {
     const userDocSnap = await userDocRef.get();
     const userData = userDocSnap.exists ? userDocSnap.data() : {};
-    const lastSyncAt = userData?.imap?.lastSyncAt ? new Date(userData.imap.lastSyncAt) : null;
+    const lastSyncAtRaw = userData?.imapSettings?.lastSyncAt || userData?.imap?.lastSyncAt;
+    const lastSyncAt = lastSyncAtRaw ? new Date(lastSyncAtRaw) : null;
 
     await client.connect();
     let lock = await client.getMailboxLock('INBOX');
 
     try {
-      // Buscar correos de los últimos 365 días o desde la última sincronización
-      const searchSince = lastSyncAt ? lastSyncAt : new Date(Date.now() - 365 * 24 * 60 * 60 * 1000);
-
-      // Buscar mensajes por cada remitente de forma individual para evitar el fallo de sintaxis de IMAP con múltiples OR
+      // Buscar mensajes por cada remitente de forma individual
+      // Si es la primera vez (sin lastSyncAt), busca todo el histórico de esos bancos.
+      // En sincronizaciones posteriores, solo busca correos recibidos desde lastSyncAt.
       const matchedUids = new Set();
       for (const sender of targetSenders) {
         const cleanSender = String(sender).trim();
         if (!cleanSender) continue;
         try {
-          const results = await client.search({
-            since: searchSince,
-            from: cleanSender
-          }, { uid: true });
+          const searchQuery = { from: cleanSender };
+          if (lastSyncAt) {
+            searchQuery.since = lastSyncAt;
+          }
+          const results = await client.search(searchQuery, { uid: true });
           if (Array.isArray(results)) {
             results.forEach(id => matchedUids.add(id));
           }
@@ -124,20 +125,30 @@ async function syncImapTransactions(email, appPassword, targetSenders, uid) {
           }
         }
 
+        const syncTimestamp = new Date().toISOString();
         await userDocRef.set({
           transactions: currentTransactions,
           categories: currentCategories,
+          imapSettings: {
+            ...(userData.imapSettings || {}),
+            lastSyncAt: syncTimestamp
+          },
           imap: {
             ...(userData.imap || {}),
-            lastSyncAt: new Date().toISOString()
+            lastSyncAt: syncTimestamp
           },
-          updatedAt: new Date().toISOString()
+          updatedAt: syncTimestamp
         }, { merge: true });
       } else {
+        const syncTimestamp = new Date().toISOString();
         await userDocRef.set({
+          imapSettings: {
+            ...(userData.imapSettings || {}),
+            lastSyncAt: syncTimestamp
+          },
           imap: {
             ...(userData.imap || {}),
-            lastSyncAt: new Date().toISOString()
+            lastSyncAt: syncTimestamp
           }
         }, { merge: true });
       }
