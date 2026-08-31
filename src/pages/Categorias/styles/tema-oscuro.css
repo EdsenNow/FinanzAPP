@@ -1,0 +1,24 @@
+[data-theme="dark"] {
+  --card-bg: #1f1d2e;
+  --category-bg: #232136;
+  --summary-card-bg: #1f1d2e;
+}
+
+[data-theme="dark"] .gmail-notif-panel {
+  background: #1f1d2e;
+}
+
+[data-theme="dark"] .gmail-notif-empty,
+[data-theme="dark"] .gmail-notif-detail,
+[data-theme="dark"] .gmail-notif-date {
+  color: #908caa;
+}
+
+[data-theme="dark"] .custom-dropdown-option.selected {
+  background: var(--primary);
+  color: #ffffff;
+}
+
+[data-theme="dark"] .custom-dropdown.filter-active .custom-dropdown-selected {
+  color: var(--primary);
+}
