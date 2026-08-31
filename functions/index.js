@@ -64,7 +64,13 @@ function normalizeOrigin(origin) {
 }
 
 function isAllowedOrigin(origin) {
-  return ALLOWED_ORIGINS.has(normalizeOrigin(origin));
+  if (!origin) return true;
+  const o = normalizeOrigin(origin);
+  if (ALLOWED_ORIGINS.has(o)) return true;
+  if (/^http:\/\/localhost(:\d+)?$/.test(o) || /^http:\/\/127\.0\.0\.1(:\d+)?$/.test(o)) {
+    return true;
+  }
+  return false;
 }
 
 function getRequestIp(req) {
