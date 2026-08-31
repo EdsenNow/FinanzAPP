@@ -77,6 +77,11 @@ class Helpers {
    * @returns {string} Cantidad formateada, ej. "$1,234.50" o "-€500.00".
    */
   static formatCurrency(amount, { withSymbol = true, symbol = '' } = {}) {
+    if (window.__appCensorAmounts) {
+      const meta = Helpers.getCurrencyMeta();
+      const sym = withSymbol ? (symbol || meta.symbol) : '';
+      return `${sym}••••••`;
+    }
     const n        = Number(amount) || 0;
     const absValue = Math.abs(n);
     const sign     = n < 0 ? '-' : '';
@@ -93,6 +98,9 @@ class Helpers {
    * @returns {string}
    */
   static formatCurrencyStrict(amount) {
+    if (window.__appCensorAmounts) {
+      return '••••••';
+    }
     return Helpers.#getFormatter('number').format(Number(amount) || 0);
   }
 
@@ -291,6 +299,7 @@ class Helpers {
       window.__appShortcutsEnabled = shortcuts;
       window.__appTooltips         = tooltips;
       window.__appConfirmDelete    = raw?.confirmDelete !== 'off';
+      window.__appCensorAmounts    = raw?.censorAmounts === 'on';
       window.__appTxPerPage        = raw?.txPerPage === 'all'
         ? Infinity
         : (['10', '25', '50'].includes(String(raw?.txPerPage)) ? Number(raw.txPerPage) : 10);
@@ -302,6 +311,7 @@ class Helpers {
       window.__appShortcutsEnabled = true;
       window.__appTooltips         = true;
       window.__appConfirmDelete    = true;
+      window.__appCensorAmounts    = false;
       window.__appTxPerPage        = Infinity;
       window.__appShowCents        = true;
       window.__appCurrency         = 'USD';

@@ -3934,6 +3934,11 @@ class CategoriasApp extends BasePage {
               await window.FirestoreDB.init(currentUser.uid);
               window.FirestoreDB.setCurrentUser(currentUser.uid);
             }
+            await boot();
+            cargarTablero();
+            if (window.gmailNotifManager) {
+              window.gmailNotifManager.syncFromFirestore();
+            }
             resolve();
           } else {
             nullCount++;
@@ -4386,6 +4391,8 @@ class GmailNotificationManager {
 
       this.notifications = this._sortList(Array.from(currentMap.values()));
       this._saveNotifications();
+      this.updateBadges();
+      this.renderList();
     } catch (e) {
       console.warn('Error syncing notifications from Firestore', e);
     }
