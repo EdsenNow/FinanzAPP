@@ -1058,3 +1058,13 @@ html body .custom-dropdown.open .custom-dropdown-options {
   pointer-events: auto !important;
   animation: none !important;
 }
+
+/* ===== Desactivación Global de Animaciones en Iconos ===== */
+i, svg, .fa, .fas, .far, .fab, .fal, .fad, .bi, .icon,
+.btn i, .btn svg, .btn-icon i, .btn-icon svg,
+.nav-item i, .nav-item svg,
+.category-type-btn i, .transaction-type-btn i,
+.category-menu-item i, .mobile-actions-btn i {
+  animation: none !important;
+}
+

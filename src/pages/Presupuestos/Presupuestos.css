@@ -403,51 +403,6 @@ body.budgets-page #budgetsTable .actions-cell .btn-icon * {
   cursor: inherit;
 }
 
-/* ===== Animaciones de Iconos (Presupuestos) ===== */
-body.budgets-page .budget-card .actions button i {
-  display: inline-block;
-  will-change: transform;
-}
-
-/* 1. Sync: Gira suavemente de forma continua */
-@keyframes budget-icon-sync {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-body.budgets-page .budget-card .actions .btn-sync:hover i {
-  animation: budget-icon-sync 1.5s linear infinite;
-}
-
-/* 2. Editar: Movimiento suave y lento (similar al nuevo Dashboard) */
-@keyframes budget-icon-edit {
-  0%, 100% { transform: translate(0, 0) rotate(0deg); }
-  50% { transform: translate(2px, -2px) rotate(10deg); }
-}
-body.budgets-page .budget-card .actions .btn-edit:hover i {
-  animation: budget-icon-edit 1.2s ease-in-out infinite;
-}
-
-/* 3. Eliminar: Movimiento de lado a lado (Wiggle, como pediste) */
-@keyframes budget-icon-wiggle {
-  0%, 100% { transform: rotate(0deg); }
-  25% { transform: rotate(-12deg); }
-  75% { transform: rotate(12deg); }
-}
-body.budgets-page .budget-card .actions .btn-delete:hover i {
-  animation: budget-icon-wiggle 0.5s ease-in-out infinite;
-}
-
-/* 4. Añadir (+): Latido suave y relajado */
-@keyframes budget-icon-plus-calm {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.15); }
-}
-#addBudgetBtn:hover i.fa-plus,
-#mobileCreateAction:hover i {
-  animation: budget-icon-plus-calm 1s ease-in-out infinite;
-  display: inline-block;
-}
-
 .progress-bar {
 height: 14px;
 border-radius: 999px;

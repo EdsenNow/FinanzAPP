@@ -318,74 +318,15 @@ body::-webkit-scrollbar-corner {
 
 
 .logo-icon {
-background: var(--primary);
-    width: 64px;
-    height: 64px;
-    border-radius: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    overflow: hidden;
-    animation: logoFloat 1s ease-in-out infinite;
-}
-
-  /* ===== Animaciones de Iconos en Botones de Login ===== */
-.btn svg,
-.btn i {
-  will-change: transform;
-  display: inline-block;
-}
-
-/* 1. Animación de Google: Wiggle juguetón (reflejando la marca lúdica) */
-@keyframes google-wiggle {
-  0%, 100% { transform: rotate(0deg) scale(1); }
-  25% { transform: rotate(-12deg) scale(1.15); }
-  50% { transform: rotate(12deg) scale(1.15); }
-  75% { transform: rotate(-12deg) scale(1.15); }
-}
-.btn-google:hover svg {
-  animation: google-wiggle 0.7s ease-in-out infinite;
-}
-
-/* Animación base de balanceo para correo e invitado */
-@keyframes icon-tilt {
-  0%, 100% { transform: rotate(0deg); }
-  25% { transform: rotate(-6deg); }
-  75% { transform: rotate(6deg); }
-}
-
-/* 2. Animación de Correo: El sobre se abre y se cierra */
-@keyframes envelope-open-close {
-  0%, 100% { content: "\f0e0"; } /* fa-envelope cerrado */
-  50% { content: "\f2b6"; } /* fa-envelope-open abierto */
-}
-.btn-primary:hover i.fa-envelope {
-  animation: icon-tilt 1.2s ease-in-out infinite;
-}
-.btn-primary:hover i.fa-envelope::before {
-  animation: envelope-open-close 1.2s step-end infinite;
-}
-
-/* 3. Animación de Invitado: El usuario se pone un sombrero/gafas (Modo Incógnito) */
-@keyframes guest-spy {
-  0%, 100% { content: "\f007"; } /* fa-user normal */
-  50% { content: "\f21b"; } /* fa-user-secret (espía/invitado) */
-}
-#loginAsGuest:hover i.fa-user {
-  animation: icon-tilt 1.5s ease-in-out infinite;
-}
-#loginAsGuest:hover i.fa-user::before {
-  animation: guest-spy 1.5s step-end infinite;
-}
-
-@keyframes logoFloat {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-5px);
-  }
+  background: var(--primary);
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
 }
 
 .logo-icon i {
