@@ -3,8 +3,7 @@ description: Regla de sincronización automática obligatoria con GitHub tras cu
 globs: **/*
 ---
 
-# Sincronización Automática con GitHub (Obligatoria)
+# Sincronización con GitHub y Reglas de Despliegue
 
-Tras realizar cualquier cambio, arreglo, compilación o despliegue en el proyecto FinanzApp:
-1. Siempre ejecutar `git add -A`, crear un commit descriptivo y realizar `git push origin main`.
-2. Mantener el repositorio remoto de GitHub siempre actualizado como respaldo permanente frente a cualquier eventualidad o pérdida local.
+1. Tras realizar cualquier cambio en el proyecto: Ejecutar `git add -A`, commit descriptivo y `git push origin main` para mantener el respaldo en GitHub.
+2. **PROHIBIDO DESPLEGAR A PRODUCCIÓN (FIREBASE DEPLOY)** de forma automática. NUNCA ejecutar `firebase deploy` a menos que el usuario lo ordene explícita y directamente en su mensaje. Todos los cambios se prueban y compilan estrictamente en local.
