@@ -3980,9 +3980,13 @@ window.agregarTransaccion = agregarTransaccion;
  */
 class GmailNotificationManager {
   constructor() {
-    this.STORAGE_KEY = 'finanzapp:gmail:pending_notifications';
     this.notifications = this._loadNotifications();
     this.init();
+  }
+
+  _getStorageKey() {
+    const uid = window.firebase?.auth?.()?.currentUser?.uid;
+    return uid ? `finanzapp:gmail:pending_notifications:${uid}` : 'finanzapp:gmail:pending_notifications';
   }
 
   _isRealTransactionNotif(notif) {
@@ -3993,7 +3997,6 @@ class GmailNotificationManager {
     if (spamRegex.test(text)) return false;
     return true;
   }
-
 
   _sortList(list) {
     if (!Array.isArray(list)) return [];
@@ -4008,7 +4011,10 @@ class GmailNotificationManager {
 
   _loadNotifications() {
     try {
-      const raw = localStorage.getItem(this.STORAGE_KEY);
+      const user = window.firebase?.auth?.()?.currentUser;
+      if (!user) return [];
+      const key = this._getStorageKey();
+      const raw = localStorage.getItem(key);
       const items = Array.isArray(JSON.parse(raw)) ? JSON.parse(raw) : [];
       const filtered = items.filter(item => this._isRealTransactionNotif(item));
       return this._sortList(filtered);
@@ -4019,8 +4025,8 @@ class GmailNotificationManager {
 
   _saveNotifications() {
     this.notifications = this._sortList(this.notifications);
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.notifications));
-    localStorage.setItem('finanzapp:gmail:notifications', JSON.stringify(this.notifications));
+    const key = this._getStorageKey();
+    localStorage.setItem(key, JSON.stringify(this.notifications));
     this.updateBadges();
     this.renderList();
     if (typeof window.renderMobileNotificationsMenu === 'function') {
@@ -4311,7 +4317,8 @@ class GmailNotificationManager {
     });
 
     window.addEventListener('storage', (e) => {
-      if (e.key === this.STORAGE_KEY || e.key === 'finanzapp:gmail:notifications') {
+      const key = this._getStorageKey();
+      if (e.key === key || e.key === 'finanzapp:gmail:pending_notifications' || e.key === 'finanzapp:gmail:notifications') {
         this.notifications = this._loadNotifications();
         this.updateBadges();
         this.renderList();
@@ -4320,7 +4327,16 @@ class GmailNotificationManager {
 
     if (window.firebase && window.firebase.auth) {
       window.firebase.auth().onAuthStateChanged((user) => {
-        if (user) this.syncFromFirestore();
+        if (user) {
+          this.notifications = this._loadNotifications();
+          this.updateBadges();
+          this.renderList();
+          this.syncFromFirestore();
+        } else {
+          this.notifications = [];
+          this.updateBadges();
+          this.renderList();
+        }
       });
     }
 
@@ -4330,21 +4346,24 @@ class GmailNotificationManager {
   async syncFromFirestore() {
     try {
       const user = window.firebase ? window.firebase.auth().currentUser : null;
-      if (!user || !window.firebase.firestore) return;
+      if (!user || !window.firebase.firestore) {
+        this.notifications = [];
+        this.updateBadges();
+        this.renderList();
+        return;
+      }
       const db = window.firebase.firestore();
       const snap = await db.collection('users').doc(user.uid).collection('transactions')
         .where('source', '==', 'imap')
         .limit(100)
         .get();
 
+      const firestoreNotifs = [];
       if (!snap.empty) {
-        let added = false;
-        const existingKeys = new Set(this.notifications.map(n => n.id || `${n.amount}_${n.description}_${n.date}`));
-        
         snap.forEach(doc => {
           const d = doc.data();
           if (d && !d.ignored && d.amount) {
-            const notif = {
+            firestoreNotifs.push({
               id: doc.id,
               amount: d.amount,
               description: d.description || d.merchant || 'Transacción Bancaria',
@@ -4353,19 +4372,20 @@ class GmailNotificationManager {
               type: d.type || 'expense',
               timestamp: d.createdAt ? (d.createdAt.toMillis ? d.createdAt.toMillis() : Date.now()) : Date.now(),
               source: 'imap'
-            };
-            const key = notif.id || `${notif.amount}_${notif.description}_${notif.date}`;
-            if (!existingKeys.has(key)) {
-              this.notifications.push(notif);
-              existingKeys.add(key);
-              added = true;
-            }
+            });
           }
         });
-        if (added) {
-          this._saveNotifications();
-        }
       }
+
+      const currentMap = new Map();
+      firestoreNotifs.forEach(n => currentMap.set(n.id || `${n.amount}_${n.description}_${n.date}`, n));
+      this._loadNotifications().forEach(n => {
+        const key = n.id || `${n.amount}_${n.description}_${n.date}`;
+        if (!currentMap.has(key)) currentMap.set(key, n);
+      });
+
+      this.notifications = this._sortList(Array.from(currentMap.values()));
+      this._saveNotifications();
     } catch (e) {
       console.warn('Error syncing notifications from Firestore', e);
     }

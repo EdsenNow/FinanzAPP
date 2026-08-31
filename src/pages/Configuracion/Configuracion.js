@@ -246,7 +246,9 @@
             
             if (result && Array.isArray(result.transactions) && result.transactions.length > 0) {
               try {
-                const rawExisting = localStorage.getItem('finanzapp:gmail:pending_notifications') || '[]';
+                const user = window.firebase ? window.firebase.auth().currentUser : null;
+                const storageKey = user ? `finanzapp:gmail:pending_notifications:${user.uid}` : 'finanzapp:gmail:pending_notifications';
+                const rawExisting = localStorage.getItem(storageKey) || '[]';
                 let existing = Array.isArray(JSON.parse(rawExisting)) ? JSON.parse(rawExisting) : [];
                 const existingKeys = new Set(existing.map(n => n.id || `${n.amount}_${n.description}_${n.date}`));
 
@@ -266,8 +268,7 @@
                   }
                 }
 
-                localStorage.setItem('finanzapp:gmail:pending_notifications', JSON.stringify(existing));
-                localStorage.setItem('finanzapp:gmail:notifications', JSON.stringify(existing));
+                localStorage.setItem(storageKey, JSON.stringify(existing));
                 window.dispatchEvent(new CustomEvent('finanzapp:gmail:notifications-updated'));
               } catch (err) {
                 console.warn('Error saving notifications to localStorage', err);

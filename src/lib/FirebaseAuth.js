@@ -365,6 +365,11 @@ class FirebaseAuth {
       // Limpiar datos de sesión del cliente (pero mantener logoutTimestamp)
       localStorage.removeItem('loggedIn');
       localStorage.removeItem('authUser');
+      localStorage.removeItem('finanzapp:gmail:pending_notifications');
+      localStorage.removeItem('finanzapp:gmail:notifications');
+      localStorage.removeItem('finanzapp:categories');
+      localStorage.removeItem('finanzapp:transactions');
+      localStorage.removeItem('finanzapp:budgets');
 
       return { success: true };
     } catch (error) {
