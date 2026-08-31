@@ -6,7 +6,8 @@
     "source": "functions"
   },
   "hosting": {
-    "public": "dist",
+    "public": "public",
+    "cleanUrls": true,
     "rewrites": [
       {
         "source": "**",
