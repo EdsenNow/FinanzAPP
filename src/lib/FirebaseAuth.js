@@ -61,24 +61,20 @@ class FirebaseAuth {
       }
 
       // Inicializar App Check (si está habilitado en config).
-      // Soporta reCAPTCHA v2/v3 y Enterprise sin bloquear autenticación si falla.
+      // En localhost se usa FIREBASE_APPCHECK_DEBUG_TOKEN = true si está configurado en Firebase Console.
       try {
         const isLocalhost = typeof window !== 'undefined' && 
           (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
 
         if (isLocalhost) {
-          self.FIREBASE_APPCHECK_DEBUG_TOKEN = 'e8c5d9a1-7b2f-4c3e-9a1d-8f5b4c3e2a1d';
+          self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
         }
 
         const appCheckEnabled = window.APP_CONFIG?.appCheckEnabled === true;
         const siteKey = window.APP_CONFIG?.recaptchaSiteKey;
-        if (appCheckEnabled && siteKey && firebase.appCheck) {
+        if (appCheckEnabled && siteKey && firebase.appCheck && !isLocalhost) {
           let appCheckProvider = null;
-          if (isLocalhost) {
-            appCheckProvider = new firebase.appCheck.CustomProvider({
-              getToken: () => Promise.resolve({ token: 'e8c5d9a1-7b2f-4c3e-9a1d-8f5b4c3e2a1d', expireTimeMillis: Date.now() + 3600000 })
-            });
-          } else if (firebase.appCheck.ReCaptchaEnterpriseProvider) {
+          if (firebase.appCheck.ReCaptchaEnterpriseProvider) {
             appCheckProvider = new firebase.appCheck.ReCaptchaEnterpriseProvider(siteKey);
           } else if (firebase.appCheck.ReCaptchaV3Provider) {
             appCheckProvider = new firebase.appCheck.ReCaptchaV3Provider(siteKey);
@@ -298,7 +294,12 @@ class FirebaseAuth {
           message: 'Inicio de sesión exitoso con Google'
         };
       } catch (popupError) {
-        console.error('[FirebaseAuth] Error en signInWithPopup:', popupError);
+        console.error('[FirebaseAuth] Error en signInWithPopup:', {
+          code: popupError?.code,
+          message: popupError?.message,
+          customData: popupError?.customData,
+          serverResponse: popupError?.serverResponse
+        });
         return this.handleAuthError(popupError);
       }
 
