@@ -4824,6 +4824,7 @@ async function agregarTransaccionDirecta(categoryId, type, amount, description, 
 }
 window.agregarTransaccionDirecta = agregarTransaccionDirecta;
 window.obtenerCategorias = () => datosUsuario.categories || [];
+window.abrirModalRevisarGmail = abrirModalRevisarGmail;
 
 let customTxnTooltipInitialized = false;
 /**

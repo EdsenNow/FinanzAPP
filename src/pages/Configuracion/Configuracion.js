@@ -68,6 +68,30 @@
 
     await refreshDataSummary();
     refreshBackupMeta();
+
+    if (window.FirestoreDB?.ensureFirebaseInitialized) {
+      window.FirestoreDB.ensureFirebaseInitialized();
+    }
+    if (window.firebase && window.firebase.apps && window.firebase.apps.length > 0 && typeof window.firebase.auth === 'function') {
+      try {
+        window.firebase.auth().onAuthStateChanged(async (user) => {
+          if (user) {
+            try {
+              localStorage.setItem('authUser', JSON.stringify({
+                name: user.displayName || user.email?.split('@')[0] || 'Usuario',
+                email: user.email || '',
+                picture: user.photoURL || '',
+                uid: user.uid,
+                provider: user.providerData?.[0]?.providerId || 'google'
+              }));
+            } catch {}
+            populateUserInfo();
+            await loadImapCredentials();
+            await refreshDataSummary();
+          }
+        });
+      } catch (e) {}
+    }
   }
 
   function cacheElements() {
@@ -309,11 +333,19 @@
   async function loadImapCredentials() {
     if (!window.FirestoreDB) return;
     try {
+      if (window.FirestoreDB.ensureFirebaseInitialized) {
+        window.FirestoreDB.ensureFirebaseInitialized();
+      }
       const settings = await window.FirestoreDB.getImapSettings();
       if (settings) {
-        if (settings.email) document.getElementById('imapEmail').value = settings.email;
-        if (settings.appPassword) document.getElementById('imapPassword').value = settings.appPassword;
-        if (settings.targetSenders) document.getElementById('imapSenders').value = settings.targetSenders.join(', ');
+        const emailEl = document.getElementById('imapEmail');
+        const passEl = document.getElementById('imapPassword');
+        const sendersEl = document.getElementById('imapSenders');
+        if (emailEl && settings.email) emailEl.value = settings.email;
+        if (passEl && settings.appPassword) passEl.value = settings.appPassword;
+        if (sendersEl && settings.targetSenders) {
+          sendersEl.value = Array.isArray(settings.targetSenders) ? settings.targetSenders.join(', ') : settings.targetSenders;
+        }
         const syncBtn = document.getElementById('syncImapBtn');
         if (syncBtn) syncBtn.style.display = 'inline-flex';
       }
@@ -1228,6 +1260,22 @@
   }
 
   function getProfile() {
+    try {
+      if (window.firebase && window.firebase.apps && window.firebase.apps.length > 0 && typeof window.firebase.auth === 'function') {
+        const u = window.firebase.auth().currentUser;
+        if (u) {
+          return {
+            name: u.displayName || u.email?.split('@')[0] || 'Usuario',
+            email: u.email || '',
+            uid: u.uid,
+            picture: u.photoURL || '',
+            photoURL: u.photoURL || '',
+            provider: u.providerData?.[0]?.providerId || 'google'
+          };
+        }
+      }
+    } catch {}
+
     try {
       const raw = localStorage.getItem('authUser');
       if (!raw || raw === 'guest') {

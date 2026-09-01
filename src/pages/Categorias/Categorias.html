@@ -662,17 +662,32 @@
       };
 
       const readMobileNotifications = function () {
+        if (window.gmailNotifManager && Array.isArray(window.gmailNotifManager.notifications) && window.gmailNotifManager.notifications.length > 0) {
+          return window.gmailNotifManager.notifications;
+        }
         try {
-          const raw = JSON.parse(localStorage.getItem('finanzapp:gmail:notifications') || '[]');
+          let uid = null;
+          if (window.firebase && window.firebase.apps && window.firebase.apps.length > 0 && typeof window.firebase.auth === 'function') {
+            try { uid = window.firebase.auth().currentUser?.uid; } catch (_) {}
+          }
+          if (!uid) {
+            const rawAuth = localStorage.getItem('authUser');
+            if (rawAuth && rawAuth !== 'guest') {
+              try { uid = JSON.parse(rawAuth).uid; } catch (_) {}
+            }
+          }
+          const storageKey = uid ? `finanzapp:gmail:pending_notifications:${uid}` : 'finanzapp:gmail:pending_notifications';
+          const raw = JSON.parse(localStorage.getItem(storageKey) || localStorage.getItem('finanzapp:gmail:pending_notifications') || localStorage.getItem('finanzapp:gmail:notifications') || '[]');
           if (!Array.isArray(raw)) return [];
-          return raw.slice(0, 30);
+          return raw;
         } catch (_) {
           return [];
         }
       };
 
       const fmtMobileNotifDate = function (rawDate) {
-        const d = new Date(rawDate);
+        if (!rawDate) return '';
+        const d = (rawDate && typeof rawDate.toDate === 'function') ? rawDate.toDate() : new Date(rawDate);
         if (isNaN(d.getTime())) return '';
         return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
       };
@@ -701,8 +716,10 @@
         if (!list.length) {
           const empty = document.createElement('div');
           empty.className = 'mobile-actions-option';
-          empty.textContent = 'Sin notificaciones pendientes.';
+          empty.textContent = 'Sin notificaciones bancarias pendientes.';
           empty.setAttribute('aria-disabled', 'true');
+          empty.style.justifyContent = 'center';
+          empty.style.color = '#908caa';
           notifList.appendChild(empty);
           if (notifClearBtn) notifClearBtn.style.display = 'none';
           return;
@@ -711,16 +728,40 @@
         list.forEach(function (notif) {
           const item = document.createElement('button');
           item.type = 'button';
-          item.className = 'mobile-actions-option';
-          const desc = (notif.description || notif.subject || 'Transacción').trim();
+          item.className = 'mobile-actions-option mobile-notif-card';
+          item.style.display = 'flex';
+          item.style.flexDirection = 'column';
+          item.style.alignItems = 'flex-start';
+          item.style.gap = '4px';
+          item.style.padding = '12px 14px';
+          item.style.width = '100%';
+          item.style.textAlign = 'left';
+          item.style.borderRadius = '10px';
+          item.style.borderBottom = '1px solid rgba(255, 255, 255, 0.06)';
+
+          const desc = (notif.description || notif.merchant || 'Transacción').trim();
           const amount = fmtMobileNotifAmount(notif.amount);
           const date = fmtMobileNotifDate(notif.date);
-          item.textContent = `${desc} ${amount}${date ? ` · ${date}` : ''}`.trim();
+          const detail = (notif.subject && notif.subject !== notif.description) ? notif.subject : '';
+
+          item.innerHTML = `
+            <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+              <strong style="color: #e0def4; font-size: 14px;">${desc}</strong>
+              <span style="color: #eb6f92; font-weight: 700; font-size: 14px;">${amount}</span>
+            </div>
+            ${detail ? `<div style="color: #908caa; font-size: 12px; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${detail}</div>` : ''}
+            ${date ? `<div style="color: #6e6a86; font-size: 11px;"><i class="far fa-calendar-alt" style="margin-right: 4px;"></i>${date}</div>` : ''}
+          `;
+
           item.addEventListener('click', function () {
-            window.dispatchEvent(new CustomEvent('finanzapp:gmail:open-review', {
-              detail: { id: notif.id }
-            }));
             closeNotificationsMenu();
+            if (window.abrirModalRevisarGmail && typeof window.abrirModalRevisarGmail === 'function') {
+              window.abrirModalRevisarGmail(notif, notif.id);
+            } else {
+              window.dispatchEvent(new CustomEvent('finanzapp:gmail:open-review', {
+                detail: { id: notif.id }
+              }));
+            }
           });
           notifList.appendChild(item);
         });
