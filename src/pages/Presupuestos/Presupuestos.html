@@ -571,10 +571,13 @@
 
           options.forEach(function (opt) {
             const value = opt.getAttribute('data-value') || '';
+            const text = (opt.textContent || '').trim();
+            if (value === '' || text.toLowerCase().startsWith('todos')) return;
+
             const item = document.createElement('button');
             item.type = 'button';
             item.className = 'mobile-actions-option' + (value === currentValue ? ' active' : '');
-            item.textContent = opt.textContent;
+            item.textContent = text;
             item.addEventListener('click', function () {
               opt.click();
               closePanel();

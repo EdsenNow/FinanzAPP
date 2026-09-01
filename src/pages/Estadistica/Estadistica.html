@@ -382,14 +382,95 @@
 
       syncDrawerProfile();
 
+      const subpanel = document.createElement('div');
+      subpanel.id = 'mobileActionsSubpanel';
+      subpanel.className = 'mobile-actions-subpanel';
+      panel.appendChild(subpanel);
+      let activeSubmenuAction = null;
+
+      const clearSubpanel = function () {
+        subpanel.classList.remove('open');
+        subpanel.classList.remove('is-month');
+        subpanel.innerHTML = '';
+        activeSubmenuAction = null;
+        if (subpanel.parentElement !== panel) {
+          panel.appendChild(subpanel);
+        }
+        syncActiveFilters();
+      };
+
+      const openInlineSubpanel = function (actionKey, anchorBtn, renderContent) {
+        if (!anchorBtn) return;
+        if (activeSubmenuAction === actionKey && subpanel.classList.contains('open')) {
+          clearSubpanel();
+          return;
+        }
+
+        clearSubpanel();
+        renderContent();
+        anchorBtn.insertAdjacentElement('afterend', subpanel);
+        subpanel.classList.add('open');
+        activeSubmenuAction = actionKey;
+        syncActiveFilters();
+      };
+
+      const syncActiveFilters = function () {
+        if (!panel) return;
+        const yearVal = document.getElementById('yearFilter')?.querySelector('.custom-dropdown-selected')?.getAttribute('data-value') || '';
+        const monthVal = document.getElementById('monthFilter')?.querySelector('.custom-dropdown-selected')?.getAttribute('data-value') || '';
+
+        const yearBtn = panel.querySelector('[data-action="year"]');
+        const monthBtn = panel.querySelector('[data-action="month"]');
+
+        if (yearBtn) yearBtn.classList.toggle('filter-active', yearVal !== '' || activeSubmenuAction === 'year');
+        if (monthBtn) monthBtn.classList.toggle('filter-active', monthVal !== '' || activeSubmenuAction === 'month');
+      };
+
+      const filterObserver = new MutationObserver(syncActiveFilters);
+      ['yearFilter', 'monthFilter'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) filterObserver.observe(el, { attributes: true, childList: true, subtree: true });
+      });
+
       const closePanel = function () {
         dropdown.classList.remove('open');
         toggle.setAttribute('aria-expanded', 'false');
+        clearSubpanel();
+      };
+
+      const openOptionsSubmenu = function (dropdownId, actionKey, anchorBtn) {
+        const dropdownEl = document.getElementById(dropdownId);
+        const selectedEl = dropdownEl?.querySelector('.custom-dropdown-selected');
+        const options = dropdownEl?.querySelectorAll('.custom-dropdown-option');
+        if (!dropdownEl || !selectedEl || !options?.length) return;
+
+        openInlineSubpanel(actionKey, anchorBtn, function () {
+          const currentValue = selectedEl.getAttribute('data-value') || '';
+          subpanel.innerHTML = '';
+          subpanel.classList.toggle('is-month', dropdownId === 'monthFilter');
+
+          options.forEach(function (opt) {
+            const value = opt.getAttribute('data-value') || '';
+            const text = (opt.textContent || '').trim();
+            if (value === '' || text.toLowerCase().startsWith('todos')) return;
+
+            const item = document.createElement('button');
+            item.type = 'button';
+            item.className = 'mobile-actions-option' + (value === currentValue ? ' active' : '');
+            item.textContent = text;
+            item.addEventListener('click', function () {
+              opt.click();
+              closePanel();
+            });
+            subpanel.appendChild(item);
+          });
+        });
       };
 
       toggle.addEventListener('click', function (e) {
         e.stopPropagation();
         syncDrawerProfile();
+        syncActiveFilters();
         dropdown.classList.toggle('open');
         toggle.setAttribute('aria-expanded', dropdown.classList.contains('open') ? 'true' : 'false');
       });
@@ -419,13 +500,12 @@
         const action = btn.getAttribute('data-action');
 
         if (action === 'year') {
-          document.getElementById('yearFilter')?.querySelector('.custom-dropdown-selected')?.click();
-          closePanel();
+          openOptionsSubmenu('yearFilter', 'year', btn);
         } else if (action === 'month') {
-          document.getElementById('monthFilter')?.querySelector('.custom-dropdown-selected')?.click();
-          closePanel();
+          openOptionsSubmenu('monthFilter', 'month', btn);
         } else if (action === 'clear') {
           document.getElementById('clearFiltersBtn')?.click();
+          clearSubpanel();
           closePanel();
         } else if (action === 'theme') {
           document.getElementById('themeToggle')?.click();

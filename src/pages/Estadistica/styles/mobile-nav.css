@@ -1362,10 +1362,15 @@ background: rgba(215, 130, 126, 0.85);
 
 [data-theme="dark"] .mobile-actions-subpanel-input,
 [data-theme="dark"] .mobile-actions-option {
-background: #1f1d2e;
+background: #282a3f;
 color: #ecebf9;
 }
 
+[data-theme="dark"] .mobile-actions-option.active {
+background: rgba(180, 99, 122, 0.28);
+color: #f0a3c0;
+font-weight: 700;
+}
 
 [data-theme="dark"] .mobile-actions-subpanel-input.hover,
 [data-theme="dark"] .mobile-actions-option:active {

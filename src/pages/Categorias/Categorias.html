@@ -790,6 +790,7 @@
         if (subpanel.parentElement !== panel) {
           panel.appendChild(subpanel);
         }
+        updateFilterButtonState();
       };
 
       const openInlineSubpanel = function (actionKey, anchorBtn, renderContent) {
@@ -805,17 +806,30 @@
         panel.classList.add('has-subpanel');
         subpanel.classList.add('open');
         activeSubmenuAction = actionKey;
+        updateFilterButtonState();
         return true;
       };
 
       const updateFilterButtonState = function () {
+        if (!panel) return;
         const monthVal = document.querySelector('#monthFilter .custom-dropdown-selected')?.getAttribute('data-value') || '';
         const yearVal = document.querySelector('#yearFilter .custom-dropdown-selected')?.getAttribute('data-value') || '';
         const searchVal = (document.getElementById('searchInput')?.value || '').trim();
-        panel.querySelector('[data-action="month"]')?.classList.toggle('filter-active', monthVal !== '');
-        panel.querySelector('[data-action="year"]')?.classList.toggle('filter-active', yearVal !== '');
-        panel.querySelector('[data-action="search"]')?.classList.toggle('filter-active', searchVal !== '');
+
+        const yearBtn = panel.querySelector('[data-action="year"]');
+        const monthBtn = panel.querySelector('[data-action="month"]');
+        const searchBtn = panel.querySelector('[data-action="search"]');
+
+        if (yearBtn) yearBtn.classList.toggle('filter-active', yearVal !== '' || activeSubmenuAction === 'year');
+        if (monthBtn) monthBtn.classList.toggle('filter-active', monthVal !== '' || activeSubmenuAction === 'month');
+        if (searchBtn) searchBtn.classList.toggle('filter-active', searchVal !== '' || activeSubmenuAction === 'search');
       };
+
+      const filterObserver = new MutationObserver(updateFilterButtonState);
+      ['yearFilter', 'monthFilter'].forEach(function (id) {
+        const el = document.getElementById(id);
+        if (el) filterObserver.observe(el, { attributes: true, childList: true, subtree: true });
+      });
 
       const openPanel = function () {
         syncDrawerProfile();
@@ -853,10 +867,13 @@
 
           options.forEach(function (opt) {
             const value = opt.getAttribute('data-value') || '';
+            const text = (opt.textContent || '').trim();
+            if (value === '' || text.toLowerCase().startsWith('todos')) return;
+
             const item = document.createElement('button');
             item.type = 'button';
             item.className = 'mobile-actions-option' + (value === currentValue ? ' active' : '');
-            item.textContent = opt.textContent;
+            item.textContent = text;
             item.addEventListener('click', function () {
               opt.click();
               closePanel();
