@@ -3426,21 +3426,8 @@ function configurarListenersEventos() {
         console.error('categoryModal no encontrado');
       }
     });
-  try {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('quickCreate') === '1' && categoryModal) {
-      setTimeout(() => {
-        if (categoryNameInput) categoryNameInput.value = '';
-        abrirModal(categoryModal, addCategoryBtn);
-      }, 100);
-      params.delete('quickCreate');
-      const query = params.toString();
-      const hash = window.location.hash || '';
-      const newUrl = `${window.location.pathname}${query ? `?${query}` : ''}${hash}`;
-      window.history.replaceState({}, '', newUrl);
-    }
-  } catch (e) {
-    console.warn('Error al procesar quickCreate:', e);
+  } else {
+    console.error('addCategoryBtn no encontrado en el DOM');
   }
 
   modalCloseButtons.forEach(btn => btn.addEventListener('click', () => {
