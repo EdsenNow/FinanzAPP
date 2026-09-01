@@ -48,19 +48,24 @@ class GmailAPI {
       return true;
     }
 
-    // Si no hay token válido en localStorage, intentar renovar vía backend esperando primero a que Firebase Auth esté listo
+    // Si no hay token válido en localStorage, intentar renovar vía backend solo si el usuario tenía una sesión OAuth previa
+    const hadOAuthSession = !!(localStorage.getItem(GMAIL_TOKEN_KEY) || localStorage.getItem('finanzapp:gmail:use_oauth') === 'true');
+    if (!hadOAuthSession) {
+      return false;
+    }
+
     if (GMAIL_BACKEND_URL) {
       try {
         if (window.FirestoreDB?.waitForAuth) {
           await window.FirestoreDB.waitForAuth(5000);
         }
         const uid = await this._getCurrentUserId();
-        if (uid) {
+        if (uid && uid !== 'guest') {
           const url = GMAIL_BACKEND_URL.replace(/\/$/, '') + '/refreshAccessToken?uid=' + encodeURIComponent(uid);
           const headers = await this._getBackendHeaders(false);
-          const resp = await fetch(url, { method: 'GET', headers });
-          if (resp.ok) {
-            const json = await resp.json();
+          const resp = await fetch(url, { method: 'GET', headers }).catch(() => null);
+          if (resp && resp.ok) {
+            const json = await resp.json().catch(() => null);
             if (json && json.access_token) {
               console.log('[GmailAPI] Token restaurado vía backend al iniciar.');
               this._saveToken(json.access_token, json.expires_in || 3600);
@@ -68,17 +73,13 @@ class GmailAPI {
               if (this._onStatusChange) this._onStatusChange(true);
               return true;
             }
-          } else {
-            const json = await resp.json().catch(() => ({}));
-            if (resp.status === 401 && (json.error === 'invalid_grant' || json.message === 'refresh_token_revoked')) {
-              console.warn('[GmailAPI] _restoreToken: refresh_token revoked, forcing interactive reauth');
-              this._clearToken();
-              return false;
-            }
+          } else if (resp && resp.status === 401) {
+            this._clearToken();
+            return false;
           }
         }
       } catch (err) {
-        console.warn('[GmailAPI] _restoreToken: error al pedir token al backend:', err);
+        // Silencioso: el usuario usa sincronización IMAP bancaria
       }
     }
     return false;

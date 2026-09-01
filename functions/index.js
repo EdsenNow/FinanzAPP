@@ -364,8 +364,15 @@ app.get('/refreshAccessToken', async (req, res) => {
 
     const doc = await admin.firestore().collection('users').doc(uid).get();
     const data = doc.data();
-    const encrypted = data?.gmail?.encrypted_refresh_token;
-    const refresh_token = encrypted ? await decryptKms(encrypted) : data?.gmail?.refresh_token;
+    let refresh_token = null;
+    try {
+      const encrypted = data?.gmail?.encrypted_refresh_token;
+      refresh_token = encrypted ? await decryptKms(encrypted) : data?.gmail?.refresh_token;
+    } catch (kmsErr) {
+      console.warn('[refreshAccessToken] KMS decrypt error:', kmsErr?.message);
+      refresh_token = data?.gmail?.refresh_token || null;
+    }
+
     if (!refresh_token) return res.status(200).json({ error: 'no refresh token', code: 'not_found' });
 
     const params = new URLSearchParams();
@@ -390,16 +397,23 @@ app.get('/refreshAccessToken', async (req, res) => {
 
     res.json({ access_token: tokens.access_token, expires_in: tokens.expires_in, scope: tokens.scope });
   } catch (err) {
-    console.error('refreshAccessToken error', err?.response?.data || err.message);
-    if (err && (err.code === 'invalid_grant' || isInvalidGrantError(err))) {
+    const errData = err?.response?.data;
+    const isInvalid = err?.code === 'invalid_grant' || errData?.error === 'invalid_grant' || err?.response?.status === 400 || err?.response?.status === 401;
+    if (isInvalid) {
       try {
-        await admin.firestore().collection('users').doc(uid).set({ gmail: { encrypted_refresh_token: admin.firestore.FieldValue.delete(), refresh_token: admin.firestore.FieldValue.delete() } }, { merge: true });
+        await admin.firestore().collection('users').doc(uid).set({
+          gmail: {
+            encrypted_refresh_token: admin.firestore.FieldValue.delete(),
+            refresh_token: admin.firestore.FieldValue.delete()
+          }
+        }, { merge: true });
       } catch (e) {
         console.warn('[refreshAccessToken] failed clearing tokens for', uid, e);
       }
       return res.status(401).json({ error: 'invalid_grant', message: 'refresh_token_revoked' });
     }
-    res.status(500).json({ error: err?.response?.data || err.message });
+    console.error('refreshAccessToken error', errData || err.message);
+    res.status(500).json({ error: errData || err.message });
   }
 });
 
