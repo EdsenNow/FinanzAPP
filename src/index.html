@@ -92,10 +92,11 @@
 
   <nav>
     <div class="nav-brand" aria-label="FinanzApp - Inicio">
-      <div class="nav-logo-icon"><i class="fas fa-wallet"></i></div>
+      <div class="nav-logo-icon"></div>
       <span class="nav-brand-name">FinanzApp</span>
     </div>
     <div class="nav-links">
+      <a href="#features" class="nav-link-secondary">Características</a>
       <a href="/pages/privacy/privacy.html" class="nav-link-secondary">Privacidad</a>
       <a href="/pages/privacy/terms.html" class="nav-link-secondary">Condiciones</a>
       <a href="/pages/Login/Login.html" class="nav-link-btn"><i class="fas fa-sign-in-alt"></i> Iniciar sesión</a>
@@ -104,41 +105,121 @@
 
   <main>
     <section class="hero">
-      <h1>Toma el control de tus finanzas</h1>
-      <p>Gestiona tus ingresos, gastos y presupuestos en un solo lugar. Una herramienta sencilla, segura y siempre disponible para ti.</p>
+      <div class="hero-badge">
+        <i class="fas fa-sparkles"></i>
+        <span>Gestión Financiera Inteligente & Privada</span>
+      </div>
+
+      <h1>Toma el control total de tus <span class="gradient-text">finanzas</span></h1>
+      
+      <p class="hero-subtitle">
+        Gestiona tus ingresos, gastos y presupuestos mensuales con métricas claras y sincronización instantánea en la nube.
+      </p>
+
       <div class="cta-group">
         <a id="ctaPrimary" class="btn btn-primary" href="/pages/Login/Login.html">
-          Empezar ahora <i class="fas fa-arrow-right" style="margin-left: 6px;"></i>
+          Empezar gratis <i class="fas fa-arrow-right" style="margin-left: 6px;"></i>
         </a>
         <a class="btn btn-secondary" href="/pages/privacy/privacy.html">
-          <i class="fas fa-shield-alt"></i> Privacidad
+          <i class="fas fa-shield-alt"></i> Seguridad y Privacidad
         </a>
+      </div>
+
+      <!-- Preview Mockup Card -->
+      <div class="hero-preview-container" aria-hidden="true">
+        <div class="preview-card">
+          <div class="preview-header">
+            <div class="preview-title-group">
+              <div class="preview-dot"></div>
+              <span class="preview-title">Resumen Financiero del Mes</span>
+            </div>
+            <span class="preview-badge"><i class="fas fa-check-circle"></i> En equilibrio</span>
+          </div>
+
+          <div class="preview-metrics">
+            <div class="metric-box income">
+              <span class="metric-label"><i class="fas fa-arrow-down"></i> Ingresos</span>
+              <span class="metric-value">+$4,250.00</span>
+            </div>
+            <div class="metric-box expenses">
+              <span class="metric-label"><i class="fas fa-arrow-up"></i> Gastos</span>
+              <span class="metric-value">-$1,830.00</span>
+            </div>
+            <div class="metric-box balance">
+              <span class="metric-label"><i class="fas fa-wallet"></i> Disponible</span>
+              <span class="metric-value">$2,420.00</span>
+            </div>
+          </div>
+
+          <div class="preview-budget">
+            <div class="budget-info">
+              <span>Presupuesto mensual consumido</span>
+              <span class="budget-percent">43% utilizado</span>
+            </div>
+            <div class="budget-bar">
+              <div class="budget-fill"></div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
-    <section class="features" aria-labelledby="features-title">
-      <h2 id="features-title">¿Qué puedes hacer con FinanzApp?</h2>
+    <!-- Trust Highlights -->
+    <section class="trust-strip">
+      <div class="trust-item">
+        <i class="fas fa-bolt"></i>
+        <span>Sincronización en tiempo real</span>
+      </div>
+      <div class="trust-divider"></div>
+      <div class="trust-item">
+        <i class="fas fa-lock"></i>
+        <span>100% Privado y Cifrado</span>
+      </div>
+      <div class="trust-divider"></div>
+      <div class="trust-item">
+        <i class="fas fa-mobile-alt"></i>
+        <span>Acceso en todos tus dispositivos</span>
+      </div>
+    </section>
+
+    <section class="features" id="features" aria-labelledby="features-title">
+      <div class="features-header">
+        <span class="section-tag">Características</span>
+        <h2 id="features-title">Todo lo que necesitas para cuidar tu dinero</h2>
+        <p class="section-desc">Diseñado para ser rápido, intuitivo y sin complicaciones.</p>
+      </div>
+
       <div class="feature-grid">
         <article class="feature-card">
           <div class="feature-icon pink"><i class="fas fa-chart-pie"></i></div>
-          <h3>Control de gastos</h3>
-          <p>Registra y clasifica tus transacciones para saber exactamente en qué gastas tu dinero.</p>
+          <h3>Control de Gastos</h3>
+          <p>Registra y categoriza tus transacciones para saber con exactitud hacia dónde va cada centavo.</p>
         </article>
         <article class="feature-card">
           <div class="feature-icon teal"><i class="fas fa-bullseye"></i></div>
-          <h3>Presupuestos</h3>
-          <p>Crea presupuestos mensuales y recibe alertas cuando estés cerca de superarlos.</p>
+          <h3>Presupuestos Dinámicos</h3>
+          <p>Establece límites mensuales por categoría y recibe alertas visuales sobre tu ritmo de gasto.</p>
         </article>
         <article class="feature-card">
           <div class="feature-icon gold"><i class="fas fa-chart-line"></i></div>
-          <h3>Estadísticas claras</h3>
-          <p>Visualiza tu progreso con gráficos e indicadores que te ayudan a tomar mejores decisiones.</p>
+          <h3>Estadísticas Claras</h3>
+          <p>Visualiza gráficos de evolución, promedios diarios e indicadores para tomar mejores decisiones.</p>
         </article>
         <article class="feature-card">
-          <div class="feature-icon green"><i class="fas fa-lock"></i></div>
-          <h3>Seguridad primero</h3>
-          <p>Tus datos se almacenan de forma segura en Firebase y nunca se comparten con terceros.</p>
+          <div class="feature-icon green"><i class="fas fa-shield-alt"></i></div>
+          <h3>Seguridad en la Nube</h3>
+          <p>Tus datos se almacenan de forma segura con Firebase Authentication y Firestore DB.</p>
         </article>
+      </div>
+    </section>
+
+    <section class="cta-banner">
+      <div class="cta-banner-content">
+        <h2>Toma el control de tu futuro financiero</h2>
+        <p>Empieza a registrar tus movimientos hoy mismo de forma gratuita.</p>
+        <a class="btn btn-primary" href="/pages/Login/Login.html">
+          Crear cuenta gratis <i class="fas fa-arrow-right" style="margin-left: 6px;"></i>
+        </a>
       </div>
     </section>
   </main>
