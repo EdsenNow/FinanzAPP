@@ -1415,6 +1415,20 @@ border: 3px solid #f2e9e1;
 }
 
 @media (max-width: 600px) {
+  body.modal-open .mobile-bottom-nav,
+  body:has(.modal-overlay:not(.hidden)) .mobile-bottom-nav,
+  body:has(#budgetModal:not(.hidden)) .mobile-bottom-nav,
+  body:has(#datePickerModal.active) .mobile-bottom-nav {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
+  body #budgetModal.modal-overlay,
+  body .modal-overlay {
+    z-index: 22000 !important;
+  }
+
   body .modal-overlay:not(.hidden) .modal.budget-modal,
   .modal.budget-modal {
     position: fixed;
@@ -1431,10 +1445,17 @@ border: 3px solid #f2e9e1;
     border-right: 2px solid #EB6F92;
     border-bottom: none;
     border-radius: 18px 18px 0 0;
-    z-index: 12000;
+    z-index: 23000;
     transform: translateY(0);
     animation: slideUpBudgetModal 0.32s cubic-bezier(.4,1.4,.6,1) 1;
     box-sizing: border-box;
+    overflow-x: hidden;
+    overflow-y: visible;
+    scrollbar-width: none;
+  }
+
+  .modal.budget-modal::-webkit-scrollbar {
+    display: none;
   }
 
   [data-theme="light"] .modal-overlay:not(.hidden) .modal.budget-modal {
@@ -1459,6 +1480,7 @@ border: 3px solid #f2e9e1;
   body.budgets-page .budget-modal .modal-body {
     margin-bottom: 10px;
     gap: 10px;
+    overflow: visible;
   }
 
   body.budgets-page .budget-modal .form-group {
@@ -1501,10 +1523,7 @@ border: 3px solid #f2e9e1;
     white-space: nowrap;
     border-radius: 8px;
   }
-}
 
-
-@media (max-width: 600px) {
   body .budget-modal .custom-dropdown-options,
   body .budget-category-dropdown .custom-dropdown-options,
   body .budget-period-dropdown .custom-dropdown-options {
@@ -1537,12 +1556,5 @@ border: 3px solid #f2e9e1;
     background: #1F1D2E;
     border: 2px solid var(--gray);
     scrollbar-color: #EB6F92 transparent;
-  }
-
-  [data-theme="light"] .modal-overlay:not(.hidden) .modal.budget-modal {
-    border-top: 3px solid #b4637a;
-    border-left: 3px solid #b4637a;
-    border-right: 3px solid #b4637a;
-    border-bottom: none;
   }
 }
