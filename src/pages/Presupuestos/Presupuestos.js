@@ -2213,28 +2213,45 @@
   }
 
   function aplicarTemaGuardado() {
-    const savedTheme = localStorage.getItem('theme') || 'dark';
-    aplicarTema(savedTheme);
+    let savedTheme = localStorage.getItem('theme');
+    if (!savedTheme) {
+      try {
+        const s = localStorage.getItem('finanzapp:settings:v1');
+        if (s) {
+          const p = JSON.parse(s);
+          if (p && p.theme) savedTheme = p.theme;
+        }
+      } catch (e) {}
+    }
+    aplicarTema(savedTheme === 'light' ? 'light' : 'dark');
   }
 
   function alternarTema() {
-    const currentTheme = localStorage.getItem('theme') || document.documentElement.getAttribute('data-theme') || 'dark';
+    const currentTheme = document.documentElement.getAttribute('data-theme') || localStorage.getItem('theme') || 'dark';
     const newTheme = currentTheme === 'light' ? 'dark' : 'light';
     aplicarTema(newTheme);
   }
 
   function aplicarTema(theme) {
+    const t = theme === 'light' ? 'light' : 'dark';
     const root = document.documentElement;
     const body = document.body;
-    if (theme === 'light') {
-      root.setAttribute('data-theme', 'light');
-      body.setAttribute('data-theme', 'light');
-    } else {
-      root.setAttribute('data-theme', 'dark');
-      body.setAttribute('data-theme', 'dark');
-    }
-    localStorage.setItem('theme', theme);
-    actualizarIconoTema(theme);
+    root.setAttribute('data-theme', t);
+    if (body) body.setAttribute('data-theme', t);
+    root.style.backgroundColor = t === 'light' ? '#f5efea' : '#191724';
+    if (body) body.style.backgroundColor = t === 'light' ? '#f5efea' : '#191724';
+
+    localStorage.setItem('theme', t);
+    try {
+      const rawSettings = localStorage.getItem('finanzapp:settings:v1');
+      const settings = rawSettings ? JSON.parse(rawSettings) : {};
+      settings.theme = t;
+      localStorage.setItem('finanzapp:settings:v1', JSON.stringify(settings));
+      if (window.FirestoreDB && typeof window.FirestoreDB.saveSettings === 'function' && window.FirestoreDB.currentUserId) {
+        window.FirestoreDB.saveSettings(settings).catch(() => {});
+      }
+    } catch (e) {}
+    actualizarIconoTema(t);
   }
 
   function actualizarIconoTema(theme) {
@@ -2243,6 +2260,12 @@
       icon.className = theme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
     }
   }
+
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'theme' && e.newValue) {
+      aplicarTema(e.newValue);
+    }
+  });
 
   function actualizarInfoUsuario() {
     try {

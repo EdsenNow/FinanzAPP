@@ -14,14 +14,12 @@
             if (p && p.theme) t = p.theme;
           }
         }
-        if (t === 'light') {
-          document.documentElement.setAttribute('data-theme', 'light');
-          document.documentElement.style.backgroundColor = '#f5efea';
-        } else {
-          document.documentElement.setAttribute('data-theme', 'dark');
-          document.documentElement.style.backgroundColor = '#191724';
-        }
-      } catch (e) {}
+        var theme = (t === 'light') ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', theme);
+        document.documentElement.style.backgroundColor = (theme === 'light') ? '#faf4ed' : '#191724';
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
     })();
   </script>
   <title>FinanzApp - Presupuestos</title>

@@ -411,30 +411,53 @@ function colorWithAlpha(color, alpha = 1) {
     const body = document.body;
     
     const apply = (t) => {
-      if (t === 'light') {
-        root.setAttribute('data-theme', 'light');
-        body.setAttribute('data-theme', 'light');
-      } else {
-        root.setAttribute('data-theme', 'dark');
-        body.setAttribute('data-theme', 'dark');
-      }
-      localStorage.setItem('theme', t);
+      const theme = t === 'light' ? 'light' : 'dark';
+      root.setAttribute('data-theme', theme);
+      if (body) body.setAttribute('data-theme', theme);
+      root.style.backgroundColor = theme === 'light' ? '#f5efea' : '#191724';
+      if (body) body.style.backgroundColor = theme === 'light' ? '#f5efea' : '#191724';
+
+      localStorage.setItem('theme', theme);
+      try {
+        const rawSettings = localStorage.getItem('finanzapp:settings:v1');
+        const settings = rawSettings ? JSON.parse(rawSettings) : {};
+        settings.theme = theme;
+        localStorage.setItem('finanzapp:settings:v1', JSON.stringify(settings));
+        if (window.FirestoreDB && typeof window.FirestoreDB.saveSettings === 'function' && window.FirestoreDB.currentUserId) {
+          window.FirestoreDB.saveSettings(settings).catch(() => {});
+        }
+      } catch (e) {}
       
       const icon = btn?.querySelector('i');
-      if (icon) icon.className = t === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+      if (icon) icon.className = theme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
       
       renderizarTodo();
     };
     
-    const stored = localStorage.getItem('theme');
+    let stored = localStorage.getItem('theme');
+    if (!stored) {
+      try {
+        const s = localStorage.getItem('finanzapp:settings:v1');
+        if (s) {
+          const p = JSON.parse(s);
+          if (p && p.theme) stored = p.theme;
+        }
+      } catch (e) {}
+    }
     apply(stored === 'light' ? 'light' : 'dark');
     
     if (btn) {
       btn.addEventListener('click', () => {
-        const current = localStorage.getItem('theme') === 'light' ? 'light' : 'dark';
+        const current = root.getAttribute('data-theme') || localStorage.getItem('theme') || 'dark';
         apply(current === 'light' ? 'dark' : 'light');
       });
     }
+
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'theme' && e.newValue) {
+        apply(e.newValue);
+      }
+    });
   }
 
 

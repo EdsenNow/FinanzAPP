@@ -162,8 +162,16 @@ class BasePage {
    */
   _applyTheme() {
     try {
-      const settings = JSON.parse(localStorage.getItem('finanzapp:settings:v1') || '{}');
-      document.documentElement.setAttribute('data-theme', settings?.theme || 'dark');
+      const stored = localStorage.getItem('theme');
+      let theme = stored;
+      if (!theme) {
+        const settings = JSON.parse(localStorage.getItem('finanzapp:settings:v1') || '{}');
+        theme = settings?.theme;
+      }
+      theme = theme === 'light' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', theme);
+      if (document.body) document.body.setAttribute('data-theme', theme);
+      localStorage.setItem('theme', theme);
     } catch { /* usa tema por defecto */ }
   }
 

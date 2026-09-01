@@ -3239,6 +3239,9 @@ function configurarListenersEventos() {
         const settings = rawSettings ? JSON.parse(rawSettings) : {};
         settings.theme = theme;
         localStorage.setItem('finanzapp:settings:v1', JSON.stringify(settings));
+        if (window.FirestoreDB && typeof window.FirestoreDB.saveSettings === 'function' && window.FirestoreDB.currentUserId) {
+          window.FirestoreDB.saveSettings(settings).catch(() => {});
+        }
       } catch (e) {}
 
       const icon = btn?.querySelector('i');

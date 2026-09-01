@@ -193,11 +193,13 @@ class FirestoreStore extends Store {
     localStorage.setItem(`${p}:${userId}:budgets`,      JSON.stringify(snapshot.budgets      || {}));
     if (snapshot.settings && typeof snapshot.settings === 'object' && Object.keys(snapshot.settings).length > 0) {
       try {
+        const localTheme = localStorage.getItem('theme');
+        const activeTheme = localTheme || snapshot.settings.theme || 'dark';
+        snapshot.settings.theme = activeTheme;
         localStorage.setItem('finanzapp:settings:v1', JSON.stringify(snapshot.settings));
-        if (snapshot.settings.theme) {
-          localStorage.setItem('theme', snapshot.settings.theme);
-          document.documentElement.setAttribute('data-theme', snapshot.settings.theme);
-        }
+        localStorage.setItem('theme', activeTheme);
+        document.documentElement.setAttribute('data-theme', activeTheme);
+        if (document.body) document.body.setAttribute('data-theme', activeTheme);
       } catch {}
     }
   }

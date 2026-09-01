@@ -553,11 +553,22 @@
       try {
         state.settings.theme = normalized;
         localStorage.setItem(SETTINGS_KEY, JSON.stringify(state.settings));
+        if (window.FirestoreDB && typeof window.FirestoreDB.saveSettings === 'function' && window.FirestoreDB.currentUserId) {
+          window.FirestoreDB.saveSettings(state.settings).catch(() => {});
+        }
       } catch (e) {}
     }
 
     updateThemeIcon(normalized);
   }
+
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'theme' && e.newValue) {
+      applyTheme(e.newValue, false);
+      if (state.settings) state.settings.theme = e.newValue;
+      try { applySettingsToForm(); } catch (err) {}
+    }
+  });
 
   function updateThemeIcon(theme) {
     const iconClass = theme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
