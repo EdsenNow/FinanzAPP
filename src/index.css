@@ -111,17 +111,20 @@ nav {
 }
 .nav-logo-icon {
   width: 40px; height: 40px;
-  background: linear-gradient(135deg, #eb6f92 0%, #d4637e 100%);
-  border-radius: 12px;
+  background: transparent;
+  background-image: url('/assets/logo-oscuro.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #e0def4;
-  font-size: 18px;
-  box-shadow: 0 6px 20px rgba(235,111,146,0.25);
 }
 .nav-logo-icon i {
-  color: #e0def4 !important;
+  display: none !important;
+}
+[data-theme="light"] .nav-logo-icon {
+  background-image: url('/assets/logo-claro.png') !important;
 }
 .nav-brand-name {
   font-size: 1.25rem;
