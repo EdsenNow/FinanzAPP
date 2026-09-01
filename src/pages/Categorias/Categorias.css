@@ -970,7 +970,7 @@ body.categorias-page .main-content::-webkit-scrollbar-thumb:hover {
   background: #1F1D2E;
   border: none;
   border-radius: 12px;
-  color: #6e6a86;
+  color: #e0def4;
   font-size: 14px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   font-weight: 500;
@@ -1356,7 +1356,7 @@ body.categorias-page select.form-control option:checked {
   backdrop-filter: blur(15px);
   border: none;
   border-radius: 12px;
-  color: #6e6a86;
+  color: #e0def4;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;

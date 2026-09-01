@@ -526,7 +526,7 @@ body::-webkit-scrollbar-corner {
   background: #1f1d2e;
   border: none;
   border-radius: 12px;
-  color: var(--light);
+  color: #e0def4;
   font-size: 15px;
   transition: all 0.3s ease;
   text-align: left;

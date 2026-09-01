@@ -40,9 +40,17 @@ body.estadistica-page .stats-insights .insight-icon.success {
   color: #e0def4;
 }
 
-[data-theme="dark"] .filter-group .custom-dropdown-selected {
+[data-theme="dark"] .filter-group .custom-dropdown-selected,
+[data-theme="dark"] .custom-dropdown-selected,
+[data-theme="dark"] .custom-dropdown-selected span,
+[data-theme="dark"] .form-control {
   background: transparent;
+  color: #e0def4;
+}
+
+[data-theme="dark"] .form-control::placeholder {
   color: #908caa;
+  opacity: 1;
 }
 
 [data-theme="dark"] .custom-dropdown.filter-active .custom-dropdown-selected {

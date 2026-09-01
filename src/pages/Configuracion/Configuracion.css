@@ -387,7 +387,7 @@ body.config-page .main-content::-webkit-scrollbar-thumb:hover {
 .preview-row .preview-label {
   font-size: 13px;
   font-weight: 600;
-  color: var(--config-muted, #b6b2d1);
+  color:#b6b2d1;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }

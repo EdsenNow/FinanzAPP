@@ -19,6 +19,20 @@
   color: #ffffff;
 }
 
+[data-theme="dark"] .custom-dropdown-selected,
+[data-theme="dark"] .custom-dropdown-selected span,
+[data-theme="dark"] .form-control,
+[data-theme="dark"] input.form-control,
+[data-theme="dark"] select.form-control {
+  color: #e0def4;
+}
+
+[data-theme="dark"] .form-control::placeholder {
+  color: #908caa;
+  opacity: 1;
+}
+
 [data-theme="dark"] .custom-dropdown.filter-active .custom-dropdown-selected {
   color: var(--primary);
 }
+

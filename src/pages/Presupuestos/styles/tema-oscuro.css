@@ -143,10 +143,16 @@
     background: #1F1D2E;
     border: none;
     border-radius: 12px;
-    color: #6e6a86;
+    color: #e0def4;
     font-size: 14px;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     font-weight: 500;
+}
+
+[data-theme="dark"] .form-control::placeholder,
+[data-theme="dark"] .search-input::placeholder {
+	color: #908caa;
+	opacity: 1;
 }
 
 [data-theme="dark"] .form-control:focus,
@@ -158,11 +164,13 @@
 [data-theme="dark"] .custom-dropdown .custom-dropdown-selected {
 	background: #1F1D2E;
 	padding: 7px 12px;
+	color: #e0def4;
 }
 
 [data-theme="dark"] .filter-group .custom-dropdown .custom-dropdown-selected {
 	background: transparent;
 	padding: 6px 12px;
+	color: #e0def4;
 }
 
 [data-theme="dark"] .custom-dropdown.filter-active .custom-dropdown-selected {
