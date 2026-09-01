@@ -438,7 +438,8 @@ class FirebaseAuth {
 
     return {
       success: false,
-      error: error.code,
+      error: error.code || 'unknown',
+      rawError: error.message || error.code || String(error),
       message: message
     };
   }
