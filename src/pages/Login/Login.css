@@ -409,7 +409,7 @@ body::-webkit-scrollbar-corner {
   border: none;
   cursor: pointer;
   font-weight: 600;
-  transition: all 0.3s ease;
+  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.28s ease, background 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -417,6 +417,10 @@ body::-webkit-scrollbar-corner {
   font-size: 15px;
 }
 
+.btn i {
+  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: inline-block;
+}
 
 .btn-primary {
   background: var(--primary);
@@ -426,8 +430,16 @@ body::-webkit-scrollbar-corner {
 
 .btn-primary:hover {
   background: var(--primary);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(235, 111, 146, 0.35);
+  transform: translateY(-3px) scale(1.025);
+  box-shadow: 0 10px 26px rgba(235, 111, 146, 0.45);
+}
+
+.btn-primary:hover i {
+  transform: translateX(4px);
+}
+
+.btn-primary:active {
+  transform: translateY(-1px) scale(0.99);
 }
 
 

@@ -35,6 +35,36 @@ body.config-page .selectable-text {
   -webkit-user-select: text;
 }
 
+body.config-page .btn {
+  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.28s ease, background 0.2s ease;
+}
+
+body.config-page .btn i {
+  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: inline-block;
+}
+
+body.config-page .btn-primary:hover,
+body.config-page #savePreferencesBtn:hover,
+body.config-page #saveImapBtn:hover,
+body.config-page #closeTutorialBtn:hover {
+  transform: translateY(-3px) scale(1.025) !important;
+  box-shadow: 0 10px 26px rgba(235, 111, 146, 0.48) !important;
+}
+
+body.config-page .btn-primary:hover i,
+body.config-page #savePreferencesBtn:hover i,
+body.config-page #saveImapBtn:hover i {
+  transform: translateX(4px);
+}
+
+body.config-page .btn-primary:active,
+body.config-page #savePreferencesBtn:active,
+body.config-page #saveImapBtn:active,
+body.config-page #closeTutorialBtn:active {
+  transform: translateY(-1px) scale(0.99) !important;
+}
+
 body.config-page .app-container {
   display: flex;
   height: 100dvh;

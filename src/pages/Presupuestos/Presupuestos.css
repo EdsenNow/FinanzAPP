@@ -15,6 +15,33 @@ user-select: text;
 -webkit-user-select: text;
 }
 
+body.budgets-page .btn {
+  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.28s ease, background 0.2s ease;
+}
+
+body.budgets-page .btn i {
+  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: inline-block;
+}
+
+body.budgets-page .btn-primary:hover,
+body.budgets-page #addBudgetBtn:hover,
+body.budgets-page #saveBudgetBtn:hover {
+  transform: translateY(-3px) scale(1.025) !important;
+  box-shadow: 0 10px 26px rgba(235, 111, 146, 0.48) !important;
+}
+
+body.budgets-page .btn-primary:hover i,
+body.budgets-page #addBudgetBtn:hover i {
+  transform: translateX(4px);
+}
+
+body.budgets-page .btn-primary:active,
+body.budgets-page #addBudgetBtn:active,
+body.budgets-page #saveBudgetBtn:active {
+  transform: translateY(-1px) scale(0.99) !important;
+}
+
 .budget-filters {
 flex-wrap: wrap;
 gap: 12px;
