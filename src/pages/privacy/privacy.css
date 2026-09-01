@@ -6,9 +6,16 @@ body {
   color: #e0def4;
   min-height: 100dvh;
   scrollbar-width: none; /* Firefox */
+  user-select: none;
+  -webkit-user-select: none;
 }
 ::-webkit-scrollbar {
   display: none; /* Chrome/Safari/Edge */
+}
+
+input, textarea, [contenteditable="true"] {
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 /* ===== Animated Orbs Background ===== */

@@ -43,7 +43,14 @@ body {
   line-height: 1.6;
   overflow-x: hidden;
   position: relative;
+  user-select: none;
+  -webkit-user-select: none;
   transition: background 0.3s ease, color 0.3s ease;
+}
+
+input, textarea, [contenteditable="true"] {
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 /* ===== Fondo animado con orbes brillantes ===== */

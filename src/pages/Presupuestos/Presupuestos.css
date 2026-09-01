@@ -3,6 +3,16 @@
 body.budgets-page {
 background: var(--dark);
 color: var(--light);
+user-select: none;
+-webkit-user-select: none;
+}
+
+body.budgets-page input,
+body.budgets-page textarea,
+body.budgets-page [contenteditable="true"],
+body.budgets-page .selectable-text {
+user-select: text;
+-webkit-user-select: text;
 }
 
 .budget-filters {

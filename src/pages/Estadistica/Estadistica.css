@@ -2,6 +2,16 @@ body.estadistica-page {
   background: #191724;
   height: 100dvh;
   overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+body.estadistica-page input,
+body.estadistica-page textarea,
+body.estadistica-page [contenteditable="true"],
+body.estadistica-page .selectable-text {
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 body.estadistica-page .app-container {

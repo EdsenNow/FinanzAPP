@@ -23,6 +23,16 @@ body.config-page {
   background: var(--config-page-bg, #191724);
   height: 100dvh;
   overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+body.config-page input,
+body.config-page textarea,
+body.config-page [contenteditable="true"],
+body.config-page .selectable-text {
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 body.config-page .app-container {

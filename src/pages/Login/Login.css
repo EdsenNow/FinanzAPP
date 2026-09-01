@@ -23,13 +23,19 @@ body {
   background: linear-gradient(135deg, var(--darker), var(--dark));
   color: var(--light);
   min-height: 100dvh;
-  min-height: 100dvh;
   overflow-x: hidden;
   overflow-y: auto;
   position: relative;
   -webkit-text-size-adjust: 100%;
   scrollbar-width: auto;
   scrollbar-color: #eb6f92 transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+input, textarea, [contenteditable="true"] {
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 ::-webkit-scrollbar,

@@ -103,6 +103,13 @@
 
 body { 
   color: var(--light);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+input, textarea, [contenteditable="true"], .selectable-text {
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 body.categorias-page {
