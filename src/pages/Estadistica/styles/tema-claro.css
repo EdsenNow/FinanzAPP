@@ -303,7 +303,21 @@ background-size: 200% 100%;
 [data-theme="light"] .custom-dropdown-options {
 background: var(--card-bg);
 border: 2px solid var(--gray);
+scrollbar-width: thin;
 scrollbar-color: #b4637a transparent;
+}
+
+[data-theme="light"] .custom-dropdown-options::-webkit-scrollbar {
+  width: 6px;
+}
+
+[data-theme="light"] .custom-dropdown-options::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+[data-theme="light"] .custom-dropdown-options::-webkit-scrollbar-thumb {
+  background: #b4637a;
+  border-radius: 12px;
 }
 
 [data-theme="light"] .custom-dropdown-option.selected {

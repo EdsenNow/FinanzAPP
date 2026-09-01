@@ -844,7 +844,7 @@ top: 8px;
 right: 8px;
 width: 36px;
 height: 36px;
-border: 2px solid rgba(180, 99, 122, 0.2);
+border: 1px solid rgba(180, 99, 122, 0.2);
 background: rgba(180, 99, 122, 0.08);
 color: #b4637a;
 border-radius: 9px;
@@ -1243,7 +1243,8 @@ display: none;
   overflow-y: auto;
 }
 
-[data-theme="light"] .mobile-actions-subpanel.is-month {
+[data-theme="light"] .mobile-actions-subpanel.is-month,
+[data-theme="light"] .mobile-actions-subpanel {
   max-height: 197px;
   max-width: 340px;
   overflow-y: scroll;
@@ -1251,19 +1252,23 @@ display: none;
   scrollbar-color: rgba(180, 99, 122, 0.7) transparent;
   border-radius: 10px;
 }
-[data-theme="light"] .mobile-actions-subpanel.is-month::-webkit-scrollbar {
+[data-theme="light"] .mobile-actions-subpanel.is-month::-webkit-scrollbar,
+[data-theme="light"] .mobile-actions-subpanel::-webkit-scrollbar {
   width: 4px;
 }
-[data-theme="light"] .mobile-actions-subpanel.is-month::-webkit-scrollbar-track {
+[data-theme="light"] .mobile-actions-subpanel.is-month::-webkit-scrollbar-track,
+[data-theme="light"] .mobile-actions-subpanel::-webkit-scrollbar-track {
   background: transparent;
   border-radius: 10px;
 }
-[data-theme="light"] .mobile-actions-subpanel.is-month::-webkit-scrollbar-thumb {
+[data-theme="light"] .mobile-actions-subpanel.is-month::-webkit-scrollbar-thumb,
+[data-theme="light"] .mobile-actions-subpanel::-webkit-scrollbar-thumb {
   background: rgba(180, 99, 122, 0.75);
   border-radius: 10px;
 }
 
-.mobile-actions-subpanel.is-month {
+.mobile-actions-subpanel.is-month,
+.mobile-actions-subpanel {
 max-height: 197px;
 max-width: 340px;
 overflow-y: scroll;
@@ -1272,7 +1277,20 @@ scrollbar-color: rgba(180, 99, 122, 0.7) transparent;
 border-radius: 10px;
 }
 
-.mobile-actions-subpanel.is-month::-webkit-scrollbar-thumb {
+.mobile-actions-subpanel.is-month::-webkit-scrollbar,
+.mobile-actions-subpanel::-webkit-scrollbar {
+  width: 4px;
+}
+
+.mobile-actions-subpanel.is-month::-webkit-scrollbar-track,
+.mobile-actions-subpanel::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 10px;
+}
+
+.mobile-actions-subpanel.is-month::-webkit-scrollbar-thumb,
+.mobile-actions-subpanel::-webkit-scrollbar-thumb {
+  background: rgba(180, 99, 122, 0.75);
   border-radius: 10px;
 }
 
@@ -1642,12 +1660,20 @@ background: transparent;
 color: #e0def4;
 }
 
-[data-theme="dark"] .mobile-actions-subpanel.is-month::-webkit-scrollbar-track {
+[data-theme="dark"] .mobile-actions-subpanel.is-month,
+[data-theme="dark"] .mobile-actions-subpanel {
+scrollbar-color: #eb6f92 transparent;
+}
+
+[data-theme="dark"] .mobile-actions-subpanel.is-month::-webkit-scrollbar-track,
+[data-theme="dark"] .mobile-actions-subpanel::-webkit-scrollbar-track {
 background: transparent;
 }
 
-[data-theme="dark"] .mobile-actions-subpanel.is-month::-webkit-scrollbar-thumb {
+[data-theme="dark"] .mobile-actions-subpanel.is-month::-webkit-scrollbar-thumb,
+[data-theme="dark"] .mobile-actions-subpanel::-webkit-scrollbar-thumb {
 background: rgba(215, 130, 126, 0.85);
+border-radius: 10px;
 }
 
 [data-theme="dark"] .mobile-actions-subpanel-input,
@@ -1726,13 +1752,11 @@ border: 3px solid #f2e9e1;
   }
 }
 
-/* Ocultar barra de scroll en paneles mviles pero permitir scroll */
-.mobile-actions-panel,
-.mobile-actions-subpanel {
+/* Ocultar barra de scroll en panel principal móvil pero permitir en subpaneles de opciones */
+.mobile-actions-panel {
   scrollbar-width: none !important; /* Firefox */
 }
-.mobile-actions-panel::-webkit-scrollbar,
-.mobile-actions-subpanel::-webkit-scrollbar {
+.mobile-actions-panel::-webkit-scrollbar {
   display: none !important; /* WebKit */
 }
 

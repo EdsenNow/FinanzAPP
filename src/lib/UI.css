@@ -333,7 +333,7 @@ html body .custom-alert::before { display: none; }
     border-left: 2px solid var(--primary, #EB6F92);
     border-right: 2px solid var(--primary, #EB6F92);
     border-bottom: none;
-    background: #191724;
+    background: #232136
   }
 
   .confirm-drawer.drawer-show {

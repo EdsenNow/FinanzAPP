@@ -468,7 +468,6 @@
     elementos = {
       yearFilter: document.getElementById('yearFilter'),
       monthFilter: document.getElementById('monthFilter'),
-      categoryFilter: document.getElementById('categoryFilter'),
       clearFiltersBtn: document.getElementById('clearFiltersBtn'),
       
       totalBudgeted: document.getElementById('totalBudgeted'),
@@ -674,17 +673,14 @@
   function actualizarIndicadoresFiltrosActivos() {
     const yearFilter = elementos.yearFilter || document.getElementById('yearFilter');
     const monthFilter = elementos.monthFilter || document.getElementById('monthFilter');
-    const categoryFilter = elementos.categoryFilter || document.getElementById('categoryFilter');
     const clearBtn = elementos.clearFiltersBtn || document.getElementById('clearFiltersBtn');
     
     const hayAnio = filtros.year !== null && filtros.year !== '';
     const hayMes = filtros.month !== null && filtros.month !== '';
-    const hayCategoria = filtros.category !== null && filtros.category !== '' && filtros.category !== 'all';
 
     if (yearFilter) yearFilter.classList.toggle('filter-active', hayAnio);
     if (monthFilter) monthFilter.classList.toggle('filter-active', hayMes);
-    if (categoryFilter) categoryFilter.classList.toggle('filter-active', hayCategoria);
-    if (clearBtn) clearBtn.classList.toggle('filter-active', hayAnio || hayMes || hayCategoria);
+    if (clearBtn) clearBtn.classList.toggle('filter-active', hayAnio || hayMes);
   }
 
   function limpiarFiltros() {
@@ -709,16 +705,6 @@
       if (sel && sel.querySelector('span')) sel.querySelector('span').textContent = 'Todos los meses';
       if (sel) sel.setAttribute('data-value', '');
       monthFilter.querySelectorAll('.custom-dropdown-option').forEach(opt => {
-        opt.classList.toggle('selected', opt.getAttribute('data-value') === '');
-      });
-    }
-
-    const categoryFilter = elementos.categoryFilter || document.getElementById('categoryFilter');
-    if (categoryFilter) {
-      const sel = categoryFilter.querySelector('.custom-dropdown-selected');
-      if (sel && sel.querySelector('span')) sel.querySelector('span').textContent = 'Todas las categorías';
-      if (sel) sel.setAttribute('data-value', '');
-      categoryFilter.querySelectorAll('.custom-dropdown-option').forEach(opt => {
         opt.classList.toggle('selected', opt.getAttribute('data-value') === '');
       });
     }
@@ -754,14 +740,6 @@
         const isSelected = (filtros.month === null && val === '') || (filtros.month !== null && val === String(filtros.month));
         opt.classList.toggle('selected', isSelected);
       });
-    }
-
-    const categoryFilter = elementos.categoryFilter || document.getElementById('categoryFilter');
-    if (categoryFilter && filtros.category) {
-      const catSelected = categoryFilter.querySelector('.custom-dropdown-selected');
-      if (catSelected) {
-        catSelected.setAttribute('data-value', filtros.category);
-      }
     }
     
     document.querySelectorAll('.budget-filters .custom-dropdown').forEach(dropdown => {
@@ -811,11 +789,6 @@
         } else if (dropdown.id === 'monthFilter') {
           filtros.month = value !== '' ? parseInt(value, 10) : null;
           guardarFiltrosPersistidos({ month: filtros.month });
-          actualizarIndicadoresFiltrosActivos();
-          aplicarFiltros();
-        } else if (dropdown.id === 'categoryFilter') {
-          filtros.category = value || null;
-          guardarFiltrosPersistidos({ category: filtros.category });
           actualizarIndicadoresFiltrosActivos();
           aplicarFiltros();
         }
@@ -1201,28 +1174,6 @@
 
   function actualizarCategorias() {
     poblarDropdownCategoriasModal(elementos.budgetCategory?.value || '');
-
-    const categoryFilter = elementos.categoryFilter || document.getElementById('categoryFilter');
-    if (categoryFilter) {
-      const optionsContainer = categoryFilter.querySelector('.custom-dropdown-options');
-      if (optionsContainer) {
-        optionsContainer.innerHTML = '';
-
-        const allOption = document.createElement('div');
-        allOption.className = 'custom-dropdown-option selected';
-        allOption.setAttribute('data-value', '');
-        allOption.textContent = 'Todas las categorías';
-        optionsContainer.appendChild(allOption);
-        
-        datosApp.categories.forEach(cat => {
-          const option = document.createElement('div');
-          option.className = 'custom-dropdown-option';
-          option.setAttribute('data-value', cat.id);
-          option.textContent = cat.name;
-          optionsContainer.appendChild(option);
-        });
-      }
-    }
   }
 
 
@@ -1276,9 +1227,6 @@
 
   function obtenerPresupuestosFiltrados() {
     return datosApp.budgets.filter(budget => {
-      if (filtros.category && String(budget.categoryId) !== String(filtros.category)) {
-        return false;
-      }
       
       if (filtros.year) {
         const startDate = new Date(budget.startDate);

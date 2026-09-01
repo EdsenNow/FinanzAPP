@@ -74,11 +74,6 @@ body.budgets-page .budget-filters #monthFilter {
   width: 180px;
 }
 
-body.budgets-page .budget-filters #categoryFilter {
-  min-width: 200px;
-  width: 200px;
-}
-
 body.budgets-page .budget-filters .custom-dropdown {
   width: auto;
 }
