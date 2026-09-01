@@ -4167,16 +4167,20 @@ class GmailNotificationManager {
   }
 
   async clearAll() {
-    if (this.notifications.length === 0) return;
+    if (!this.notifications || this.notifications.length === 0) return;
     
+    this.togglePanel(false);
+
     const result = await (typeof window.showAlert === 'function'
-      ? window.showAlert('Limpiar Notificaciones', '¿Estás seguro de que deseas eliminar todas las notificaciones?', { variant: 'confirm', emphasis: 'danger' })
-      : Promise.resolve(confirm('¿Estás seguro de que deseas eliminar todas las notificaciones?')));
+      ? window.showAlert('Eliminar notificaciones', '¿Estás seguro de que deseas eliminar todas las notificaciones detectadas?', { variant: 'confirm', emphasis: 'danger', confirmText: 'Eliminar todas', cancelText: 'Cancelar' })
+      : Promise.resolve(confirm('¿Estás seguro de que deseas eliminar todas las notificaciones detectadas?')));
       
     if (result !== 'confirm' && result !== true) return;
     
     this.notifications = [];
     this._saveNotifications();
+    this.updateBadges();
+    this.renderList();
   }
 
   updateBadges() {

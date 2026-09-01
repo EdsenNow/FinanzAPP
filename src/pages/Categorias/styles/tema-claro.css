@@ -440,10 +440,28 @@ color: #fffaf3;
   background: #fffaf3;
   color: #575279;
   border: 2px solid var(--gray);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+}
+
+[data-theme="light"] .gmail-notif-item {
+  background: #fbf6f0;
 }
 
 [data-theme="light"] .gmail-notif-item:hover {
-  background: #f5efea;
+  background: #f2e9e1;
+  border-color: color-mix(in srgb, #b4637a 25%, transparent);
+}
+
+[data-theme="light"] #gmailClearAllBtn {
+  background: color-mix(in srgb, #b4637a 10%, transparent);
+  border-color: color-mix(in srgb, #b4637a 30%, transparent);
+  color: #b4637a;
+}
+
+[data-theme="light"] #gmailClearAllBtn:hover {
+  background: color-mix(in srgb, #b4637a 22%, transparent);
+  border-color: #b4637a;
+  color: #575279;
 }
 
 [data-theme="light"] .gmail-notif-amount {
