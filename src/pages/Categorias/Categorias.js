@@ -2092,10 +2092,10 @@ function renderizarCategorias() {
 
   const tarjeta = document.createElement('div');
   const isExpanded = expandedCategoryIds.has(category.id);
-  let viewMode = 'extended';
+  let viewMode = 'compact';
   try {
     const rawSettings = JSON.parse(localStorage.getItem('finanzapp:settings:v1') || '{}');
-    if (rawSettings.categoryViewMode === 'compact') viewMode = 'compact';
+    if (rawSettings.categoryViewMode === 'extended') viewMode = 'extended';
   } catch (e) {}
 
   tarjeta.className = `category-card fade-in${category.isPinned ? ' pinned' : ''}${viewMode === 'compact' ? ' compact-mode' : (isExpanded ? '' : ' mobile-collapsed')}`;

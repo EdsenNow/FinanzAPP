@@ -15,6 +15,7 @@
 
   const DEFAULT_SETTINGS = Object.freeze({
     theme: 'dark',
+    categoryViewMode: 'compact',
     currency: 'DOP',
     numberFormat: 'us',
     tooltips: 'on',
@@ -22,8 +23,8 @@
     dateFormat: 'dmy',
     confirmDelete: 'on',
     autoRenewBudgets: 'on',
-    txPerPage: 'all',
-    showCents: 'on',
+    txPerPage: '10',
+    showCents: 'off',
     censorAmounts: 'off'
   });
 
@@ -401,7 +402,7 @@
   function sanitizeSettings(raw) {
     const safe = {
       theme: raw?.theme === 'light' ? 'light' : 'dark',
-      categoryViewMode: raw?.categoryViewMode === 'compact' ? 'compact' : 'extended',
+      categoryViewMode: raw?.categoryViewMode === 'extended' ? 'extended' : 'compact',
       currency: CURRENCY_LOCALE_MAP[raw?.currency] ? raw.currency : DEFAULT_SETTINGS.currency,
       numberFormat: raw?.numberFormat === 'eu' ? 'eu' : 'us',
       tooltips: raw?.tooltips === 'off' ? 'off' : 'on',
@@ -410,7 +411,7 @@
       confirmDelete: raw?.confirmDelete === 'off' ? 'off' : 'on',
       autoRenewBudgets: raw?.autoRenewBudgets === 'off' ? 'off' : 'on',
       txPerPage: ['10','25','50','all'].includes(String(raw?.txPerPage)) ? String(raw.txPerPage) : '10',
-      showCents: raw?.showCents === 'off' ? 'off' : 'on',
+      showCents: raw?.showCents === 'on' ? 'on' : 'off',
       censorAmounts: raw?.censorAmounts === 'on' ? 'on' : 'off'
     };
     return safe;
@@ -436,16 +437,16 @@
 
   function applySettingsToForm() {
     setDropdownValue('themePreference', state.settings.theme || 'dark');
-    setDropdownValue('categoryViewPreference', state.settings.categoryViewMode || 'extended');
-    setDropdownValue('currencyPreference', state.settings.currency);
-    setDropdownValue('numberFormatPreference', state.settings.numberFormat);
+    setDropdownValue('categoryViewPreference', state.settings.categoryViewMode || 'compact');
+    setDropdownValue('currencyPreference', state.settings.currency || 'DOP');
+    setDropdownValue('numberFormatPreference', state.settings.numberFormat || 'us');
     setDropdownValue('tooltipsPreference', state.settings.tooltips || 'on');
     setDropdownValue('shortcutsPreference', state.settings.shortcuts || 'on');
     setDropdownValue('dateFormatPreference', state.settings.dateFormat || 'dmy');
     setDropdownValue('confirmDeletePreference', state.settings.confirmDelete || 'on');
     setDropdownValue('autoRenewBudgetsPreference', state.settings.autoRenewBudgets || 'on');
-    setDropdownValue('txPerPagePreference', state.settings.txPerPage || 'all');
-    setDropdownValue('showCentsPreference', state.settings.showCents || 'on');
+    setDropdownValue('txPerPagePreference', state.settings.txPerPage || '10');
+    setDropdownValue('showCentsPreference', state.settings.showCents || 'off');
     setDropdownValue('censorAmountsPreference', state.settings.censorAmounts || 'off');
   }
 

@@ -28,14 +28,34 @@ class Helpers {
   };
 
   /**
-   * Lee la configuración de la app desde localStorage de forma segura.
-   * @returns {Object} Objeto de configuración o `{}` si no existe o hay error de parseo.
+   * Configuración por defecto del sistema.
+   */
+  static DEFAULT_SETTINGS = Object.freeze({
+    theme: 'dark',
+    categoryViewMode: 'compact',
+    currency: 'DOP',
+    numberFormat: 'us',
+    tooltips: 'on',
+    shortcuts: 'on',
+    dateFormat: 'dmy',
+    confirmDelete: 'on',
+    autoRenewBudgets: 'on',
+    txPerPage: '10',
+    showCents: 'off',
+    censorAmounts: 'off'
+  });
+
+  /**
+   * Lee la configuración de la app desde localStorage de forma segura combinada con los defaults.
+   * @returns {Object} Objeto de configuración.
    */
   static #getAppSettings() {
     try {
-      return JSON.parse(localStorage.getItem('finanzapp:settings:v1') || '{}');
+      const raw = localStorage.getItem('finanzapp:settings:v1');
+      if (!raw) return { ...Helpers.DEFAULT_SETTINGS };
+      return { ...Helpers.DEFAULT_SETTINGS, ...JSON.parse(raw) };
     } catch {
-      return {};
+      return { ...Helpers.DEFAULT_SETTINGS };
     }
   }
 
@@ -46,7 +66,7 @@ class Helpers {
   static getCurrencyMeta() {
     const raw  = Helpers.#getAppSettings();
     const code = Helpers.#CURRENCY_META[raw?.currency] ? raw.currency : 'DOP';
-    const base = Helpers.#CURRENCY_META[code];
+    const base = Helpers.#CURRENCY_META[code] || Helpers.#CURRENCY_META.DOP;
     const locale = raw?.numberFormat === 'eu' ? 'es-ES' : base.locale;
     return { ...base, code, locale };
   }
@@ -58,7 +78,7 @@ class Helpers {
    */
   static #getFormatter(style = 'currency') {
     const currencyMeta = Helpers.getCurrencyMeta();
-    const showCents    = window.__appShowCents !== false;
+    const showCents    = window.__appShowCents === true;
     const options = {
       minimumFractionDigits: showCents ? 2 : 0,
       maximumFractionDigits: showCents ? 2 : 0
@@ -303,7 +323,8 @@ class Helpers {
       window.__appTxPerPage        = raw?.txPerPage === 'all'
         ? Infinity
         : (['10', '25', '50'].includes(String(raw?.txPerPage)) ? Number(raw.txPerPage) : 10);
-      window.__appShowCents        = raw?.showCents !== 'off';
+      window.__appShowCents        = raw?.showCents === 'on';
+      window.__appCategoryViewMode = raw?.categoryViewMode === 'extended' ? 'extended' : 'compact';
       window.__appCurrency         = currencyMeta.code;
       window.__appCurrencySymbol   = currencyMeta.symbol;
       window.__appCurrencyLocale   = currencyMeta.locale;
@@ -312,11 +333,12 @@ class Helpers {
       window.__appTooltips         = true;
       window.__appConfirmDelete    = true;
       window.__appCensorAmounts    = false;
-      window.__appTxPerPage        = Infinity;
-      window.__appShowCents        = true;
-      window.__appCurrency         = 'USD';
-      window.__appCurrencySymbol   = '$';
-      window.__appCurrencyLocale   = 'en-US';
+      window.__appTxPerPage        = 10;
+      window.__appShowCents        = false;
+      window.__appCategoryViewMode = 'compact';
+      window.__appCurrency         = 'DOP';
+      window.__appCurrencySymbol   = 'RD$';
+      window.__appCurrencyLocale   = 'es-DO';
     }
   }
 

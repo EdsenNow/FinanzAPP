@@ -90,8 +90,36 @@
     backFromRecoveryBtn.addEventListener('click', () => showScreen(emailLoginScreen));
   }
 
+  const DEFAULT_SETTINGS = {
+    theme: 'dark',
+    categoryViewMode: 'compact',
+    currency: 'DOP',
+    numberFormat: 'us',
+    tooltips: 'on',
+    shortcuts: 'on',
+    dateFormat: 'dmy',
+    confirmDelete: 'on',
+    autoRenewBudgets: 'on',
+    txPerPage: '10',
+    showCents: 'off',
+    censorAmounts: 'off'
+  };
+
+  function asegurarConfiguracionPorDefecto() {
+    try {
+      const existing = localStorage.getItem('finanzapp:settings:v1');
+      if (!existing) {
+        localStorage.setItem('finanzapp:settings:v1', JSON.stringify(DEFAULT_SETTINGS));
+      }
+      if (!localStorage.getItem('theme')) {
+        localStorage.setItem('theme', 'dark');
+      }
+    } catch {}
+  }
+
   if (loginAsGuestBtn) {
     loginAsGuestBtn.addEventListener('click', () => {
+      asegurarConfiguracionPorDefecto();
       const guestProfile = {
         provider: 'guest',
         uid: 'guest',
@@ -151,6 +179,7 @@
         }
 
         if (result && result.success) {
+          asegurarConfiguracionPorDefecto();
           isDone = true;
           if (checkPopupInterval) clearInterval(checkPopupInterval);
           window.open = originalOpen;
@@ -226,6 +255,7 @@
       const rememberMe = document.getElementById('rememberMe')?.checked ?? true;
       const result = await window.firebaseAuth.loginWithEmail(email, password, rememberMe);
         if (result.success) {
+          asegurarConfiguracionPorDefecto();
           try {
             if (window.FirestoreDB && result.user) {
               const firestoreTimeout = new Promise((_, reject) => 
