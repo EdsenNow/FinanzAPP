@@ -161,10 +161,7 @@ class FirebaseAuth {
           localStorage.removeItem('logoutTimestamp');
           this.saveUserSession(redirectResult.user);
           console.log('[FirebaseAuth] Sesión restaurada desde redirect:', redirectResult.user.email);
-          const targetUrl = window.location.pathname.includes('/pages/') 
-            ? '../Categorias/Categorias.html' 
-            : './pages/Categorias/Categorias.html';
-          window.location.replace(targetUrl);
+          window.location.replace('/pages/Categorias/Categorias.html');
           return true;
         }
       } catch (err) {
@@ -290,15 +287,17 @@ class FirebaseAuth {
         prompt: 'select_account'
       });
 
-      // Detectar navegadores que bloquean cookies de terceros o popups en cross-origin (Firefox, Zen Browser, Safari, Móviles)
-      const isPrivacyBrowserOrMobile = /Android|iPhone|iPad|iPod|Mobile|Firefox|FxiOS|Zen/i.test(navigator.userAgent);
-      if (isPrivacyBrowserOrMobile) {
+      // En navegadores Firefox, Zen Browser, Safari, o dispositivos móviles,
+      // las políticas de cookies de terceros y partición de almacenamiento bloquean popups de autenticación.
+      // Usar signInWithRedirect directamente para una experiencia 100% fluida y sin fallos.
+      const isGeckoOrMobile = /Android|iPhone|iPad|iPod|Mobile|Firefox|FxiOS|Zen|Gecko/i.test(navigator.userAgent) && !/Chrome|CriOS/i.test(navigator.userAgent) || /Firefox|Zen/i.test(navigator.userAgent);
+      if (isGeckoOrMobile) {
         try {
-          console.info('[FirebaseAuth] Navegador Firefox/Zen o móvil detectado, usando signInWithRedirect...');
+          console.info('[FirebaseAuth] Navegador Firefox/Zen o móvil detectado. Iniciando signInWithRedirect...');
           await this.auth.signInWithRedirect(provider);
           return { success: true, redirect: true, message: 'Redirigiendo para iniciar sesión con Google' };
         } catch (redirErr) {
-          console.warn('[FirebaseAuth] signInWithRedirect directo falló, intentando popup:', redirErr);
+          console.warn('[FirebaseAuth] signInWithRedirect falló, intentando popup:', redirErr);
         }
       }
 
@@ -313,34 +312,16 @@ class FirebaseAuth {
         };
       } catch (popupError) {
         const code = popupError && popupError.code ? popupError.code : '';
-        
-        // Si el popup falló por bloqueo, aislamiento de cookies o error de conexión en el popup, usar redirección como fallback
-        if (code === 'auth/popup-blocked' || 
-            code === 'auth/internal-error' || 
-            code === 'auth/network-request-failed' ||
-            code === 'auth/popup-closed-by-user' ||
-            isPrivacyBrowserOrMobile) {
-          console.warn('[FirebaseAuth] Popup falló o fue bloqueado (' + code + '), iniciando fallback con signInWithRedirect...');
-          try {
-            await this.auth.signInWithRedirect(provider);
-            return { success: true, redirect: true, message: 'Redirigiendo para iniciar sesión con Google' };
-          } catch (redirectError) {
-            console.error('[FirebaseAuth] signInWithRedirect falló (' + redirectError.code + '):', redirectError.message);
-            return this.handleAuthError(redirectError);
-          }
-        }
+        console.warn('[FirebaseAuth] signInWithPopup no completó (' + code + '), ejecutando fallback con redirección...');
 
-        if (code === 'auth/cancelled-popup-request' || code === 'auth/user-cancelled') {
-          return {
-            success: false,
-            cancelled: true,
-            error: code,
-            message: 'Inicio de sesión cancelado'
-          };
+        // Si el popup falló por cualquier motivo de ventana o bloqueo, redirigir directamente
+        try {
+          await this.auth.signInWithRedirect(provider);
+          return { success: true, redirect: true, message: 'Redirigiendo para iniciar sesión con Google' };
+        } catch (redirectError) {
+          console.error('[FirebaseAuth] signInWithRedirect fallback falló (' + redirectError.code + '):', redirectError.message);
+          return this.handleAuthError(redirectError);
         }
-
-        console.error('[FirebaseAuth] Error en signInWithPopup:', popupError);
-        return this.handleAuthError(popupError);
       }
 
     } catch (error) {
@@ -468,7 +449,6 @@ class FirebaseAuth {
       'auth/invalid-credential': 'Correo o contraseña incorrectos',
       'auth/too-many-requests': 'Demasiados intentos fallidos. Intenta más tarde',
       'auth/network-request-failed': 'Error de conexión. Verifica tu internet',
-      'auth/unauthorized-domain': 'Este dominio o IP no está autorizado en Firebase Console. Usa http://localhost:... en lugar de http://127.0.0.1:... o añade tu dominio/IP en Firebase Console > Authentication > Ajustes > Dominios autorizados.',
       'auth/popup-closed-by-user': 'Inicio de sesión cancelado',
       'auth/cancelled-popup-request': 'Operación cancelada',
       'auth/popup-blocked': 'El navegador bloqueó la ventana emergente',
