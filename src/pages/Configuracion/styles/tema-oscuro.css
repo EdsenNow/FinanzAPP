@@ -65,5 +65,13 @@
 }
 
 [data-theme="dark"] .logo-icon {
-  background: #eb6f92;
+  background: transparent !important;
+  background-image: url('/assets/logo-oscuro.png') !important;
+  background-size: contain !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+}
+
+[data-theme="dark"] .logo-icon i {
+  display: none !important;
 }

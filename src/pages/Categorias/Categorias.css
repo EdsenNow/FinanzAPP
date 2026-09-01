@@ -162,19 +162,21 @@ body.categorias-page .app-container {
   color: var(--light);
 }
 .logo-icon {
-  background: var(--primary);
   width: 36px;
   height: 36px;
-  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
-  overflow: hidden;
+  background: transparent;
+  background-image: url('/assets/logo-oscuro.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
 }
 .logo-icon i,
 .nav-logo-icon i {
-  color: #e0def4 !important;
+  display: none !important;
 }
 .logo-icon::before {
   content: '';

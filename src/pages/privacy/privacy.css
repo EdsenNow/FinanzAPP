@@ -51,16 +51,17 @@ nav {
 }
 .nav-logo-icon {
   width: 36px; height: 36px;
-  background: linear-gradient(135deg, #eb6f92 0%, #d4637e 100%);
-  border-radius: 10px;
+  background: transparent;
+  background-image: url('/assets/logo-oscuro.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #e0def4;
-  font-size: 16px;
 }
 .nav-logo-icon i {
-  color: #e0def4 !important;
+  display: none !important;
 }
 .nav-brand-name {
   font-size: 1.1rem;

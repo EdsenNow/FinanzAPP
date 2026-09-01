@@ -95,11 +95,15 @@ background: #FAF4ED;
 }
 
 [data-theme="light"] .logo-icon {
-background: transparent;
+background: transparent !important;
+background-image: url('/assets/logo-claro.png') !important;
+background-size: contain !important;
+background-repeat: no-repeat !important;
+background-position: center !important;
 }
 
 [data-theme="light"] .logo-icon i {
-color: #e0def4 !important;
+display: none !important;
 }
 
 [data-theme="light"] .category-card {

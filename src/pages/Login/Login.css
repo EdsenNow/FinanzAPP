@@ -318,20 +318,21 @@ body::-webkit-scrollbar-corner {
 
 
 .logo-icon {
-  background: var(--primary);
+  background: transparent;
+  background-image: url('/assets/logo-oscuro.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
   width: 64px;
   height: 64px;
-  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
-  overflow: hidden;
 }
 
 .logo-icon i {
-  font-size: 32px;
-  color: #e0def4 !important;
+  display: none !important;
 }
 
 
