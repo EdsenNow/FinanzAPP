@@ -62,7 +62,7 @@
         const recentLogout = logoutTimestamp && (Date.now() - parseInt(logoutTimestamp, 10)) < LOGOUT_BLOCK_MS;
         const loggedIn = localStorage.getItem('loggedIn');
         if ((loggedIn === 'true' || loggedIn === '1') && !recentLogout) {
-          window.location.replace('/pages/Dashboard/Dashboard.html');
+          window.location.replace('/pages/Categorias/Categorias.html');
         }
       } catch (e) {}
     })();
@@ -181,8 +181,8 @@
         var cta = document.getElementById('ctaPrimary');
         var isLoggedIn = localStorage.getItem('loggedIn');
         if (cta && (isLoggedIn === 'true' || isLoggedIn === '1') && !recentLogout) {
-          cta.href = '/pages/Dashboard/Dashboard.html';
-          cta.innerHTML = '<i class="fas fa-th-large"></i> Ir al Dashboard';
+          cta.href = '/pages/Categorias/Categorias.html';
+          cta.innerHTML = '<i class="fas fa-th-large"></i> Ir a Categorías';
         }
 
         if (window.firebaseAuth) {
@@ -191,7 +191,7 @@
             window.firebaseAuth.auth.onAuthStateChanged(function (user) {
               if (user && !recentLogout) {
                 localStorage.setItem('loggedIn', 'true');
-                window.location.replace('/pages/Dashboard/Dashboard.html');
+                window.location.replace('/pages/Categorias/Categorias.html');
               }
             });
           }

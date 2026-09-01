@@ -161,7 +161,7 @@ class FirebaseAuth {
           localStorage.removeItem('logoutTimestamp');
           this.saveUserSession(redirectResult.user);
           console.log('[FirebaseAuth] Sesión restaurada desde redirect:', redirectResult.user.email);
-          window.location.replace('/pages/Dashboard/Dashboard.html');
+          window.location.replace('/pages/Categorias/Categorias.html');
           return true;
         }
       } catch (err) {

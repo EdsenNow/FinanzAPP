@@ -15,7 +15,7 @@
  * @type {Array<{key: string, label: string, icon: string, href: string, upcoming?: boolean, message?: string}>}
  */
 const NAV_ITEMS = [
-  { key: 'dashboard',     label: 'Dashboard',      icon: 'fas fa-home',      href: '/pages/Dashboard/Dashboard.html' },
+  { key: 'categorias',    label: 'Categorías',     icon: 'fas fa-home',      href: '/pages/Categorias/Categorias.html' },
   { key: 'presupuestos',  label: 'Presupuestos',   icon: 'fas fa-wallet',    href: '/pages/Presupuestos/Presupuestos.html' },
   { key: 'estadistica',   label: 'Estadísticas',   icon: 'fas fa-chart-pie', href: '/pages/Estadistica/Estadistica.html' },
   { key: 'configuracion', label: 'Configuración',  icon: 'fas fa-cog',       href: '/pages/Configuracion/Configuracion.html' }

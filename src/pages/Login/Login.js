@@ -129,7 +129,7 @@
       };
       localStorage.setItem('loggedIn', '1');
       localStorage.setItem('authUser', JSON.stringify(guestProfile));
-      window.location.href = '../Dashboard/Dashboard.html';
+      window.location.href = '../Categorias/Categorias.html';
     });
   }
 
@@ -211,9 +211,9 @@
             }
           })();
 
-          // Redirigir al Dashboard de inmediato
+          // Redirigir a Categorías de inmediato
           setTimeout(() => {
-            window.location.replace('/pages/Dashboard/Dashboard.html');
+            window.location.replace('/pages/Categorias/Categorias.html');
           }, 600);
           return;
         }
@@ -279,7 +279,7 @@
           } catch (firestoreError) {
           }
           
-          window.location.href = '../Dashboard/Dashboard.html';
+          window.location.href = '../Categorias/Categorias.html';
         } else if (result.error === 'auth/email-not-verified') {
           // Correo no verificado: mostrar error con opción de reenviar
           showAlert(
@@ -523,18 +523,18 @@
 
         if (user && !recentLogout) {
           try { window.firebaseAuth?.saveUserSession(user); } catch (e) {}
-          window.location.replace('/pages/Dashboard/Dashboard.html');
+          window.location.replace('/pages/Categorias/Categorias.html');
         }
       } else {
         const isLoggedIn = localStorage.getItem('loggedIn');
         if (isLoggedIn === '1' && !recentLogout) {
-          window.location.replace('/pages/Dashboard/Dashboard.html');
+          window.location.replace('/pages/Categorias/Categorias.html');
         }
       }
     } catch (err) {
       const isLoggedIn = localStorage.getItem('loggedIn');
       if (isLoggedIn === '1' && !recentLogout) {
-        window.location.replace('/pages/Dashboard/Dashboard.html');
+        window.location.replace('/pages/Categorias/Categorias.html');
       }
     }
   })();
