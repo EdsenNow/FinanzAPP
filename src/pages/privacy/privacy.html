@@ -38,7 +38,7 @@
   <div class="hero">
     <div class="hero-icon"><i class="fas fa-shield-alt"></i></div>
     <h1>Política de Privacidad</h1>
-    <p>Última actualización: 10 de mayo de 2026</p>
+    <p>Última actualización: 1 de septiembre de 2026</p>
   </div>
 
   <div class="content">
@@ -49,7 +49,7 @@
         <div class="card-icon pink"><i class="fas fa-info-circle"></i></div>
         <h2>Resumen</h2>
       </div>
-      <p>FinanzApp es una aplicación de finanzas personales desarrollada para uso personal. Esta política describe cómo se recopila, usa y protege tu información cuando usas la app.</p>
+      <p>FinanzApp es una aplicación de finanzas personales desarrollada para uso personal. Esta política describe con total transparencia cómo se recopilan, procesan, protegen y eliminan tus datos al utilizar la aplicación.</p>
     </div>
 
     <div class="card">
@@ -58,9 +58,9 @@
         <h2>Información que recopilamos</h2>
       </div>
       <ul>
-        <li><strong>Datos de Gmail (solo lectura):</strong> Con tu autorización expresa, FinanzApp accede a correos de alertas bancarias para detectar transacciones. Solo se leen correos de los remitentes que tú configures.</li>
-        <li><strong>Datos financieros:</strong> Transacciones, categorías y presupuestos que tú mismo introduces en la app.</li>
-        <li><strong>Cuenta de Google:</strong> Se usa para autenticar al usuario y asociar los datos a su cuenta (nombre y correo electrónico).</li>
+        <li><strong>Lectura de correos bancarios (IMAP con Contraseña de Aplicación):</strong> Si decides activar la sincronización automática, FinanzApp se conecta de forma segura a tu proveedor de correo (como Gmail) mediante protocolo IMAP protegido con TLS/SSL utilizando una Contraseña de Aplicación exclusiva generada por ti. Solo se consultan y analizan los correos de los remitentes bancarios que tú configures.</li>
+        <li><strong>Datos financieros:</strong> Transacciones (ingresos y gastos), categorías y presupuestos mensuales que tú introduces o sincronizas en la app.</li>
+        <li><strong>Cuenta de Google:</strong> Se utiliza mediante Firebase Authentication para autenticarte de forma segura y asociar tus finanzas exclusivamente a tu cuenta de usuario (nombre y correo electrónico).</li>
       </ul>
     </div>
 
@@ -70,8 +70,9 @@
         <h2>Cómo usamos la información</h2>
       </div>
       <ul>
-        <li>Los datos de Gmail se usan exclusivamente para detectar transacciones bancarias dentro de la app. No se almacenan en servidores externos ni se comparten con terceros.</li>
-        <li>Los datos financieros se almacenan en Firebase Firestore, asociados a tu cuenta de Google, para que puedas acceder desde cualquier dispositivo.</li>
+        <li><strong>Procesamiento de transacciones:</strong> El contenido de los correos de notificaciones bancarias se analiza de forma efímera para detectar montos, fechas y conceptos de transacciones, convirtiéndolos en registros de gastos dentro de tu panel.</li>
+        <li><strong>Sin almacenamiento de buzones:</strong> Nunca se descargan, copian ni almacenan tus correos electrónicos completos en servidores externos.</li>
+        <li><strong>Almacenamiento seguro en la nube:</strong> Tus datos financieros y transacciones se almacenan en Firebase Firestore, vinculados a tu identificador único de usuario para que puedas acceder desde cualquier dispositivo.</li>
       </ul>
     </div>
 
@@ -80,7 +81,7 @@
         <div class="card-icon purple"><i class="fas fa-user-secret"></i></div>
         <h2>Compartición de datos</h2>
       </div>
-      <p>FinanzApp no vende, arrienda ni comparte tu información personal con terceros. Los datos son accesibles únicamente por el usuario autenticado.</p>
+      <p>FinanzApp no vende, arrienda, comercializa ni comparte tu información personal ni tus credenciales con terceros bajo ninguna circunstancia. Tus datos son estrictamente privados y accesibles únicamente por ti.</p>
     </div>
 
     <h3 class="section-title mt-4">Seguridad y Protección</h3>
@@ -90,7 +91,7 @@
         <div class="card-icon green"><i class="fas fa-lock"></i></div>
         <h2>Seguridad</h2>
       </div>
-      <p>Utilizamos Firebase Authentication y Firestore con reglas de seguridad para garantizar que solo tú puedas acceder a tus datos. Los tokens de acceso a Gmail se almacenan encriptados y asociados únicamente a tu cuenta de usuario.</p>
+      <p>Utilizamos Firebase Authentication y Cloud Firestore protegidos con reglas de seguridad a nivel de base de datos para garantizar que ningún otro usuario pueda acceder a tu información. Las credenciales de acceso para lectura de correos se almacenan con cifrado de alto nivel.</p>
     </div>
 
     <div class="card">
@@ -98,37 +99,27 @@
         <div class="card-icon green"><i class="fas fa-user-shield"></i></div>
         <h2>Mecanismos de Protección de Datos Sensibles</h2>
       </div>
-      <p>FinanzApp implementa rigurosas medidas de seguridad técnicas y organizativas para garantizar la protección de los datos sensibles de los usuarios:</p>
+      <p>FinanzApp implementa rigurosas medidas de seguridad técnicas para garantizar la integridad y confidencialidad de tus datos:</p>
       <ul>
-        <li><strong>Encriptación en Tránsito:</strong> Toda la transmisión de datos entre la aplicación, las APIs de Google y nuestros servidores se realiza mediante conexiones HTTPS encriptadas con protocolos TLS 1.3 / SSL.</li>
-        <li><strong>Encriptación en Reposo:</strong> Las credenciales y tokens de la API se almacenan con algoritmos de cifrado fuerte (AES-256) en bases de datos con encriptación en reposo habilitada.</li>
-        <li><strong>Aislamiento y Reglas de Seguridad:</strong> Se aplican políticas de control de acceso estrictas en Firebase Firestore que impiden el acceso no autorizado entre usuarios distintos.</li>
-        <li><strong>Procesamiento Efímero:</strong> El contenido de los correos procesados para notificaciones bancarias se analiza de forma efímera en memoria y no se guarda de forma permanente en servidores externos.</li>
+        <li><strong>Encriptación en Tránsito:</strong> Toda la comunicación web y las conexiones al servidor de correo (IMAP sobre TLS puerto 993) se realizan mediante protocolos seguros encriptados con TLS 1.3 / SSL.</li>
+        <li><strong>Encriptación en Reposo:</strong> La base de datos cuenta con cifrado en reposo habilitado y las claves de aplicación se resguardan de forma segura y aislada por usuario.</li>
+        <li><strong>Aislamiento de Usuarios:</strong> Políticas estrictas de control de acceso en Firestore impiden cualquier consulta cruzada entre diferentes usuarios.</li>
+        <li><strong>Procesamiento Efímero en Memoria:</strong> El análisis del texto de los correos bancarios se realiza en memoria durante la sincronización y se descarta inmediatamente tras registrar la transacción.</li>
       </ul>
     </div>
 
-    <h3 class="section-title mt-4">Integración con Google</h3>
-
-    <div class="card">
-      <div class="card-header">
-        <div class="card-icon gold"><i class="fab fa-google"></i></div>
-        <h2>Cumplimiento de la Política de APIs de Google (Uso Limitado)</h2>
-      </div>
-      <p>El uso y la transferencia por parte de FinanzApp de la información recibida de las APIs de Google a cualquier otra aplicación se adherirán a la <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener">Política de datos del usuario de los servicios de las APIs de Google</a>, incluidos los requisitos de <strong>Uso Limitado (Limited Use)</strong>.</p>
-      <p>No transferimos, vendemos ni compartimos sus datos obtenidos de las APIs de Google con terceros, excepto cuando sea necesario para proporcionar y mejorar las funciones de FinanzApp, o para cumplir con la ley aplicable.</p>
-    </div>
+    <h3 class="section-title mt-4">Gestión y Control de Credenciales</h3>
 
     <div class="card">
       <div class="card-header">
         <div class="card-icon pink"><i class="fas fa-trash-alt"></i></div>
-        <h2>Retención y Eliminación de Datos de Usuarios de Google</h2>
+        <h2>Retención, Desconexión y Eliminación de Datos</h2>
       </div>
-      <p>Nos comprometemos con la transparencia en la gestión del ciclo de vida de los datos de nuestros usuarios:</p>
+      <p>Tú mantienes en todo momento el control total sobre tus credenciales y tu información:</p>
       <ul>
-        <li><strong>Retención Limitada:</strong> Los tokens de acceso y actualización de la API de Google se conservan únicamente mientras la función de monitoreo de correos permanezca activa por el usuario.</li>
-        <li><strong>Eliminación Inmediata al Desconectar:</strong> Al hacer clic en el botón <strong>"Desconectar Gmail"</strong> en la sección de Configuración de la app, los tokens asociados a la cuenta de Google son revocados y eliminados inmediatamente de la base de datos.</li>
-        <li><strong>Solicitud de Eliminación Total:</strong> Puede solicitar la supresión definitiva e irreversible de su cuenta y todos los datos asociados enviando un correo a <a href="mailto:byfinanzapp@gmail.com">byfinanzapp@gmail.com</a>. Las solicitudes se completan en un plazo máximo de 48 horas.</li>
-        <li><strong>Revocación de Permisos en Google:</strong> Puede revocar en cualquier momento el acceso otorgado a FinanzApp directamente desde la Consola de Seguridad de Google en <a href="https://myaccount.google.com/permissions" target="_blank" rel="noopener">myaccount.google.com/permissions</a>.</li>
+        <li><strong>Eliminación Inmediata al Desconectar:</strong> Al desactivar o eliminar la configuración de correo en la sección de Configuración, la contraseña de aplicación es borrada de inmediato y de forma definitiva de la base de datos.</li>
+        <li><strong>Revocación Directa en Google:</strong> Puedes revocar en cualquier momento la Contraseña de Aplicación directamente desde tu cuenta de Google en <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noopener">myaccount.google.com/apppasswords</a>, invalidando el acceso de forma instantánea.</li>
+        <li><strong>Solicitud de Eliminación de Cuenta:</strong> Puedes solicitar la eliminación total e irreversible de tu cuenta y todos tus datos registrados contactando a <a href="mailto:byfinanzapp@gmail.com">byfinanzapp@gmail.com</a>. Las solicitudes se procesan en un plazo máximo de 48 horas.</li>
       </ul>
     </div>
 
@@ -139,7 +130,7 @@
         <div class="card-icon teal"><i class="fas fa-envelope"></i></div>
         <h2>Contacto</h2>
       </div>
-      <p>Si tienes preguntas sobre esta política o deseas solicitar la eliminación de tus datos, contacta al desarrollador en: <a href="mailto:byfinanzapp@gmail.com">byfinanzapp@gmail.com</a></p>
+      <p>Si tienes preguntas sobre esta política o deseas solicitar asistencia sobre tus datos, contacta al desarrollador en: <a href="mailto:byfinanzapp@gmail.com">byfinanzapp@gmail.com</a></p>
     </div>
 
   </div>
