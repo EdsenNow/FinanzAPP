@@ -2356,15 +2356,15 @@ div.amount-chip.expense {
   top: 70px;
   right: 16px;
   z-index: 1200;
-  width: 350px;
+  width: 340px;
   max-width: calc(100vw - 32px);
-  background: #1f1d2e;
-  border: 2px solid #eb6f92;
-  border-radius: 18px;
+  background: #191724;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.04);
 }
 
 .gmail-notif-panel.hidden { display: none; }
@@ -2373,74 +2373,81 @@ div.amount-chip.expense {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 16px 10px;
+  padding: 13px 16px 11px;
   font-weight: 600;
-  font-size: 0.92rem;
+  font-size: 0.88rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .gmail-notif-header span {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
+  color: #e0def4;
 }
 
 .gmail-notif-header i {
   color: var(--primary, #eb6f92);
+  font-size: 0.85rem;
 }
 
 .gmail-notif-close {
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   line-height: 1;
-  color: inherit;
-  opacity: 0.6;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  color: #908caa;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
 }
 
 .gmail-notif-close:hover {
-  opacity: 1;
-  transform: scale(1.1);
+  background: rgba(255, 255, 255, 0.06);
+  color: #e0def4;
 }
 
 .gmail-notif-list {
   max-height: 360px;
   overflow-y: auto;
-  padding: 6px 10px;
+  padding: 6px 8px;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 2px;
   scrollbar-width: thin;
-  scrollbar-color: var(--primary) transparent;
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
 }
 
 .gmail-notif-empty {
-  padding: 24px 16px;
+  padding: 28px 16px;
   text-align: center;
-  color: #908caa;
-  font-size: 0.85rem;
+  color: #6e6a86;
+  font-size: 0.82rem;
 }
 
 .gmail-notif-item {
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  padding: 10px 12px;
-  border-radius: 12px;
+  gap: 2px;
+  padding: 9px 12px;
+  border-radius: 10px;
   cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
-  border: 1px solid transparent;
-  background: color-mix(in srgb, var(--gray, #26233a) 12%, transparent);
+  transition: background 0.15s ease;
+  border: none;
+  background: transparent;
 }
 
 .gmail-notif-item:hover {
-  background: color-mix(in srgb, var(--gray, #26233a) 32%, transparent);
-  border-color: color-mix(in srgb, var(--primary, #eb6f92) 25%, transparent);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .gmail-notif-item:active {
-  transform: scale(0.99);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .gmail-notif-item-top {
@@ -2451,17 +2458,18 @@ div.amount-chip.expense {
 }
 
 .gmail-notif-merchant {
-  font-weight: 600;
-  font-size: 0.88rem;
+  font-weight: 500;
+  font-size: 0.85rem;
+  color: #e0def4;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 190px;
+  max-width: 195px;
 }
 
 .gmail-notif-amount {
-  font-weight: 700;
-  font-size: 0.9rem;
+  font-weight: 600;
+  font-size: 0.86rem;
   color: #eb6f92;
   white-space: nowrap;
 }
@@ -2471,22 +2479,20 @@ div.amount-chip.expense {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  margin-top: 2px;
 }
 
 .gmail-notif-detail {
-  font-size: 0.76rem;
-  color: #908caa;
+  font-size: 0.74rem;
+  color: #6e6a86;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 170px;
+  max-width: 175px;
 }
 
 .gmail-notif-date {
-  font-size: 0.73rem;
-  font-weight: 500;
-  color: #908caa;
+  font-size: 0.71rem;
+  color: #6e6a86;
   white-space: nowrap;
   display: inline-flex;
   align-items: center;
@@ -2494,14 +2500,16 @@ div.amount-chip.expense {
 }
 
 .gmail-notif-date i {
-  font-size: 0.7rem;
+  font-size: 0.68rem;
+  opacity: 0.8;
 }
 
 .gmail-notif-footer {
-  padding: 8px 10px 12px;
+  padding: 8px 10px 10px;
   display: flex;
   width: 100%;
   box-sizing: border-box;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 #gmailClearAllBtn {
@@ -2509,29 +2517,28 @@ div.amount-chip.expense {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 11px 16px;
-  border-radius: 12px;
-  font-weight: 700;
-  font-size: 0.82rem;
-  letter-spacing: 0.5px;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.76rem;
+  letter-spacing: 0.6px;
   text-transform: uppercase;
-  background: color-mix(in srgb, #eb6f92 12%, transparent);
-  border: 1px solid color-mix(in srgb, #eb6f92 35%, transparent);
-  color: #eb6f92;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #908caa;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 }
 
 #gmailClearAllBtn:hover {
-  background: color-mix(in srgb, #eb6f92 25%, transparent);
-  border-color: #eb6f92;
-  color: #ffffff;
-  box-shadow: 0 0 12px color-mix(in srgb, #eb6f92 30%, transparent);
+  background: rgba(235, 111, 146, 0.08);
+  border-color: rgba(235, 111, 146, 0.35);
+  color: #eb6f92;
 }
 
 #gmailClearAllBtn i {
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   color: inherit;
 }
 
