@@ -41,6 +41,73 @@
     user: { name: 'Usuario', email: 'usuario@ejemplo.com' }
   };
 
+  function cargarDatosLocalesSincronos() {
+    try {
+      const uid = (() => {
+        try {
+          const raw = localStorage.getItem('authUser');
+          if (raw && raw !== 'guest') {
+            const p = JSON.parse(raw);
+            return p.uid || p.id || 'guest';
+          }
+        } catch {}
+        return 'guest';
+      })();
+
+      const p = 'finanzapp:data:v1';
+      let rawCats = localStorage.getItem(`${p}:${uid}:categories`);
+      let rawTxs = localStorage.getItem(`${p}:${uid}:transactions`);
+      let rawBuds = localStorage.getItem('finanzapp:budgets') || localStorage.getItem(`${p}:${uid}:budgets`);
+
+      if (!rawCats) rawCats = localStorage.getItem('categories');
+      if (!rawTxs) rawTxs = localStorage.getItem('transactions');
+
+      if (rawCats) {
+        try { datosApp.categories = JSON.parse(rawCats) || []; } catch {}
+      }
+      if (rawTxs) {
+        try {
+          const parsedTxs = JSON.parse(rawTxs) || [];
+          const txsFromCats = [];
+          (datosApp.categories || []).forEach(cat => {
+            if (Array.isArray(cat?.transactions)) {
+              txsFromCats.push(...cat.transactions.map(t => ({
+                ...t,
+                categoryId: cat.id,
+                categoryName: cat.name
+              })));
+            }
+          });
+          datosApp.transactions = normalizarTransacciones([...parsedTxs, ...txsFromCats]);
+        } catch {}
+      }
+      if (rawBuds) {
+        try {
+          const parsedBuds = JSON.parse(rawBuds);
+          const list = Array.isArray(parsedBuds) ? parsedBuds : (typeof parsedBuds === 'object' ? Object.values(parsedBuds) : []);
+          datosApp.budgets = list.map((b, idx) => {
+            if (!b || typeof b !== 'object') return null;
+            const id = b.id != null && String(b.id).trim() !== ''
+              ? String(b.id)
+              : (b.categoryId ? `budget_${b.categoryId}` : `budget_${Date.now()}_${idx}`);
+            return {
+              ...b,
+              id,
+              amount: Number(b.amount) || 0,
+              period: b.period || 'monthly',
+              categoryId: b.categoryId != null ? String(b.categoryId) : ''
+            };
+          }).filter(Boolean);
+        } catch {}
+      }
+
+      actualizarCategorias();
+      try { actualizarNombresPeriodosGuardados(); } catch {}
+    } catch (e) {
+      console.warn('[Presupuestos] Error cargando caché local:', e);
+    }
+  }
+
   const STORAGE_FILTROS_KEY = 'finanzapp:shared_filters:v1';
 
   function cargarFiltrosPersistidos() {
@@ -330,7 +397,11 @@
     actualizarInfoUsuario();
     inicializarTooltipPerfil();
 
-    // Esperar a que Firebase Auth y Firestore se sincronicen
+    // 1. Carga y renderizado optimista inmediato (0ms) con datos en localStorage
+    cargarDatosLocalesSincronos();
+    renderizarTodo();
+
+    // 2. Sincronización en segundo plano con Firebase Auth y Firestore
     try {
       if (typeof firebase !== 'undefined' && firebase.auth) {
         await new Promise((resolve) => {
@@ -342,7 +413,7 @@
                 resolved = true;
                 resolve();
               }
-            }, 6000);
+            }, 3000);
 
             auth.onAuthStateChanged(async (currentUser) => {
               if (currentUser) {

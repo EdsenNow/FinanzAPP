@@ -7,7 +7,7 @@
   --config-section-bg: #232136;
   --config-card-border: rgba(255, 255, 255, 0.08);
   --config-text: #e0def4;
-  --config-muted: #b6b2d1;
+  --config-muted: #908caa;
   --config-input-bg: #26233a;
   --config-input-border: rgba(255, 255, 255, 0.14);
   --config-pill-bg: rgba(235, 111, 146, 0.18);
@@ -17,10 +17,23 @@
   --config-danger: #eb6f92;
   --mobile-nav-bg: rgba(31, 29, 46, 0.94);
   --mobile-nav-border: rgba(235, 111, 146, 0.3);
-  --mobile-nav-text: #b6b2d1;
+  --mobile-nav-text: #908caa;
   --mobile-nav-active-bg: rgba(235, 111, 146, 0.18);
   --mobile-nav-active-text: #f6c177;
   --sidebar-bg: #1f1d2e;
+}
+
+[data-theme="dark"] .imap-form .form-control {
+  color: #908caa;
+}
+
+[data-theme="dark"] .imap-form .form-control::placeholder {
+  color: #908caa;
+  opacity: 1;
+}
+
+[data-theme="dark"] .imap-form .setting-label-col small {
+  color: #908caa;
 }
 
 [data-theme="dark"] .logo-text,

@@ -434,3 +434,16 @@
 [data-theme="light"] .tutorial-password-code {
   color: #b4637a;
 }
+
+[data-theme="light"] .imap-form .form-control {
+  color: #797593;
+}
+
+[data-theme="light"] .imap-form .form-control::placeholder {
+  color: #797593;
+  opacity: 1;
+}
+
+[data-theme="light"] .imap-form .setting-label-col small {
+  color: #797593;
+}
