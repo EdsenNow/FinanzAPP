@@ -64,7 +64,11 @@ background: #faf4ed;
 }
 
 [data-theme="light"] .filter-group label {
-color: var(--primary);
+  color: #575279;
+}
+
+[data-theme="light"] .filter-group:focus-within label {
+  color: var(--primary);
 }
 
 [data-theme="light"] .nav-item:hover {
@@ -200,10 +204,6 @@ background: #faf4ed;
 
 [data-theme="light"] .main-content {
 background: #faf4ed;
-}
-
-[data-theme="light"] .filter-group label {
-color: var(--primary);
 }
 
 [data-theme="light"] .estadistica-page .filter-controls .custom-dropdown-selected i {
