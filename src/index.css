@@ -317,10 +317,9 @@ nav {
   box-shadow: 0 10px 28px rgba(235, 111, 146, 0.45); 
 }
 .btn-secondary {
-  background: var(--card-bg);
+  background: #191724;
   color: var(--text-main);
-  border: 1px solid var(--card-border);
-  backdrop-filter: blur(12px);
+  border: 2px solid var(--card-border);
 }
 .btn-secondary:hover {
   border-color: var(--primary);
@@ -339,10 +338,9 @@ nav {
   max-width: 900px;
   margin: 60px auto 40px;
   padding: 22px 36px;
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
+  background: #191724;
+  border: 2px solid var(--card-border);
   border-radius: 20px;
-  backdrop-filter: blur(16px);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -419,12 +417,10 @@ nav {
   gap: 24px;
 }
 .feature-card {
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
+  background: #191724 ;
+  border: 2px solid var(--card-border);
   border-radius: 22px;
   padding: 34px 30px;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .feature-card:hover {
@@ -470,13 +466,11 @@ nav {
   padding: 0 24px;
 }
 .bottom-cta-card {
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
+  background: #191724;
+  border: 2px solid var(--card-border);
   border-radius: 28px;
   padding: 48px 32px;
   text-align: center;
-  backdrop-filter: blur(20px);
-  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.24);
 }
 .bottom-cta-brand {
   display: inline-flex;
