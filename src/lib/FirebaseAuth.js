@@ -468,6 +468,7 @@ class FirebaseAuth {
       'auth/invalid-credential': 'Correo o contraseña incorrectos',
       'auth/too-many-requests': 'Demasiados intentos fallidos. Intenta más tarde',
       'auth/network-request-failed': 'Error de conexión. Verifica tu internet',
+      'auth/unauthorized-domain': 'Este dominio o IP no está autorizado en Firebase Console. Usa http://localhost:... en lugar de http://127.0.0.1:... o añade tu dominio/IP en Firebase Console > Authentication > Ajustes > Dominios autorizados.',
       'auth/popup-closed-by-user': 'Inicio de sesión cancelado',
       'auth/cancelled-popup-request': 'Operación cancelada',
       'auth/popup-blocked': 'El navegador bloqueó la ventana emergente',
