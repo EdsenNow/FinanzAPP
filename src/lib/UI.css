@@ -858,10 +858,10 @@ box-shadow: 0 0 0 2px color-mix(in srgb, var(--danger) 25%, transparent);
 }
 
 [data-theme="light"] #todayBtn:hover {
-  border-color: var(--danger);
-  background: color-mix(in srgb, var(--danger) 10%, var(--card-bg));
-  color: var(--danger);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--danger) 25%, transparent);
+  background: var(--primary, #b4637a);
+  color: #ffffff;
+  box-shadow: var(--btn-shadow-hover);
+  filter: brightness(1.08);
 }
 
 [data-theme="light"] .date-picker-modal .modal-footer .btn-primary:hover {
