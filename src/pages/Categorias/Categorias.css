@@ -2358,8 +2358,8 @@ div.amount-chip.expense {
   z-index: 1200;
   width: 340px;
   max-width: calc(100vw - 32px);
-  background: #191724;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #1f1d2e;
+  border: 2px solid #eb6f92;
   border-radius: 16px;
   display: flex;
   flex-direction: column;
@@ -2372,7 +2372,6 @@ div.amount-chip.expense {
 .gmail-notif-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   padding: 13px 16px 11px;
   font-weight: 600;
   font-size: 0.88rem;
@@ -2389,27 +2388,6 @@ div.amount-chip.expense {
 .gmail-notif-header i {
   color: var(--primary, #eb6f92);
   font-size: 0.85rem;
-}
-
-.gmail-notif-close {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 1.1rem;
-  line-height: 1;
-  color: #908caa;
-  width: 24px;
-  height: 24px;
-  border-radius: 6px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.15s ease;
-}
-
-.gmail-notif-close:hover {
-  background: rgba(255, 255, 255, 0.06);
-  color: #e0def4;
 }
 
 .gmail-notif-list {
