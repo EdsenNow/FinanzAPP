@@ -652,6 +652,7 @@
       subpanel.className = 'mobile-actions-subpanel';
       panel.appendChild(subpanel);
       let activeSubmenuAction = null;
+      let openedFromDrawer = false;
 
       const closePanel = function () {
         dropdown.classList.remove('open');
@@ -939,6 +940,7 @@
           panel.querySelectorAll('.filter-active').forEach(function (b) { b.classList.remove('filter-active'); });
           closePanel();
         } else if (action === 'notifications') {
+          openedFromDrawer = true;
           closePanel();
           openNotificationsMenu();
         } else if (action === 'export') {
@@ -965,6 +967,7 @@
           e.preventDefault();
           e.stopPropagation();
         }
+        openedFromDrawer = false;
         closePanel();
         closeNotificationsMenu();
       };
@@ -982,12 +985,13 @@
         if (e.target.closest('.modal, .custom-alert-overlay, .modal-backdrop, [role="dialog"], .flatpickr-calendar')) {
           return;
         }
-        const clickedOutsideMain = !dropdown.contains(e.target) && !document.getElementById('mobileMoreAction')?.contains(e.target);
-        const clickedOutsideNotif = (!notifPanel || !notifPanel.contains(e.target)) && !document.getElementById('mobileGmailAction')?.contains(e.target);
+        const clickedOutsideMain = !dropdown.contains(e.target) && !toggle.contains(e.target);
+        const clickedOutsideNotif = (!notifPanel || !notifPanel.contains(e.target));
         if (clickedOutsideMain && dropdown.classList.contains('open')) {
           closePanel();
         }
         if (clickedOutsideNotif && notifDropdown?.classList.contains('open')) {
+          openedFromDrawer = false;
           closeNotificationsMenu();
         }
       });
@@ -995,6 +999,10 @@
       notifCloseBtn?.addEventListener('click', function (e) {
         e.stopPropagation();
         closeNotificationsMenu();
+        if (openedFromDrawer) {
+          openedFromDrawer = false;
+          openPanel();
+        }
       });
 
       notifClearBtn?.addEventListener('click', function (e) {
