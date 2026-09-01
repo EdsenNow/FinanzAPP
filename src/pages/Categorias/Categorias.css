@@ -138,6 +138,8 @@ body.categorias-page .app-container {
   backdrop-filter: blur(15px);
   border-right: none;
   padding: 20px 16px;
+  user-select: none;
+  -webkit-user-select: none;
   display: flex;
   flex-direction: column;
   position: fixed;

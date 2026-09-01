@@ -264,6 +264,14 @@ body::-webkit-scrollbar-corner {
   animation: fadeInUp 0.6s ease-out;
   backdrop-filter: none;
   opacity: 1;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.auth-card input,
+.auth-card textarea {
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 .auth-card,
