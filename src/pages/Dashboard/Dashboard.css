@@ -2352,9 +2352,13 @@ div.amount-chip.expense {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 16px 10px;
+  padding: 14px 16px 12px;
   font-weight: 600;
   font-size: 0.92rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--primary, #eb6f92) 20%, transparent);
+  background: inherit;
+  position: relative;
+  z-index: 2;
 }
 
 .gmail-notif-header span {
@@ -2386,12 +2390,14 @@ div.amount-chip.expense {
 .gmail-notif-list {
   max-height: 360px;
   overflow-y: auto;
-  padding: 6px 10px;
+  padding: 10px 10px;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 6px;
   scrollbar-width: thin;
   scrollbar-color: var(--primary) transparent;
+  mask-image: linear-gradient(to bottom, transparent 0%, black 12px, black calc(100% - 12px), transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 12px, black calc(100% - 12px), transparent 100%);
 }
 
 .gmail-notif-empty {
@@ -2477,10 +2483,14 @@ div.amount-chip.expense {
 }
 
 .gmail-notif-footer {
-  padding: 8px 10px 12px;
+  padding: 10px 10px 12px;
+  border-top: 1px solid color-mix(in srgb, var(--primary, #eb6f92) 20%, transparent);
   display: flex;
   width: 100%;
   box-sizing: border-box;
+  background: inherit;
+  position: relative;
+  z-index: 2;
 }
 
 #gmailClearAllBtn {
