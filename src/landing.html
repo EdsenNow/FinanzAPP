@@ -5,13 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="FinanzApp - Gestiona tus finanzas personales, presupuestos y transacciones de forma segura y sencilla." />
   <meta name="robots" content="index, follow" />
-  <link rel="canonical" href="https://byfinanzapp.com/" />
+  <link rel="canonical" href="https://byfinanzapp.com/landing.html" />
 
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="FinanzApp" />
   <meta property="og:title" content="FinanzApp - Gestión de Finanzas Personales" />
   <meta property="og:description" content="Gestiona tus finanzas personales de forma fácil, segura y eficiente." />
-  <meta property="og:url" content="https://byfinanzapp.com/" />
+  <meta property="og:url" content="https://byfinanzapp.com/landing.html" />
   <meta property="og:image" content="https://byfinanzapp.com/Icons/android-chrome-512x512.png" />
 
   <meta name="twitter:card" content="summary_large_image" />
@@ -19,7 +19,7 @@
   <meta name="twitter:description" content="Gestiona tus finanzas personales de forma fácil, segura y eficiente." />
   <meta name="twitter:image" content="https://byfinanzapp.com/Icons/android-chrome-512x512.png" />
 
-  <meta name="theme-color" content="#6C63FF" />
+  <meta name="theme-color" content="#eb6f92" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -54,22 +54,6 @@
   <link rel="icon" type="image/png" sizes="16x16" href="/Icons/favicon-16x16.png" />
   <link rel="apple-touch-icon" href="/Icons/apple-touch-icon.png" />
 
-  <script>
-    (function () {
-      try {
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.has('landing') || urlParams.has('preview') || urlParams.has('home')) return;
-        const LOGOUT_BLOCK_MS = 60000;
-        const logoutTimestamp = localStorage.getItem('logoutTimestamp');
-        const recentLogout = logoutTimestamp && (Date.now() - parseInt(logoutTimestamp, 10)) < LOGOUT_BLOCK_MS;
-        const loggedIn = localStorage.getItem('loggedIn');
-        if ((loggedIn === 'true' || loggedIn === '1') && !recentLogout) {
-          window.location.replace('/pages/Categorias/Categorias.html');
-        }
-      } catch (e) {}
-    })();
-  </script>
-
   <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-app-compat.js" crossorigin="anonymous"></script>
   <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-app-check-compat.js" crossorigin="anonymous"></script>
   <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-auth-compat.js" crossorigin="anonymous"></script>
@@ -94,13 +78,13 @@
 
   <nav>
     <div class="nav-brand" aria-label="FinanzApp - Inicio">
-      <div class="nav-logo-icon"><i class="fas fa-wallet"></i></div>
+      <div class="nav-logo-icon"></div>
       <span class="nav-brand-name">FinanzApp</span>
     </div>
     <div class="nav-links">
       <a href="/pages/privacy/privacy.html" class="nav-link-secondary">Privacidad</a>
       <a href="/pages/privacy/terms.html" class="nav-link-secondary">Condiciones</a>
-      <a href="/pages/Login/Login.html" class="nav-link-btn"><i class="fas fa-sign-in-alt"></i> Iniciar sesión</a>
+      <a id="navAuthBtn" href="/pages/Login/Login.html" class="nav-link-btn"><i class="fas fa-sign-in-alt"></i> Iniciar sesión</a>
     </div>
   </nav>
 
@@ -153,54 +137,30 @@
     <p>&copy; 2026 FinanzApp. Todos los derechos reservados.</p>
   </footer>
 
-
   <script>
-    // Fuerte invalidación de caché para navegadores móviles rebeldes
-    if ('caches' in window) {
-      caches.keys().then(function(names) {
-        for (let name of names) {
-          if (name.includes('finanzapp-static-v5') || name.includes('finanzapp-shell-v5')) {
-            caches.delete(name);
-          }
-        }
-      });
-    }
-
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(function(registrations) {
-        for (let registration of registrations) {
-          registration.unregister(); // Destruir cualquier SW anterior
-        }
-      });
-    }
-
     (async function () {
-      const LOGOUT_BLOCK_MS = 60000;
-      const logoutTimestamp = localStorage.getItem('logoutTimestamp');
-      const recentLogout = logoutTimestamp && (Date.now() - parseInt(logoutTimestamp, 10)) < LOGOUT_BLOCK_MS;
-
       try {
-        var cta = document.getElementById('ctaPrimary');
-        var isLoggedIn = localStorage.getItem('loggedIn');
-        if (cta && (isLoggedIn === 'true' || isLoggedIn === '1') && !recentLogout) {
-          cta.href = '/pages/Categorias/Categorias.html';
-          cta.innerHTML = '<i class="fas fa-th-large"></i> Ir a Categorías';
-        }
+        const LOGOUT_BLOCK_MS = 60000;
+        const logoutTimestamp = localStorage.getItem('logoutTimestamp');
+        const recentLogout = logoutTimestamp && (Date.now() - parseInt(logoutTimestamp, 10)) < LOGOUT_BLOCK_MS;
+        const isLoggedIn = localStorage.getItem('loggedIn');
+        const isAuth = (isLoggedIn === 'true' || isLoggedIn === '1') && !recentLogout;
 
-        if (window.firebaseAuth) {
-          const initialized = await window.firebaseAuth.init();
-          if (initialized && window.firebaseAuth.auth) {
-            window.firebaseAuth.auth.onAuthStateChanged(function (user) {
-              if (user && !recentLogout) {
-                localStorage.setItem('loggedIn', 'true');
-                window.location.replace('/pages/Categorias/Categorias.html');
-              }
-            });
+        const cta = document.getElementById('ctaPrimary');
+        const navBtn = document.getElementById('navAuthBtn');
+
+        if (isAuth) {
+          if (cta) {
+            cta.href = '/pages/Categorias/Categorias.html';
+            cta.innerHTML = '<i class="fas fa-th-large" style="margin-right: 6px;"></i> Ir a Categorías';
+          }
+          if (navBtn) {
+            navBtn.href = '/pages/Categorias/Categorias.html';
+            navBtn.innerHTML = '<i class="fas fa-th-large"></i> Panel';
           }
         }
       } catch (e) {}
     })();
   </script>
-
 </body>
 </html>
