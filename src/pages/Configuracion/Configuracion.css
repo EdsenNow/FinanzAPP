@@ -175,7 +175,7 @@ body.config-page .main-content::-webkit-scrollbar-thumb:hover {
   width: 72px;
   height: 72px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  background: #eb6f92;
   color: #fff;
   display: flex;
   align-items: center;

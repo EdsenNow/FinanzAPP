@@ -882,7 +882,7 @@ pointer-events: none;
 }
 
 .mobile-drawer-avatar {
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  background: #eb6f92;
   color: #ffffff;
   width: 44px;
   height: 44px;
@@ -894,6 +894,16 @@ pointer-events: none;
   justify-content: center;
   flex: 0 0 44px;
   overflow: hidden;
+}
+
+[data-theme="light"] .mobile-drawer-avatar {
+  background: #b4637a;
+  color: #ffffff;
+}
+
+[data-theme="dark"] .mobile-drawer-avatar {
+  background: #eb6f92;
+  color: #ffffff;
 }
 
 .mobile-drawer-avatar img {

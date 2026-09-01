@@ -85,8 +85,9 @@ background: #FAF4ED;
 background: #FAF4ED;
 }
 
-[data-theme="light"] .user-avatar {
-  background: linear-gradient(135deg, #d7827e 0%, #b4637a 100%);
+[data-theme="light"] .user-avatar,
+[data-theme="light"] .mobile-drawer-avatar {
+  background: #b4637a;
   color: #ffffff;
 }
 

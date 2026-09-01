@@ -74,3 +74,9 @@ body.estadistica-page .stats-insights .insight-icon.success {
   color: var(--success);
 }
 
+[data-theme="dark"] .user-avatar,
+[data-theme="dark"] .mobile-drawer-avatar {
+  background: #eb6f92;
+  color: #ffffff;
+}
+

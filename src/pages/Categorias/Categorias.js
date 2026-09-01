@@ -3308,8 +3308,8 @@ function configurarListenersEventos() {
           img.alt = profile.name || 'Usuario';
           avatarEl.appendChild(img);
         } else {
-          const initial = (profile.name || 'U').trim().charAt(0).toUpperCase();
-          avatarEl.textContent = initial || 'U';
+          const initial = (profile.name || 'Invitado').trim().charAt(0).toUpperCase();
+          avatarEl.textContent = initial || 'I';
         }
       }
     } catch {}
@@ -4008,7 +4008,7 @@ class CategoriasApp extends BasePage {
                   img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:50%';
                   avatarEl.appendChild(img);
                 } else {
-                  avatarEl.textContent = (profile.name || 'U').charAt(0).toUpperCase();
+                  avatarEl.textContent = (profile.name || 'Invitado').charAt(0).toUpperCase();
                 }
               }
               const nameEl = document.querySelector('.user-name');

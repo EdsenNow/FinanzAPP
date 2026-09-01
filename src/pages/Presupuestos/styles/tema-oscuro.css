@@ -4,6 +4,12 @@
 	--card-border: #e0def4;
 }
 
+[data-theme="dark"] .user-avatar,
+[data-theme="dark"] .mobile-drawer-avatar {
+	background: #eb6f92;
+	color: #ffffff;
+}
+
 [data-theme="dark"] .summary-card.income .card-title i {
 	color: var(--success);
 }

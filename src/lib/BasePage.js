@@ -183,7 +183,7 @@ class BasePage {
     try {
       const raw     = localStorage.getItem('authUser');
       const user    = raw && raw !== 'guest' ? JSON.parse(raw) : {};
-      const name    = user?.name || user?.displayName || user?.email?.split('@')[0] || 'Usuario';
+      const name    = user?.name || user?.displayName || user?.email?.split('@')[0] || 'Invitado';
       const picture = user?.picture || user?.photoURL || '';
       const nameEl  = document.querySelector('.user-name');
       const emailEl = document.querySelector('.user-email');
@@ -199,7 +199,7 @@ class BasePage {
           img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:50%';
           avatarEl.appendChild(img);
         } else {
-          avatarEl.textContent = (name || 'U').trim().charAt(0).toUpperCase();
+          avatarEl.textContent = (name || 'Invitado').trim().charAt(0).toUpperCase();
         }
       }
     } catch { /* noop */ }

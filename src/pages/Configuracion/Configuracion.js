@@ -1332,8 +1332,8 @@
       return;
     }
 
-    const initial = (name || 'U').trim().charAt(0).toUpperCase();
-    container.textContent = initial || 'U';
+    const initial = (name || 'Invitado').trim().charAt(0).toUpperCase();
+    container.textContent = initial || 'I';
   }
 
   function initProfileTooltip() {

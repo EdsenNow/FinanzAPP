@@ -2378,8 +2378,8 @@
           img.alt = displayName || 'Usuario';
           avatarEl.appendChild(img);
         } else {
-          const initial = (displayName || 'U').trim().charAt(0).toUpperCase();
-          avatarEl.textContent = initial || 'U';
+          const initial = (displayName || 'Invitado').trim().charAt(0).toUpperCase();
+          avatarEl.textContent = initial || 'I';
         }
       }
 

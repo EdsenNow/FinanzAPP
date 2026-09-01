@@ -913,7 +913,6 @@ display: none;
   overflow-x: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
 }
 
 [data-theme="dark"] .mobile-notifications-panel {
@@ -1139,7 +1138,7 @@ display: none;
 }
 
 .mobile-drawer-avatar {
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  background: #eb6f92;
   color: #ffffff;
   width: 44px;
   height: 44px;
@@ -1151,6 +1150,16 @@ display: none;
   justify-content: center;
   flex: 0 0 44px;
   overflow: hidden;
+}
+
+[data-theme="light"] .mobile-drawer-avatar {
+  background: #b4637a;
+  color: #ffffff;
+}
+
+[data-theme="dark"] .mobile-drawer-avatar {
+  background: #eb6f92;
+  color: #ffffff;
 }
 
 .mobile-drawer-avatar img {

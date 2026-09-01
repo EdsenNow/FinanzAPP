@@ -110,7 +110,7 @@
       </nav>
       <div class="sidebar-footer">
         <div class="user-profile">
-          <div class="user-avatar">U</div>
+          <div class="user-avatar">I</div>
           <div class="user-info" id="userInfoHover">
             <div class="user-name">Usuario</div>
             <div class="user-email"></div>
@@ -142,7 +142,7 @@
               <i class="fas fa-times" aria-hidden="true"></i>
             </button>
             <div class="mobile-drawer-profile">
-              <div class="mobile-drawer-avatar" id="mobileDrawerAvatar">U</div>
+              <div class="mobile-drawer-avatar" id="mobileDrawerAvatar">I</div>
               <div class="mobile-drawer-user">
                 <div class="mobile-drawer-name" id="mobileDrawerName">Usuario</div>
                 <div class="mobile-drawer-email" id="mobileDrawerEmail">Ver perfil</div>
@@ -473,7 +473,7 @@
               img.alt = displayName;
               mobileAvatar.appendChild(img);
             } else {
-              mobileAvatar.textContent = (displayName || 'U').trim().charAt(0).toUpperCase();
+              mobileAvatar.textContent = (displayName || 'Invitado').trim().charAt(0).toUpperCase();
             }
           }
         } catch (_) {

@@ -236,12 +236,12 @@ body.categorias-page .app-container {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  background: #eb6f92;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 600;
-  color: #e0def4;
+  font-weight: 700;
+  color: #ffffff;
   overflow: hidden;
   flex-shrink: 0;
 }

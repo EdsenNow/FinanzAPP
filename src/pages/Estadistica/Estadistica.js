@@ -351,7 +351,7 @@ function colorWithAlpha(color, alpha = 1) {
           img.src = profile.picture; img.alt = profile.name || 'Usuario';
           avatarEl.appendChild(img);
         } else {
-          avatarEl.textContent = (profile.name||'U').trim().charAt(0).toUpperCase();
+          avatarEl.textContent = (profile.name || 'Invitado').trim().charAt(0).toUpperCase();
         }
       }
     } catch {}

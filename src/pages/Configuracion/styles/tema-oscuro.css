@@ -80,3 +80,9 @@
 [data-theme="dark"] .logo-icon i {
   display: none !important;
 }
+
+[data-theme="dark"] .user-avatar,
+[data-theme="dark"] .profile-avatar-large {
+  background: #eb6f92;
+  color: #ffffff;
+}
