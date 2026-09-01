@@ -775,10 +775,6 @@
         notifDropdown.classList.add('open');
       };
 
-      window.openMobileNotificationsMenu = openNotificationsMenu;
-      window.renderMobileNotificationsMenu = renderNotificationsMenu;
-      window.closeMobileNotificationsMenu = closeNotificationsMenu;
-
       const clearSubpanel = function () {
         panel.classList.remove('has-subpanel');
         subpanel.classList.remove('open');
@@ -932,14 +928,9 @@
         } else if (action === 'year') {
           openOptionsSubmenu('yearFilter', 'year', btn);
         } else if (action === 'month') {
-          openOptionsSubmenu('monthFilter', 'month', btn);
-        } else if (action === 'clear') {
-          document.getElementById('clearFiltersBtn')?.click();
-          clearSubpanel();
-          panel.querySelectorAll('.filter-active').forEach(function (b) { b.classList.remove('filter-active'); });
-        } else if (action === 'notifications') {
-          closePanel();
-          openNotificationsMenu();
+          openYearSubmenu(btn);
+        } else if (action === 'search') {
+          openSearchSubmenu(btn);
         } else if (action === 'export') {
           openExportSubmenu(btn);
         } else if (action === 'import') {

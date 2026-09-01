@@ -272,15 +272,19 @@ left: 0;
 right: 0;
 bottom: 0;
 width: auto;
-margin: 0 12px;
-padding: 13px 13px;
-border-top: 3px solid #EB6F92;
-border-left: 3px solid #EB6F92;
-border-right: 3px solid #EB6F92;
+max-width: 440px;
+margin: 0 auto;
+padding: 12px 14px calc(10px + env(safe-area-inset-bottom));
+border-top: 2px solid #EB6F92;
+border-left: 2px solid #EB6F92;
+border-right: 2px solid #EB6F92;
 border-bottom: none;
-border-radius: 22px 22px 0 0;
+border-radius: 18px 18px 0 0;
 transform: translateY(0);
 animation: slideUpModalContent 0.35s cubic-bezier(.4,1,.6,1);
+max-height: 85vh;
+overflow-y: auto;
+box-sizing: border-box;
 }
 
 .drawer-overlay {
@@ -292,24 +296,24 @@ transform: translateY(0);
 }
 
 .confirm-drawer-msg {
-margin-top: 5px;
-margin-bottom: 25px;
-font-size: 15px;
-line-height: 1.45;
+margin-top: 4px;
+margin-bottom: 14px;
+font-size: 13.5px;
+line-height: 1.4;
 text-align: center;
 }
 
 .confirm-drawer-btns {
-gap: 9px;
+gap: 8px;
 }
 
 .confirm-drawer-cancel,
 .confirm-drawer-confirm-danger {
-min-height: 40px;
-padding: 10px 14px;
-font-size: 13px;
-border-radius: 11px;
-letter-spacing: 1px;
+min-height: 34px;
+padding: 8px 12px;
+font-size: 12px;
+border-radius: 8px;
+letter-spacing: 0.5px;
 }
 
 .confirm-drawer-cancel:hover,
@@ -322,7 +326,7 @@ box-shadow: none;
 #deleteCategoryModal .modal-content,
 #clearTransactionsModal .modal-content,
 #clearAllModal .modal-content {
-padding: 16px 13px 13px;
+padding: 12px 14px calc(10px + env(safe-area-inset-bottom));
 }
 
 #datePickerModal {
@@ -340,55 +344,61 @@ width: 95%;
 .modal-header {
 border-bottom: none;
 margin-bottom: 0;
-padding-bottom: 9px;
+padding-bottom: 6px;
 }
 
 .modal-title {
-font-size: 20px;
+font-size: 15.5px;
 font-weight: 700;
-margin-bottom: 20px;
-margin-top: 5px;
+margin-bottom: 12px;
+margin-top: 2px;
 }
 
 #deleteCategoryModal .modal-title,
 #clearTransactionsModal .modal-title,
 #clearAllModal .modal-title {
-font-size: 16px;
+font-size: 14.5px;
+margin-bottom: 8px;
 }
 
 .modal-body {
-margin-bottom: 16px;
-font-size: 14px;
-line-height: 1.5;
+margin-bottom: 10px;
+font-size: 13px;
+line-height: 1.4;
 }
 
 #deleteCategoryModal .modal-body,
 #clearTransactionsModal .modal-body,
 #clearAllModal .modal-body {
-margin-bottom: 11px;
-font-size: 13px;
-line-height: 1.4;
+margin-bottom: 8px;
+font-size: 12.5px;
+line-height: 1.35;
 }
 
 .modal-body p {
-margin-bottom: 26px;
-margin-top: 9px;
-font-size: 14px;
+margin-bottom: 14px;
+margin-top: 4px;
+font-size: 13px;
 }
 
 .form-group {
-margin-bottom: 20px;
+margin-bottom: 10px;
 }
 
 .form-group label {
-margin-bottom: 7px;
-font-size: 14px;
+margin-bottom: 4px;
+font-size: 12px;
+font-weight: 600;
 }
 
-.form-control {
-padding: 10px 13px;
-font-size: 14px;
-border-radius: 9px;
+.form-control,
+.custom-input,
+.modal .form-control {
+padding: 8px 11px;
+font-size: 13px;
+border-radius: 8px;
+min-height: 36px;
+box-sizing: border-box;
 }
 
 #datePickerModal .date-picker-header {
@@ -427,17 +437,17 @@ font-size: 14px;
 
 .modal-footer {
 display: grid;
-grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 align-items: stretch;
-margin-top: 12px;
-padding-top: 10px;
-gap: 9px;
+margin-top: 8px;
+padding-top: 6px;
+gap: 8px;
 border-top: none;
 }
 
 .modal-footer .btn {
-min-height: 40px;
-padding: 10px 14px;
+min-height: 36px;
+padding: 8px 12px;
 font-size: 12px;
 line-height: 1.1;
 min-width: 0;
@@ -447,23 +457,27 @@ overflow: hidden;
 text-overflow: ellipsis;
 text-transform: none;
 letter-spacing: 0;
+border-radius: 8px;
 }
 
 /* En revisión Gmail hay 3 acciones: 2 arriba y CTA principal completa abajo */
 #gmailReviewModal .modal-footer {
 display: grid;
 grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-gap: 10px;
+gap: 8px;
+margin-top: 8px;
 }
 
 #gmailReviewModal .modal-footer .btn {
-min-height: 44px;
-font-size: 13px;
-border-radius: 12px;
+min-height: 36px;
+font-size: 12px;
+border-radius: 8px;
+padding: 8px 10px;
 }
 
 #gmailReviewModal #gmailReviewSave {
 grid-column: 1 / -1;
+min-height: 36px;
 }
 
 #deleteCategoryModal .modal-footer,
@@ -480,7 +494,10 @@ border-top: none;
 #editCategoryModal .modal-footer .btn,
 #editTransactionModal .modal-footer .btn,
 #categoryModal .modal-footer .btn {
-font-size: 14px;
+font-size: 12px;
+min-height: 36px;
+padding: 8px 12px;
+border-radius: 8px;
 }
 
 #datePickerModal .modal-footer {

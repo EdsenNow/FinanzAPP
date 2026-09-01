@@ -1884,9 +1884,18 @@ body.categorias-page .filter-controls #categoryFilter {
     flex: 1;
     justify-content: center;
     min-width: 0;
+    padding: 6px 8px;
+    font-size: 12px;
+    min-height: 32px;
+    border-radius: 8px;
+    gap: 5px;
   }
   .category-type-btn span,
   .transaction-type-btn span {
+    font-size: 12px;
+  }
+  .category-type-btn i,
+  .transaction-type-btn i {
     font-size: 13px;
   }
 }

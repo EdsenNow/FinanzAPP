@@ -1003,3 +1003,29 @@ body .legal-footer-config {
   color: #eb6f92;
   letter-spacing: 3px;
 }
+
+@media (max-width: 480px) {
+  #tutorialModal.tutorial-modal {
+    width: 90%;
+    max-width: 330px;
+    padding: 14px 12px;
+    border-radius: 16px;
+    max-height: 85vh;
+  }
+  .tutorial-modal .custom-alert-title {
+    font-size: 14.5px;
+    margin-bottom: 12px;
+  }
+  .tutorial-step-card {
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 12px;
+  }
+  .tutorial-step-title {
+    font-size: 12.5px;
+  }
+  .tutorial-step-badge {
+    font-size: 9.5px;
+    padding: 2px 7px;
+  }
+}

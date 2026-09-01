@@ -742,6 +742,29 @@ input[type="password"]::-ms-clear {
   gap: 10px;
 }
 
+@media (max-width: 480px) {
+  .custom-alert {
+    width: 88%;
+    max-width: 310px;
+    padding: 14px 14px 12px;
+    border-radius: 15px;
+  }
+  .custom-alert-title {
+    font-size: 15px;
+    margin-bottom: 8px;
+  }
+  .custom-alert-message {
+    font-size: 12.5px;
+    margin-bottom: 12px;
+  }
+  .custom-alert-buttons .btn {
+    min-height: 34px;
+    padding: 7px 12px;
+    font-size: 12px;
+    border-radius: 8px;
+  }
+}
+
 /* Desactivar efectos hover/active en dispositivos móviles */
 @media (hover: none) and (pointer: coarse), (max-width: 768px) {
   body.login-page .btn-primary:hover,
