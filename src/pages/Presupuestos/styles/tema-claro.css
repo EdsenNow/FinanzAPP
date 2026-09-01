@@ -145,20 +145,20 @@ border: none;
 }
 
 [data-theme="light"] #clearFiltersBtn.btn.btn-secondary {
-  background: #f5efea;
-  border: 1px solid transparent;
+  background: #fffaf3;
+  border: 3px solid #f2e9e1;
   color: #797593;
 }
 
 [data-theme="light"] #clearFiltersBtn.btn.btn-secondary:hover {
-  border-color: var(--primary, #b4637a);
-  background: color-mix(in srgb, var(--primary, #b4637a) 12%, #f5efea);
+  border: 3px solid var(--primary, #b4637a);
+  background: color-mix(in srgb, var(--primary, #b4637a) 12%, #fffaf3);
   color: var(--primary, #b4637a);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary, #b4637a) 25%, transparent);
+  box-shadow: none;
 }
 
 [data-theme="light"] #clearFiltersBtn.filter-active {
-  border-color: var(--primary, #b4637a);
+  border: 3px solid var(--primary, #b4637a);
   color: var(--primary, #b4637a);
 }
 
@@ -192,18 +192,15 @@ border: none;
 }
 
 [data-theme="light"] .filter-group {
-  background: #f5efea;
-  border: none;
+  background: #fffaf3;
+  border: 3px solid #f2e9e1;
 }
 
-[data-theme="light"] .filter-group:has(.custom-dropdown.open) {
-  border-color: transparent;
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary, #b4637a) 100%, transparent);
-}
-
+[data-theme="light"] .filter-group:hover,
+[data-theme="light"] .filter-group:has(.custom-dropdown.open),
 [data-theme="light"] .filter-group:focus-within {
-  border-color: transparent;
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary, #b4637a) 100%, transparent);
+  border: 3px solid var(--primary, #b4637a);
+  box-shadow: none;
 }
 
 [data-theme="light"] .filter-group label {
