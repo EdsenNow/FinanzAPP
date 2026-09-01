@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -26,27 +26,6 @@
   <meta name="apple-mobile-web-app-title" content="FinanzApp" />
 
   <title>FinanzApp - Gestión de Finanzas Personales</title>
-  <script>
-    (function () {
-      try {
-        var t = localStorage.getItem('theme');
-        if (!t) {
-          var s = localStorage.getItem('finanzapp:settings:v1');
-          if (s) {
-            var p = JSON.parse(s);
-            if (p && p.theme) t = p.theme;
-          }
-        }
-        if (t === 'light') {
-          document.documentElement.setAttribute('data-theme', 'light');
-          document.documentElement.style.backgroundColor = '#f5efea';
-        } else {
-          document.documentElement.setAttribute('data-theme', 'dark');
-          document.documentElement.style.backgroundColor = '#191724';
-        }
-      } catch (e) {}
-    })();
-  </script>
 
   <link rel="manifest" href="/Icons/site.webmanifest" />
   <link rel="icon" href="/Icons/favicon.ico" sizes="any" />
