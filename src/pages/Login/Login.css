@@ -446,7 +446,6 @@ body::-webkit-scrollbar-corner {
 .btn-google {
   background: #e0def4;
   color: #6e6a86;
-  box-shadow: 0 2px 8px rgba(235, 111, 146, 0.2);
   border: none;
   width: 100%;
   display: flex;
@@ -455,15 +454,26 @@ body::-webkit-scrollbar-corner {
   gap: 10px;
   padding: 16px 24px;
   font-weight: 600;
-}
-
-.btn-google:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(235, 111, 146, 0.35);
+  box-shadow: 0 4px 14px rgba(224, 222, 244, 0.15);
 }
 
 .btn-google svg {
   flex-shrink: 0;
+  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: inline-block;
+}
+
+.btn-google:hover {
+  transform: translateY(-3px) scale(1.025);
+  box-shadow: 0 10px 26px rgba(224, 222, 244, 0.25);
+}
+
+.btn-google:hover svg {
+  transform: scale(1.12) rotate(-5deg);
+}
+
+.btn-google:active {
+  transform: translateY(-1px) scale(0.99);
 }
 
 
@@ -473,10 +483,20 @@ body::-webkit-scrollbar-corner {
   width: 100%;
   padding: 12px 20px;
   margin-top: 16px;
+  transition: color 0.2s ease, transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.btn-back i {
+  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .btn-back:hover {
   color: #e0def4;
+  transform: translateY(-2px);
+}
+
+.btn-back:hover i {
+  transform: translateX(3px);
 }
 
 
