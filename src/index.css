@@ -30,8 +30,6 @@ body {
   position: relative;
   user-select: none;
   -webkit-user-select: none;
-  scrollbar-width: auto;
-  scrollbar-color: var(--primary) transparent;
 }
 
 input, textarea, [contenteditable="true"] {
@@ -40,41 +38,34 @@ input, textarea, [contenteditable="true"] {
 }
 
 /* ===== Custom Scrollbar ===== */
-::-webkit-scrollbar,
-html::-webkit-scrollbar,
-body::-webkit-scrollbar {
-  width: 12px;
-  height: 12px;
-  background: transparent;
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
 }
 
-::-webkit-scrollbar-track,
-html::-webkit-scrollbar-track,
-body::-webkit-scrollbar-track {
-  background: transparent;
+::-webkit-scrollbar-track {
+  background: #191724;
 }
 
-::-webkit-scrollbar-thumb,
-html::-webkit-scrollbar-thumb,
-body::-webkit-scrollbar-thumb {
-  background: var(--primary);
-  border-radius: 12px;
-  border: 2px solid transparent;
-  background-clip: content-box;
+::-webkit-scrollbar-thumb {
+  background: #eb6f92;
+  border-radius: 10px;
+  border: 2px solid #191724;
 }
 
-::-webkit-scrollbar-thumb:hover,
-html::-webkit-scrollbar-thumb:hover,
-body::-webkit-scrollbar-thumb:hover {
-  background: var(--primary-hover);
-  border: 2px solid transparent;
-  background-clip: content-box;
+::-webkit-scrollbar-thumb:hover {
+  background: #f08ca8;
 }
 
-::-webkit-scrollbar-corner,
-html::-webkit-scrollbar-corner,
-body::-webkit-scrollbar-corner {
-  background: transparent;
+::-webkit-scrollbar-corner {
+  background: #191724;
+}
+
+@supports not selector(::-webkit-scrollbar) {
+  html, body {
+    scrollbar-color: #eb6f92 #191724;
+    scrollbar-width: thin;
+  }
 }
 
 /* ===== Fondo animado con orbes brillantes ===== */
