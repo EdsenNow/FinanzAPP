@@ -66,7 +66,7 @@
 
 [data-theme="dark"] .logo-icon {
   background: transparent !important;
-  background-image: url('/assets/logo-oscuro.png') !important;
+  background-image: url('/assets/logo-oscuro-square.png') !important;
   background-size: contain !important;
   background-repeat: no-repeat !important;
   background-position: center !important;

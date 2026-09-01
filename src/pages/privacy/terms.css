@@ -52,7 +52,7 @@ nav {
 .nav-logo-icon {
   width: 36px; height: 36px;
   background: transparent;
-  background-image: url('/assets/logo-oscuro.png');
+  background-image: url('/assets/logo-oscuro-square.png');
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
