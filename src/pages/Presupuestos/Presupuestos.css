@@ -962,136 +962,121 @@ box-shadow: 0 6px 18px rgba(197, 133, 151, 0.35);
 /* ===== Sistema de Toasts ===== */
 .toast-container {
   position: fixed;
-  bottom: max(20px, env(safe-area-inset-bottom));
-  right: max(20px, env(safe-area-inset-right));
+  top: max(20px, env(safe-area-inset-top));
+  left: max(20px, env(safe-area-inset-left));
+  bottom: auto;
+  right: auto;
   z-index: 10000;
   pointer-events: none;
   display: flex;
-  flex-direction: column-reverse;
+  flex-direction: column;
   gap: 12px;
-  max-width: min(520px, calc(100vw - 32px));
+  max-width: 420px;
 }
-
 .toast {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: space-between;
-  min-width: 280px;
-  max-width: 100%;
   width: fit-content;
-  padding: 12px 16px;
-  border-radius: 14px;
+  max-width: 420px;
+  padding: 10px 12px;
+  gap: 8px;
+  border-radius: 12px;
   box-shadow: var(--shadow-lg);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(15px);
   border: 1px solid var(--card-border);
-  transform: translateX(120%) scale(0.8);
+  transform: translateX(-120%) scale(0.8);
   opacity: 0;
   transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   pointer-events: auto;
 }
-
 .toast.show {
   transform: translateX(0) scale(1);
   opacity: 1;
 }
-
 .toast.hide {
-  transform: translateX(120%) scale(0.8);
+  transform: translateX(-120%) scale(0.8);
   opacity: 0;
   transition: all 0.4s cubic-bezier(0.55, 0.085, 0.68, 0.53);
 }
-
+@media (min-width: 900px) {
+  .toast-container {
+    top: auto;
+    left: auto;
+    bottom: max(20px, env(safe-area-inset-bottom));
+    right: max(20px, env(safe-area-inset-right));
+  }
+  .toast {
+    transform: translateX(120%) scale(0.8);
+  }
+  .toast.show {
+    transform: translateX(0) scale(1);
+  }
+  .toast.hide {
+    transform: translateX(120%) scale(0.8);
+  }
+}
 .toast-content {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   flex: 1;
   font-size: 13px;
-  line-height: 1.45;
-  white-space: normal;
-  word-break: normal;
-  overflow-wrap: break-word;
-  padding-right: 8px;
 }
-
-@media (max-width: 600px) {
-  .toast-container {
-    left: 16px;
-    right: 16px;
-    max-width: calc(100vw - 32px);
-  }
-
-  .toast {
-    max-width: 100%;
-    width: 100%;
-  }
-
-  .toast-content {
-    white-space: normal;
-    word-break: normal;
-    overflow-wrap: break-word;
-  }
-}
-
 .toast-close {
-background: none;
-border: none;
-color: inherit;
-cursor: pointer;
-padding: 2px;
-border-radius: 12px;
-opacity: 0.7;
-transition: opacity 0.2s ease;
-font-size: 16px;
-line-height: 1;
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 12px;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+  font-size: 16px;
+  line-height: 1;
 }
-
 .toast-close:focus-visible {
-outline: 2px solid color-mix(in srgb, currentColor 35%, transparent);
-outline-offset: 2px;
+  outline: 2px solid color-mix(in srgb, currentColor 35%, transparent);
+  outline-offset: 2px;
 }
-
 .toast-close:hover {
-opacity: 1;
+  opacity: 1;
 }
-
 .toast-success {
-background: color-mix(in srgb, var(--success) 15%, var(--card-bg));
-border-color: var(--success);
-color: var(--success);
-border-width: 2px;
+  background: color-mix(in srgb, var(--success) 15%, var(--card-bg));
+  border-color: var(--success);
+  color: var(--success);
+  border-width: 2px;
 }
-
 .toast-error {
-background: color-mix(in srgb, var(--danger) 15%, var(--card-bg));
-border-color: var(--danger);
-color: var(--danger);
-border-width: 2px;
+  background: color-mix(in srgb, var(--danger) 15%, var(--card-bg));
+  border-color: var(--danger);
+  color: var(--danger);
+  border-width: 2px;
 }
-
 .toast-warning {
-background: color-mix(in srgb, var(--warning) 15%, var(--card-bg));
-border-color: var(--warning);
-color: var(--warning);
-border-width: 2px;
+  background: color-mix(in srgb, var(--warning) 15%, var(--card-bg));
+  border-color: var(--warning);
+  color: var(--warning);
+  border-width: 2px;
 }
-
 .toast-info {
-background: color-mix(in srgb, var(--primary) 15%, var(--card-bg));
-border-color: var(--primary);
-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 15%, var(--card-bg));
+  border-color: var(--primary);
+  color: var(--primary);
+  border-width: 2px;
 }
-
 @media (prefers-reduced-motion: reduce) {
-.toast {
-transition: none;
-transform: none;
-}
-.toast.show,
-.toast.hide {
-transition: none;
-transform: none;
-opacity: 1;
+  .toast {
+    transition: none;
+    transform: none;
+  }
+  .toast.show,
+  .toast.hide {
+    transition: none;
+    transform: none;
+    opacity: 1;
+  }
 }
 }
 

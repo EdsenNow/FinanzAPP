@@ -160,6 +160,7 @@ class UIManager {
    */
   showDrawer(message, opts = {}) {
     const {
+      title       = '',
       emphasis    = 'primary',
       confirmText = 'Aceptar',
       cancelText  = 'Cancelar',
@@ -177,6 +178,7 @@ class UIManager {
     drawer.className = 'confirm-drawer';
     drawer.setAttribute('role', 'dialog');
     drawer.innerHTML = `
+      ${title ? `<h3 class="confirm-drawer-title">${title}</h3>` : ''}
       <p class="confirm-drawer-msg">${message}</p>
       <div class="confirm-drawer-btns">
         <button class="confirm-drawer-cancel">${cancelText}</button>
@@ -241,7 +243,7 @@ class UIManager {
     } = opts || {};
 
     if (variant === 'confirm') {
-      return this.showDrawer(message, { emphasis, confirmText, cancelText, disableEsc });
+      return this.showDrawer(message, { title, emphasis, confirmText, cancelText, disableEsc });
     }
 
     this.#optionsLive = { disableEsc, preventCloseOnOverlay };
