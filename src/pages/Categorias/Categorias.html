@@ -574,16 +574,17 @@
   </nav>
 
   <div class="mobile-notifications-dropdown" id="mobileNotificationsDropdown">
+    <div class="mobile-drawer-backdrop" id="mobileNotificationsBackdrop" aria-hidden="true"></div>
     <div class="mobile-notifications-panel" id="mobileNotificationsPanel" role="dialog" aria-modal="true" aria-label="Notificaciones">
       <button class="mobile-actions-close" id="mobileNotificationsClose" type="button" aria-label="Cerrar notificaciones">
         <i class="fas fa-times" aria-hidden="true"></i>
       </button>
       <div class="mobile-notifications-header">
-        <span><i class="fas fa-bell" aria-hidden="true"></i> Notificaciones</span>
+        <span><i class="fas fa-bell" aria-hidden="true" style="color: var(--primary, #eb6f92);"></i> Transacciones detectadas</span>
       </div>
       <div class="mobile-notifications-list" id="mobileNotificationsList"></div>
-      <button class="mobile-actions-btn danger" type="button" id="mobileNotificationsClearBtn">
-        <i class="fas fa-trash" aria-hidden="true"></i> Limpiar todas
+      <button class="gmail-notif-clear-btn" type="button" id="mobileNotificationsClearBtn">
+        <i class="fas fa-trash" aria-hidden="true"></i> LIMPIAR TODAS
       </button>
     </div>
   </div>
@@ -694,19 +695,22 @@
       };
 
       const fmtMobileNotifAmount = function (amount) {
+        if (amount === undefined || amount === null || amount === '') return '';
+        const num = Number(amount);
+        if (isNaN(num)) return String(amount);
         try {
+          if (window.Core?.helpers?.formatCurrency) {
+            return window.Core.helpers.formatCurrency(num);
+          }
           const raw = JSON.parse(localStorage.getItem('finanzapp:settings:v1') || '{}');
           if (raw?.censorAmounts === 'on') {
-            const sym = window.__appCurrencySymbol || '$';
-            return `${sym} ••••`;
+            return (raw?.currency || 'RD$') + ' ••••';
           }
-        } catch {}
-        if (window.Core?.helpers?.formatCurrency) {
-          return window.Core.helpers.formatCurrency(amount);
+          const curr = raw?.currency || 'RD$';
+          return `${curr}${num.toLocaleString('es-DO', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
+        } catch (_) {
+          return `RD$${num.toLocaleString('es-DO', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
         }
-        const value = Number(amount);
-        if (!isFinite(value)) return '';
-        return `$${value.toLocaleString('es-DO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
       };
 
       const renderNotificationsMenu = function () {
@@ -716,58 +720,52 @@
 
         if (!list.length) {
           const empty = document.createElement('div');
-          empty.className = 'mobile-actions-option';
-          empty.textContent = 'Sin notificaciones bancarias pendientes.';
-          empty.setAttribute('aria-disabled', 'true');
-          empty.style.justifyContent = 'center';
-          empty.style.color = '#908caa';
+          empty.className = 'gmail-notif-empty';
+          empty.textContent = 'Sin transacciones pendientes';
+          empty.style.padding = '28px 16px';
+          empty.style.textAlign = 'center';
+          empty.style.color = '#6e6a86';
+          empty.style.fontSize = '13px';
           notifList.appendChild(empty);
           if (notifClearBtn) notifClearBtn.style.display = 'none';
           return;
         }
 
-        list.forEach(function (notif) {
-          const item = document.createElement('button');
-          item.type = 'button';
-          item.className = 'mobile-actions-option mobile-notif-card';
-          item.style.display = 'flex';
-          item.style.flexDirection = 'column';
-          item.style.alignItems = 'flex-start';
-          item.style.gap = '4px';
-          item.style.padding = '12px 14px';
-          item.style.width = '100%';
-          item.style.textAlign = 'left';
-          item.style.borderRadius = '10px';
-          item.style.borderBottom = '1px solid rgba(255, 255, 255, 0.06)';
+        list.forEach(function (n) {
+          const item = document.createElement('div');
+          item.className = 'gmail-notif-item';
+          item.setAttribute('data-id', n.id || '');
 
-          const desc = (notif.description || notif.merchant || 'Transacción').trim();
-          const amount = fmtMobileNotifAmount(notif.amount);
-          const date = fmtMobileNotifDate(notif.date);
-          const detail = (notif.subject && notif.subject !== notif.description) ? notif.subject : '';
+          const desc = (n.description || n.merchant || 'Comercio').trim();
+          const amount = fmtMobileNotifAmount(n.amount);
+          const date = fmtMobileNotifDate(n.date);
+          const detail = (n.subject && n.subject !== n.description) ? n.subject : (n.description || 'Notificación bancaria');
 
           item.innerHTML = `
-            <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
-              <strong style="color: #e0def4; font-size: 14px;">${desc}</strong>
-              <span style="color: #eb6f92; font-weight: 700; font-size: 14px;">${amount}</span>
+            <div class="gmail-notif-item-top">
+              <span class="gmail-notif-merchant" title="${desc}">${desc}</span>
+              <span class="gmail-notif-amount">${amount}</span>
             </div>
-            ${detail ? `<div style="color: #908caa; font-size: 12px; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${detail}</div>` : ''}
-            ${date ? `<div style="color: #6e6a86; font-size: 11px;"><i class="far fa-calendar-alt" style="margin-right: 4px;"></i>${date}</div>` : ''}
+            <div class="gmail-notif-item-bottom">
+              <span class="gmail-notif-detail" title="${detail}">${detail}</span>
+              ${date ? `<span class="gmail-notif-date"><i class="far fa-calendar-alt"></i> ${date}</span>` : ''}
+            </div>
           `;
 
           item.addEventListener('click', function () {
             closeNotificationsMenu();
             if (window.abrirModalRevisarGmail && typeof window.abrirModalRevisarGmail === 'function') {
-              window.abrirModalRevisarGmail(notif, notif.id);
+              window.abrirModalRevisarGmail(n, n.id);
             } else {
               window.dispatchEvent(new CustomEvent('finanzapp:gmail:open-review', {
-                detail: { id: notif.id }
+                detail: { id: n.id }
               }));
             }
           });
           notifList.appendChild(item);
         });
 
-        if (notifClearBtn) notifClearBtn.style.display = '';
+        if (notifClearBtn) notifClearBtn.style.display = 'flex';
       };
 
       const openNotificationsMenu = function () {
@@ -955,6 +953,7 @@
       });
 
       const backdrop = document.getElementById('mobileDrawerBackdrop');
+      const notifBackdrop = document.getElementById('mobileNotificationsBackdrop');
       const handleBackdropClose = function (e) {
         if (e) {
           e.preventDefault();
@@ -967,6 +966,10 @@
       if (backdrop) {
         backdrop.addEventListener('click', handleBackdropClose);
         backdrop.addEventListener('touchend', handleBackdropClose, { passive: false });
+      }
+      if (notifBackdrop) {
+        notifBackdrop.addEventListener('click', handleBackdropClose);
+        notifBackdrop.addEventListener('touchend', handleBackdropClose, { passive: false });
       }
 
       document.addEventListener('click', function (e) {
