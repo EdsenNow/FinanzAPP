@@ -451,10 +451,20 @@ html body .custom-alert::before { display: none; }
   }
 }
 
+#todayBtn,
 .date-picker-modal .modal-footer .btn-primary {
   background: var(--primary, #eb6f92);
-  color: #faf4ed;
+  color: var(--light, #faf4ed);
   border: none;
+}
+
+#todayBtn:hover,
+.date-picker-modal .modal-footer .btn-primary:hover {
+  background: var(--primary, #eb6f92);
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(235, 111, 146, 0.3);
+  filter: brightness(1.08);
 }
 
 .date-picker-calendar {
