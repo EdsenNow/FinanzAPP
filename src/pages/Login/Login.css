@@ -503,11 +503,14 @@ body::-webkit-scrollbar-corner {
 
 .auth-form {
   margin-top: 30px;
+  user-select: none;
+  -webkit-user-select: none;
 }
-
 
 .form-group {
   margin-bottom: 20px;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .form-group:last-of-type {
@@ -520,13 +523,15 @@ body::-webkit-scrollbar-corner {
   font-weight: 500;
   color: var(--gray);
   font-size: 14px;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: default;
 }
-
 
 .form-control {
   width: 100%;
   padding: 16px;
-  background: #191724;
+  background: #1f1d2e;
   border: none;
   border-radius: 12px;
   color: var(--light);
@@ -534,6 +539,9 @@ body::-webkit-scrollbar-corner {
   transition: all 0.3s ease;
   text-align: left;
   box-sizing: border-box;
+  user-select: text;
+  -webkit-user-select: text;
+  cursor: text;
 }
 
 .form-control:hover {
@@ -599,6 +607,9 @@ input[type="password"]::-ms-clear {
   margin-top: 30px;
   color: var(--gray);
   font-size: 14px;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: default;
 }
 
 .form-footer a {
@@ -606,6 +617,7 @@ input[type="password"]::-ms-clear {
   text-decoration: none;
   transition: color 0.3s;
   font-weight: 600;
+  cursor: pointer;
 }
 
 .legal-footer {
@@ -614,12 +626,16 @@ input[type="password"]::-ms-clear {
   font-size: 12px;
   color: var(--gray);
   opacity: 0.7;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: default;
 }
 
 .legal-footer a {
   color: var(--gray);
   text-decoration: none;
   transition: color 0.2s;
+  cursor: pointer;
 }
 
 .legal-footer a:hover {
