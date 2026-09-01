@@ -57,8 +57,6 @@
   <script>
     (function () {
       try {
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.has('landing') || urlParams.has('preview') || urlParams.has('home')) return;
         const LOGOUT_BLOCK_MS = 60000;
         const logoutTimestamp = localStorage.getItem('logoutTimestamp');
         const recentLogout = logoutTimestamp && (Date.now() - parseInt(logoutTimestamp, 10)) < LOGOUT_BLOCK_MS;
