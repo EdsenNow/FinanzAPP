@@ -128,6 +128,7 @@
           <button class="mobile-actions-toggle" id="mobileActionsToggle" type="button" aria-expanded="false" aria-controls="mobileActionsPanel">
             <i class="fas fa-bars"></i>
           </button>
+          <div class="mobile-drawer-backdrop" id="mobileDrawerBackdrop" aria-hidden="true"></div>
           <div class="mobile-actions-panel" id="mobileActionsPanel" role="menu">
             <button class="mobile-actions-close" id="mobileActionsClose" type="button" aria-label="Cerrar menú">
               <i class="fas fa-times" aria-hidden="true"></i>
@@ -334,6 +335,116 @@
 
 
   
+
+  <script>
+    (function () {
+      const dropdown = document.getElementById('mobileActionsDropdown');
+      const toggle = document.getElementById('mobileActionsToggle');
+      const panel = document.getElementById('mobileActionsPanel');
+      if (!dropdown || !toggle || !panel) return;
+      const closeBtn = document.getElementById('mobileActionsClose');
+      const backdrop = document.getElementById('mobileDrawerBackdrop');
+
+      const mobileName = document.getElementById('mobileDrawerName');
+      const mobileEmail = document.getElementById('mobileDrawerEmail');
+      const mobileAvatar = document.getElementById('mobileDrawerAvatar');
+
+      const syncDrawerProfile = function () {
+        try {
+          const raw = localStorage.getItem('authUser');
+          const profile = raw && raw !== 'guest' ? JSON.parse(raw) : {};
+          const fallbackName = document.querySelector('.sidebar .user-name')?.textContent?.trim() || '';
+          const fallbackEmail = document.querySelector('.sidebar .user-email')?.textContent?.trim() || '';
+
+          const displayName = profile.name || profile.displayName || fallbackName || 'Invitado';
+          const displayEmail = profile.email || fallbackEmail || '';
+          const picture = profile.picture || profile.photoURL || '';
+
+          if (mobileName) mobileName.textContent = displayName;
+          if (mobileEmail) {
+            mobileEmail.textContent = displayEmail || 'Sin correo';
+            mobileEmail.style.display = 'block';
+          }
+
+          if (mobileAvatar) {
+            mobileAvatar.innerHTML = '';
+            if (picture) {
+              const img = document.createElement('img');
+              img.src = picture;
+              img.alt = displayName;
+              mobileAvatar.appendChild(img);
+            } else {
+              mobileAvatar.textContent = (displayName || 'U').trim().charAt(0).toUpperCase();
+            }
+          }
+        } catch (_) {}
+      };
+
+      syncDrawerProfile();
+
+      const closePanel = function () {
+        dropdown.classList.remove('open');
+        toggle.setAttribute('aria-expanded', 'false');
+      };
+
+      toggle.addEventListener('click', function (e) {
+        e.stopPropagation();
+        syncDrawerProfile();
+        dropdown.classList.toggle('open');
+        toggle.setAttribute('aria-expanded', dropdown.classList.contains('open') ? 'true' : 'false');
+      });
+
+      closeBtn?.addEventListener('click', function (e) {
+        e.stopPropagation();
+        closePanel();
+      });
+
+      const handleBackdropClose = function (e) {
+        if (e) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+        closePanel();
+      };
+
+      if (backdrop) {
+        backdrop.addEventListener('click', handleBackdropClose);
+        backdrop.addEventListener('touchend', handleBackdropClose, { passive: false });
+      }
+
+      panel.addEventListener('click', function (e) {
+        e.stopPropagation();
+        const btn = e.target.closest('[data-action]');
+        if (!btn) return;
+        const action = btn.getAttribute('data-action');
+
+        if (action === 'year') {
+          document.getElementById('yearFilter')?.querySelector('.custom-dropdown-selected')?.click();
+          closePanel();
+        } else if (action === 'month') {
+          document.getElementById('monthFilter')?.querySelector('.custom-dropdown-selected')?.click();
+          closePanel();
+        } else if (action === 'clear') {
+          document.getElementById('clearFiltersBtn')?.click();
+          closePanel();
+        } else if (action === 'theme') {
+          document.getElementById('themeToggle')?.click();
+          closePanel();
+        } else if (action === 'logout') {
+          document.getElementById('logoutButton')?.click();
+          closePanel();
+        }
+      });
+
+      document.addEventListener('click', function (e) {
+        if (dropdown.classList.contains('open') && !dropdown.contains(e.target) && !e.target.closest('.custom-dropdown')) {
+          closePanel();
+        }
+      });
+
+      window.addEventListener('scroll', closePanel, { passive: true });
+    })();
+  </script>
 
   <script src="/pages/Estadistica/Estadistica.js?v=20260325g"></script>
 </body>

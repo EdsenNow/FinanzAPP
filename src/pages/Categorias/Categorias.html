@@ -146,6 +146,7 @@
             <i class="fas fa-bars"></i>
             <span class="mobile-actions-toggle-badge hidden" id="mobileActionsToggleBadge"></span>
           </button>
+          <div class="mobile-drawer-backdrop" id="mobileDrawerBackdrop" aria-hidden="true"></div>
           <div class="mobile-actions-panel" id="mobileActionsPanel" role="menu">
             <button class="mobile-actions-close" id="mobileActionsClose" type="button" aria-label="Cerrar menú">
               <i class="fas fa-times" aria-hidden="true"></i>
@@ -953,13 +954,28 @@
         }
       });
 
+      const backdrop = document.getElementById('mobileDrawerBackdrop');
+      const handleBackdropClose = function (e) {
+        if (e) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+        closePanel();
+        closeNotificationsMenu();
+      };
+
+      if (backdrop) {
+        backdrop.addEventListener('click', handleBackdropClose);
+        backdrop.addEventListener('touchend', handleBackdropClose, { passive: false });
+      }
+
       document.addEventListener('click', function (e) {
         const clickedOutsideMain = !dropdown.contains(e.target);
         const clickedOutsideNotif = !notifPanel || !notifPanel.contains(e.target);
-        if (clickedOutsideMain) {
+        if (clickedOutsideMain && dropdown.classList.contains('open')) {
           closePanel();
         }
-        if (clickedOutsideNotif) {
+        if (clickedOutsideNotif && notifDropdown?.classList.contains('open')) {
           closeNotificationsMenu();
         }
       });

@@ -136,6 +136,7 @@
           <button class="mobile-actions-toggle" id="mobileActionsToggle" type="button" aria-expanded="false" aria-controls="mobileActionsPanel">
             <i class="fas fa-bars"></i>
           </button>
+          <div class="mobile-drawer-backdrop" id="mobileDrawerBackdrop" aria-hidden="true"></div>
           <div class="mobile-actions-panel" id="mobileActionsPanel" role="menu">
             <button class="mobile-actions-close" id="mobileActionsClose" type="button" aria-label="Cerrar menú">
               <i class="fas fa-times" aria-hidden="true"></i>
@@ -604,9 +605,22 @@
         }
       });
 
+      const backdrop = document.getElementById('mobileDrawerBackdrop');
+      const handleBackdropClose = function (e) {
+        if (e) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+        closePanel();
+      };
+
+      if (backdrop) {
+        backdrop.addEventListener('click', handleBackdropClose);
+        backdrop.addEventListener('touchend', handleBackdropClose, { passive: false });
+      }
+
       document.addEventListener('click', function (e) {
-        // Solo cerrar el panel móvil si el clic fue fuera del dropdown mobile Y fuera de cualquier custom-dropdown
-        if ((!dropdown.contains(e.target) || e.target === dropdown) && !e.target.closest('.custom-dropdown') && !e.target.closest('.modal')) {
+        if (dropdown.classList.contains('open') && !dropdown.contains(e.target) && !e.target.closest('.custom-dropdown') && !e.target.closest('.modal')) {
           closePanel();
         }
       });
