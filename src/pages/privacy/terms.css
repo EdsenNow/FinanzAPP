@@ -5,17 +5,53 @@ body {
   background: #191724;
   color: #e0def4;
   min-height: 100vh;
-  scrollbar-width: none; /* Firefox */
   user-select: none;
   -webkit-user-select: none;
-}
-::-webkit-scrollbar {
-  display: none; /* Chrome/Safari/Edge */
+  scrollbar-width: auto;
+  scrollbar-color: #eb6f92 transparent;
 }
 
 input, textarea, [contenteditable="true"] {
   user-select: text;
   -webkit-user-select: text;
+}
+
+/* ===== Custom Scrollbar ===== */
+::-webkit-scrollbar,
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+  background: transparent;
+}
+
+::-webkit-scrollbar-track,
+html::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb,
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb {
+  background: #eb6f92;
+  border-radius: 12px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover,
+html::-webkit-scrollbar-thumb:hover,
+body::-webkit-scrollbar-thumb:hover {
+  background: #f08ca8;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-corner,
+html::-webkit-scrollbar-corner,
+body::-webkit-scrollbar-corner {
+  background: transparent;
 }
 
 /* ===== Animated Orbs Background ===== */
