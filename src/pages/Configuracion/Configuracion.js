@@ -66,12 +66,28 @@
     populateUserInfo();
     initProfileTooltip();
 
-    await refreshDataSummary();
-    refreshBackupMeta();
-
+    // 1. Inicializar Firebase de inmediato
     if (window.FirestoreDB?.ensureFirebaseInitialized) {
       window.FirestoreDB.ensureFirebaseInitialized();
     }
+    if (window.firebaseAuth && typeof window.firebaseAuth.init === 'function') {
+      try { await window.firebaseAuth.init(); } catch (_) {}
+    }
+
+    // 2. Si Firebase Auth aún no ha resuelto el usuario, esperar hasta 3.5s
+    if (window.FirestoreDB?.waitForAuth) {
+      try {
+        await window.FirestoreDB.waitForAuth(3500);
+      } catch (_) {}
+    }
+
+    // 3. Poblar perfil y cargar credenciales IMAP con el usuario autenticado
+    populateUserInfo();
+    await loadImapCredentials();
+    await refreshDataSummary();
+    refreshBackupMeta();
+
+    // 4. Suscribirse a onAuthStateChanged para cambios posteriores
     if (window.firebase && window.firebase.apps && window.firebase.apps.length > 0 && typeof window.firebase.auth === 'function') {
       try {
         window.firebase.auth().onAuthStateChanged(async (user) => {
@@ -80,7 +96,7 @@
               localStorage.setItem('authUser', JSON.stringify({
                 name: user.displayName || user.email?.split('@')[0] || 'Usuario',
                 email: user.email || '',
-                picture: user.photoURL || '',
+                picture: user.photoURL || user.providerData?.[0]?.photoURL || '',
                 uid: user.uid,
                 provider: user.providerData?.[0]?.providerId || 'google'
               }));
@@ -337,17 +353,23 @@
         window.FirestoreDB.ensureFirebaseInitialized();
       }
       const settings = await window.FirestoreDB.getImapSettings();
+      const emailEl = document.getElementById('imapEmail');
+      const passEl = document.getElementById('imapPassword');
+      const sendersEl = document.getElementById('imapSenders');
+      const syncBtn = document.getElementById('syncImapBtn');
+
       if (settings) {
-        const emailEl = document.getElementById('imapEmail');
-        const passEl = document.getElementById('imapPassword');
-        const sendersEl = document.getElementById('imapSenders');
         if (emailEl && settings.email) emailEl.value = settings.email;
         if (passEl && settings.appPassword) passEl.value = settings.appPassword;
         if (sendersEl && settings.targetSenders) {
           sendersEl.value = Array.isArray(settings.targetSenders) ? settings.targetSenders.join(', ') : settings.targetSenders;
         }
-        const syncBtn = document.getElementById('syncImapBtn');
-        if (syncBtn) syncBtn.style.display = 'inline-flex';
+        if (syncBtn && settings.appPassword) syncBtn.style.display = 'inline-flex';
+      } else {
+        const profile = getProfile();
+        if (emailEl && !emailEl.value && profile.email) {
+          emailEl.value = profile.email;
+        }
       }
     } catch (e) {
       console.warn('Error loading IMAP settings', e);
@@ -1232,10 +1254,16 @@
     const providerLabel = provider === 'google' ? 'Google' : (provider === 'guest' ? 'Invitado' : 'Cuenta local');
     const uidShort = profile.uid ? String(profile.uid).slice(0, 12) : 'Sin UID';
 
-    if (elements.profileName) elements.profileName.textContent = displayName;
-    if (elements.profileEmail) elements.profileEmail.textContent = displayEmail || 'Sin correo asociado';
-    if (elements.profileProvider) elements.profileProvider.textContent = providerLabel;
-    if (elements.profileUid) elements.profileUid.textContent = uidShort;
+    const nameEl = document.getElementById('profileName') || elements.profileName;
+    const emailEl = document.getElementById('profileEmail') || elements.profileEmail;
+    const providerEl = document.getElementById('profileProvider') || elements.profileProvider;
+    const uidEl = document.getElementById('profileUid') || elements.profileUid;
+    const avatarLargeEl = document.getElementById('profileAvatarLarge') || elements.profileAvatarLarge;
+
+    if (nameEl) nameEl.textContent = displayName;
+    if (emailEl) emailEl.textContent = displayEmail || 'Sin correo asociado';
+    if (providerEl) providerEl.textContent = providerLabel;
+    if (uidEl) uidEl.textContent = uidShort;
 
     const sidebarName = document.querySelector('.sidebar .user-name');
     const sidebarEmail = document.querySelector('.sidebar .user-email');
@@ -1248,7 +1276,7 @@
     }
 
     renderAvatar(sidebarAvatar, displayName, profile.picture || profile.photoURL);
-    renderAvatar(elements.profileAvatarLarge, displayName, profile.picture || profile.photoURL);
+    renderAvatar(avatarLargeEl, displayName, profile.picture || profile.photoURL);
 
     const tooltipName = document.querySelector('#profileTooltip .tooltip-name');
     const tooltipEmail = document.querySelector('#profileTooltip .tooltip-email');
@@ -1268,8 +1296,8 @@
             name: u.displayName || u.email?.split('@')[0] || 'Usuario',
             email: u.email || '',
             uid: u.uid,
-            picture: u.photoURL || '',
-            photoURL: u.photoURL || '',
+            picture: u.photoURL || u.providerData?.[0]?.photoURL || '',
+            photoURL: u.photoURL || u.providerData?.[0]?.photoURL || '',
             provider: u.providerData?.[0]?.providerId || 'google'
           };
         }
