@@ -293,6 +293,7 @@
             const result = await window.SyncAPI.syncImapOnDemand();
             
             if (result && Array.isArray(result.transactions) && result.transactions.length > 0) {
+              try {
                 if (window.FirestoreDB?.ensureFirebaseInitialized) {
                   window.FirestoreDB.ensureFirebaseInitialized();
                 }
