@@ -41,10 +41,50 @@
     user: { name: 'Usuario', email: 'usuario@ejemplo.com' }
   };
 
+  const STORAGE_FILTROS_KEY = 'finanzapp:shared_filters:v1';
+
+  function cargarFiltrosPersistidos() {
+    try {
+      if (window.Core?.helpers?.loadSharedFilters) {
+        return window.Core.helpers.loadSharedFilters();
+      }
+      const raw = localStorage.getItem(STORAGE_FILTROS_KEY);
+      if (!raw) return { year: null, month: null, searchTerm: '', category: null };
+      const parsed = JSON.parse(raw);
+      const yr = (parsed.year !== null && parsed.year !== undefined && parsed.year !== '') ? parseInt(parsed.year, 10) : null;
+      const mo = (parsed.month !== null && parsed.month !== undefined && parsed.month !== '') ? parseInt(parsed.month, 10) : null;
+      return {
+        year: (yr !== null && !isNaN(yr)) ? yr : null,
+        month: (mo !== null && !isNaN(mo) && mo >= 0 && mo <= 11) ? mo : null,
+        searchTerm: typeof parsed.searchTerm === 'string' ? parsed.searchTerm : '',
+        category: (parsed.category !== null && parsed.category !== undefined && parsed.category !== '') ? String(parsed.category) : null
+      };
+    } catch {
+      return { year: null, month: null, searchTerm: '', category: null };
+    }
+  }
+
+  function guardarFiltrosPersistidos(novosFiltros) {
+    try {
+      if (window.Core?.helpers?.saveSharedFilters) {
+        window.Core.helpers.saveSharedFilters(novosFiltros);
+        return;
+      }
+      const current = cargarFiltrosPersistidos();
+      localStorage.setItem(STORAGE_FILTROS_KEY, JSON.stringify({
+        year: novosFiltros.year !== undefined ? novosFiltros.year : current.year,
+        month: novosFiltros.month !== undefined ? novosFiltros.month : current.month,
+        searchTerm: novosFiltros.searchTerm !== undefined ? novosFiltros.searchTerm : current.searchTerm,
+        category: novosFiltros.category !== undefined ? novosFiltros.category : current.category
+      }));
+    } catch {}
+  }
+
+  const initialShared = cargarFiltrosPersistidos();
   let filtros = {
-    year: null,
-    month: null,
-    category: null
+    year: initialShared.year ? String(initialShared.year) : null,
+    month: initialShared.month !== null ? initialShared.month : null,
+    category: initialShared.category || null
   };
 
   let editingBudgetId = null;
@@ -560,8 +600,41 @@
     });
   }
 
+  function aplicarFiltros() {
+    renderizarTodo();
+  }
+
   function configurarDropdowns() {
     generarOpcionesAnio();
+
+    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    const monthFilter = elementos.monthFilter || document.getElementById('monthFilter');
+    if (monthFilter) {
+      const monthSelected = monthFilter.querySelector('.custom-dropdown-selected');
+      if (monthSelected) {
+        if (filtros.month !== null && filtros.month >= 0 && filtros.month <= 11) {
+          monthSelected.querySelector('span').textContent = meses[filtros.month];
+          monthSelected.setAttribute('data-value', String(filtros.month));
+        } else {
+          monthSelected.querySelector('span').textContent = 'Todos los meses';
+          monthSelected.setAttribute('data-value', '');
+        }
+      }
+      const monthOptions = monthFilter.querySelectorAll('.custom-dropdown-option');
+      monthOptions.forEach(opt => {
+        const val = opt.getAttribute('data-value');
+        const isSelected = (filtros.month === null && val === '') || (filtros.month !== null && val === String(filtros.month));
+        opt.classList.toggle('selected', isSelected);
+      });
+    }
+
+    const categoryFilter = elementos.categoryFilter || document.getElementById('categoryFilter');
+    if (categoryFilter && filtros.category) {
+      const catSelected = categoryFilter.querySelector('.custom-dropdown-selected');
+      if (catSelected) {
+        catSelected.setAttribute('data-value', filtros.category);
+      }
+    }
     
     document.querySelectorAll('.budget-filters .custom-dropdown').forEach(dropdown => {
       const selected = dropdown.querySelector('.custom-dropdown-selected');
@@ -603,13 +676,16 @@
         dropdown.classList.remove('open');
         
         if (dropdown.id === 'yearFilter') {
-          filtros.year = value || null;
+          filtros.year = value ? String(value) : null;
+          guardarFiltrosPersistidos({ year: filtros.year ? parseInt(filtros.year, 10) : null });
           aplicarFiltros();
         } else if (dropdown.id === 'monthFilter') {
-          filtros.month = value ? parseInt(value) : null;
+          filtros.month = value !== '' ? parseInt(value, 10) : null;
+          guardarFiltrosPersistidos({ month: filtros.month });
           aplicarFiltros();
         } else if (dropdown.id === 'categoryFilter') {
           filtros.category = value || null;
+          guardarFiltrosPersistidos({ category: filtros.category });
           aplicarFiltros();
         }
       });
@@ -627,7 +703,7 @@
 
 
   function generarOpcionesAnio() {
-    const yearFilter = elementos.yearFilter;
+    const yearFilter = elementos.yearFilter || document.getElementById('yearFilter');
     if (!yearFilter) return;
     
     const currentYear = new Date().getFullYear();
@@ -638,18 +714,31 @@
     
     optionsContainer.innerHTML = '';
     
+    const isAllSelected = !filtros.year;
     const allYearsOption = document.createElement('div');
-    allYearsOption.className = 'custom-dropdown-option selected';
+    allYearsOption.className = `custom-dropdown-option ${isAllSelected ? 'selected' : ''}`;
     allYearsOption.setAttribute('data-value', '');
     allYearsOption.textContent = 'Todos los años';
     optionsContainer.appendChild(allYearsOption);
     
     for (let year = startYear; year <= currentYear; year++) {
+      const isSelected = filtros.year && String(filtros.year) === String(year);
       const option = document.createElement('div');
-      option.className = 'custom-dropdown-option';
-      option.setAttribute('data-value', year);
-      option.textContent = year;
+      option.className = `custom-dropdown-option ${isSelected ? 'selected' : ''}`;
+      option.setAttribute('data-value', String(year));
+      option.textContent = String(year);
       optionsContainer.appendChild(option);
+    }
+
+    const selected = yearFilter.querySelector('.custom-dropdown-selected');
+    if (selected) {
+      if (filtros.year) {
+        selected.querySelector('span').textContent = String(filtros.year);
+        selected.setAttribute('data-value', String(filtros.year));
+      } else {
+        selected.querySelector('span').textContent = 'Todos los años';
+        selected.setAttribute('data-value', '');
+      }
     }
   }
 

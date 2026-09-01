@@ -438,27 +438,80 @@ function colorWithAlpha(color, alpha = 1) {
   }
 
 
+  const STORAGE_FILTROS_KEY = 'finanzapp:shared_filters:v1';
+
+  function cargarFiltrosPersistidos() {
+    try {
+      if (window.Core?.helpers?.loadSharedFilters) {
+        return window.Core.helpers.loadSharedFilters();
+      }
+      const raw = localStorage.getItem(STORAGE_FILTROS_KEY);
+      if (!raw) return { year: null, month: null, searchTerm: '', category: null };
+      const parsed = JSON.parse(raw);
+      const yr = (parsed.year !== null && parsed.year !== undefined && parsed.year !== '') ? parseInt(parsed.year, 10) : null;
+      const mo = (parsed.month !== null && parsed.month !== undefined && parsed.month !== '') ? parseInt(parsed.month, 10) : null;
+      return {
+        year: (yr !== null && !isNaN(yr)) ? yr : null,
+        month: (mo !== null && !isNaN(mo) && mo >= 0 && mo <= 11) ? mo : null,
+        searchTerm: typeof parsed.searchTerm === 'string' ? parsed.searchTerm : '',
+        category: (parsed.category !== null && parsed.category !== undefined && parsed.category !== '') ? String(parsed.category) : null
+      };
+    } catch {
+      return { year: null, month: null, searchTerm: '', category: null };
+    }
+  }
+
+  function guardarFiltrosPersistidos(novosFiltros) {
+    try {
+      if (window.Core?.helpers?.saveSharedFilters) {
+        window.Core.helpers.saveSharedFilters(novosFiltros);
+        return;
+      }
+      const current = cargarFiltrosPersistidos();
+      localStorage.setItem(STORAGE_FILTROS_KEY, JSON.stringify({
+        year: novosFiltros.year !== undefined ? novosFiltros.year : current.year,
+        month: novosFiltros.month !== undefined ? novosFiltros.month : current.month,
+        searchTerm: novosFiltros.searchTerm !== undefined ? novosFiltros.searchTerm : current.searchTerm,
+        category: novosFiltros.category !== undefined ? novosFiltros.category : current.category
+      }));
+    } catch {}
+  }
+
   function generarOpcionesAnio(){
     const yearFilter = document.getElementById('yearFilter');
     if (!yearFilter) return;
     const optionsContainer = yearFilter.querySelector('.custom-dropdown-options');
     if (!optionsContainer) return;
     optionsContainer.innerHTML = '';
+
+    const shared = cargarFiltrosPersistidos();
+    const isAllSelected = shared.year === null;
+
     const all = document.createElement('div');
-    all.className = 'custom-dropdown-option';
+    all.className = `custom-dropdown-option ${isAllSelected ? 'selected' : ''}`;
     all.setAttribute('data-value','');
     all.textContent = 'Todos los años';
     optionsContainer.appendChild(all);
+
     const { start, end } = obtenerRangoAnios();
     for (let y = start; y <= end; y++){
+      const isSelected = shared.year === y;
       const opt = document.createElement('div');
-      opt.className = 'custom-dropdown-option';
+      opt.className = `custom-dropdown-option ${isSelected ? 'selected' : ''}`;
       opt.setAttribute('data-value', String(y));
       opt.textContent = String(y);
       optionsContainer.appendChild(opt);
     }
     const selected = yearFilter.querySelector('.custom-dropdown-selected');
-    if (selected){ selected.querySelector('span').textContent = 'Todos los años'; selected.setAttribute('data-value',''); }
+    if (selected){
+      if (shared.year !== null) {
+        selected.querySelector('span').textContent = String(shared.year);
+        selected.setAttribute('data-value', String(shared.year));
+      } else {
+        selected.querySelector('span').textContent = 'Todos los años';
+        selected.setAttribute('data-value', '');
+      }
+    }
   }
 
   function obtenerFiltros() {
@@ -1321,25 +1374,40 @@ function colorWithAlpha(color, alpha = 1) {
     const monthDD = document.getElementById('monthFilter');
     generarOpcionesAnio();
     
-    // Establecer filtros por defecto a "Todos"
-    const ySel = yearDD?.querySelector('.custom-dropdown-selected');
+    const shared = cargarFiltrosPersistidos();
+    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+
     const mSel = monthDD?.querySelector('.custom-dropdown-selected');
-    if (ySel) { 
-      ySel.setAttribute('data-value',''); 
-      ySel.querySelector('span').textContent = 'Todos los años'; 
-    }
     if (mSel) { 
-      mSel.setAttribute('data-value',''); 
-      mSel.querySelector('span').textContent = 'Todos los meses'; 
+      if (shared.month !== null && shared.month >= 0 && shared.month <= 11) {
+        mSel.setAttribute('data-value', String(shared.month));
+        mSel.querySelector('span').textContent = meses[shared.month];
+      } else {
+        mSel.setAttribute('data-value', ''); 
+        mSel.querySelector('span').textContent = 'Todos los meses'; 
+      }
     }
-    yearDD?.querySelectorAll('.custom-dropdown-option').forEach((o,i)=>{ o.classList.toggle('selected', i===0); });
-    monthDD?.querySelectorAll('.custom-dropdown-option').forEach((o,i)=>{ o.classList.toggle('selected', i===0); });
+
+    monthDD?.querySelectorAll('.custom-dropdown-option').forEach(o => {
+      const val = o.getAttribute('data-value');
+      const isSelected = (shared.month === null && val === '') || (shared.month !== null && val === String(shared.month));
+      o.classList.toggle('selected', isSelected);
+    });
     
-    if (yearDD) configurarDropdown(yearDD, renderizarTodo);
-    if (monthDD) configurarDropdown(monthDD, renderizarTodo);
+    if (yearDD) configurarDropdown(yearDD, () => {
+      const yVal = yearDD.querySelector('.custom-dropdown-selected')?.getAttribute('data-value');
+      guardarFiltrosPersistidos({ year: yVal !== '' && yVal !== null ? parseInt(yVal, 10) : null });
+      renderizarTodo();
+    });
+    if (monthDD) configurarDropdown(monthDD, () => {
+      const mVal = monthDD.querySelector('.custom-dropdown-selected')?.getAttribute('data-value');
+      guardarFiltrosPersistidos({ month: mVal !== '' && mVal !== null ? parseInt(mVal, 10) : null });
+      renderizarTodo();
+    });
 
     const clearBtn = document.getElementById('clearFiltersBtn');
     if (clearBtn) clearBtn.addEventListener('click', () => {
+      guardarFiltrosPersistidos({ year: null, month: null });
       const ySel = yearDD?.querySelector('.custom-dropdown-selected');
       const mSel = monthDD?.querySelector('.custom-dropdown-selected');
       if (ySel) { ySel.setAttribute('data-value',''); ySel.querySelector('span').textContent = 'Todos los años'; }

@@ -257,11 +257,43 @@ function _guardarSort() {
   } catch {}
 }
 
-let filtrosActuales = {
-  year: null,
-  month: null,
-  searchTerm: ''
-};
+const STORAGE_FILTROS_KEY = 'finanzapp:shared_filters:v1';
+
+function cargarFiltrosPersistidos() {
+  try {
+    if (window.Core?.helpers?.loadSharedFilters) {
+      return window.Core.helpers.loadSharedFilters();
+    }
+    const raw = localStorage.getItem(STORAGE_FILTROS_KEY);
+    if (!raw) return { year: null, month: null, searchTerm: '' };
+    const parsed = JSON.parse(raw);
+    const yr = (parsed.year !== null && parsed.year !== undefined && parsed.year !== '') ? parseInt(parsed.year, 10) : null;
+    const mo = (parsed.month !== null && parsed.month !== undefined && parsed.month !== '') ? parseInt(parsed.month, 10) : null;
+    return {
+      year: (yr !== null && !isNaN(yr)) ? yr : null,
+      month: (mo !== null && !isNaN(mo) && mo >= 0 && mo <= 11) ? mo : null,
+      searchTerm: typeof parsed.searchTerm === 'string' ? parsed.searchTerm : ''
+    };
+  } catch {
+    return { year: null, month: null, searchTerm: '' };
+  }
+}
+
+function guardarFiltrosPersistidos(filtros) {
+  try {
+    if (window.Core?.helpers?.saveSharedFilters) {
+      window.Core.helpers.saveSharedFilters(filtros);
+      return;
+    }
+    localStorage.setItem(STORAGE_FILTROS_KEY, JSON.stringify({
+      year: filtros.year !== undefined ? filtros.year : null,
+      month: filtros.month !== undefined ? filtros.month : null,
+      searchTerm: filtros.searchTerm || ''
+    }));
+  } catch {}
+}
+
+let filtrosActuales = cargarFiltrosPersistidos();
 
 /** Actualiza los estilos visuales de los controles de filtro según el estado actual de `filtrosActuales`. */
 function actualizarIndicadorFiltros() {
@@ -291,7 +323,7 @@ function generarOpcionesAnio() {
   optionsContainer.innerHTML = '';
 
   const allYearsOption = document.createElement('div');
-  allYearsOption.className = 'custom-dropdown-option';
+  allYearsOption.className = `custom-dropdown-option ${filtrosActuales.year === null ? 'selected' : ''}`;
   allYearsOption.setAttribute('data-value', '');
   allYearsOption.textContent = 'Todos los años';
   optionsContainer.appendChild(allYearsOption);
@@ -300,25 +332,24 @@ function generarOpcionesAnio() {
   
   for (let year = startYear; year <= endYear; year++) {
     const option = document.createElement('div');
-    option.className = 'custom-dropdown-option';
-    option.setAttribute('data-value', year);
-    option.textContent = year;
+    const isSelected = filtrosActuales.year === year;
+    option.className = `custom-dropdown-option ${isSelected ? 'selected' : ''}`;
+    option.setAttribute('data-value', String(year));
+    option.textContent = String(year);
     optionsContainer.appendChild(option);
   }
 
   const selectedElement = yearFilter.querySelector('.custom-dropdown-selected');
   if (selectedElement) {
-    selectedElement.querySelector('span').textContent = 'Todos los años';
-    selectedElement.setAttribute('data-value', '');
-
-    const options = optionsContainer.querySelectorAll('.custom-dropdown-option');
-    options.forEach((opt, index) => {
-      opt.classList.remove('selected');
-      if (index === 0) {
-        opt.classList.add('selected');
-      }
-    });
+    if (filtrosActuales.year !== null) {
+      selectedElement.querySelector('span').textContent = String(filtrosActuales.year);
+      selectedElement.setAttribute('data-value', String(filtrosActuales.year));
+    } else {
+      selectedElement.querySelector('span').textContent = 'Todos los años';
+      selectedElement.setAttribute('data-value', '');
+    }
   }
+  actualizarIndicadorFiltros();
 }
 
 let alertaUltimoFoco = null;
@@ -2996,29 +3027,37 @@ const aplicarFiltrosAntirrebote = antirrebote(aplicarFiltros, 200);
 function configurarListenersFiltros() {
   const yearFilter = document.getElementById('yearFilter');
   const monthFilter = document.getElementById('monthFilter');
+  const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 
-  // Establecer filtro de mes por defecto a "Todos los meses"
+  // Restaurar o establecer filtro de mes
   if (monthFilter) {
     const monthSelected = monthFilter.querySelector('.custom-dropdown-selected');
     if (monthSelected) {
-      monthSelected.querySelector('span').textContent = 'Todos los meses';
-      monthSelected.setAttribute('data-value', '');
+      if (filtrosActuales.month !== null && filtrosActuales.month >= 0 && filtrosActuales.month <= 11) {
+        monthSelected.querySelector('span').textContent = meses[filtrosActuales.month];
+        monthSelected.setAttribute('data-value', String(filtrosActuales.month));
+      } else {
+        monthSelected.querySelector('span').textContent = 'Todos los meses';
+        monthSelected.setAttribute('data-value', '');
+      }
     }
     const monthOptions = monthFilter.querySelectorAll('.custom-dropdown-option');
-    monthOptions.forEach((opt, index) => {
-      opt.classList.remove('selected');
-      if (index === 0) {
-        opt.classList.add('selected');
-      }
+    monthOptions.forEach(opt => {
+      const val = opt.getAttribute('data-value');
+      const isSelected = (filtrosActuales.month === null && val === '') || (filtrosActuales.month !== null && val === String(filtrosActuales.month));
+      opt.classList.toggle('selected', isSelected);
+      opt.setAttribute('aria-selected', isSelected ? 'true' : 'false');
     });
   }
 
   const manejarSeleccionOpcion = (tipoFiltro, value, text) => {
     if (tipoFiltro === 'year') {
-      filtrosActuales.year = value === '' ? null : parseInt(value);
+      filtrosActuales.year = value === '' ? null : parseInt(value, 10);
     } else if (tipoFiltro === 'month') {
-      filtrosActuales.month = value === '' ? null : parseInt(value);
+      filtrosActuales.month = value === '' ? null : parseInt(value, 10);
     }
+    guardarFiltrosPersistidos(filtrosActuales);
+    actualizarIndicadorFiltros();
     aplicarFiltrosAntirrebote();
   };
 
@@ -3712,6 +3751,11 @@ function configurarListenersEventos() {
     mostrarExito('Transacción actualizada correctamente.');
   });
 
+  if (searchInput && filtrosActuales.searchTerm) {
+    searchInput.value = filtrosActuales.searchTerm;
+    if (clearSearchBtn) clearSearchBtn.style.display = 'block';
+  }
+
   if (clearFiltersBtn) {
     clearFiltersBtn.addEventListener('click', () => {
       const hadActiveFilters = filtrosActuales.year !== null || filtrosActuales.month !== null || !!(filtrosActuales.searchTerm && filtrosActuales.searchTerm.trim());
@@ -3719,32 +3763,41 @@ function configurarListenersEventos() {
       filtrosActuales.year = null;
       filtrosActuales.month = null;
       filtrosActuales.searchTerm = '';
+      guardarFiltrosPersistidos(filtrosActuales);
 
       const yearDropdown = document.getElementById('yearFilter');
       if (yearDropdown) {
         const selected = yearDropdown.querySelector('.custom-dropdown-selected');
         const optionItems = yearDropdown.querySelectorAll('.custom-dropdown-option');
-        selected.querySelector('span').textContent = 'Todos los años';
-        selected.setAttribute('data-value', '');
-        optionItems.forEach(opt => opt.classList.remove('selected'));
-        optionItems[0].classList.add('selected');
+        if (selected) {
+          selected.querySelector('span').textContent = 'Todos los años';
+          selected.setAttribute('data-value', '');
+        }
+        optionItems.forEach(opt => {
+          const isAll = opt.getAttribute('data-value') === '';
+          opt.classList.toggle('selected', isAll);
+          opt.setAttribute('aria-selected', isAll ? 'true' : 'false');
+        });
       }
 
       const monthDropdown = document.getElementById('monthFilter');
       if (monthDropdown) {
         const monthSelected = monthDropdown.querySelector('.custom-dropdown-selected');
+        const monthOptions = monthDropdown.querySelectorAll('.custom-dropdown-option');
         if (monthSelected) {
           monthSelected.querySelector('span').textContent = 'Todos los meses';
           monthSelected.setAttribute('data-value', '');
         }
-        const monthOptions = monthDropdown.querySelectorAll('.custom-dropdown-option');
-        monthOptions.forEach((opt, index) => {
-          opt.classList.remove('selected');
-          if (index === 0) opt.classList.add('selected');
+        monthOptions.forEach(opt => {
+          const isAll = opt.getAttribute('data-value') === '';
+          opt.classList.toggle('selected', isAll);
+          opt.setAttribute('aria-selected', isAll ? 'true' : 'false');
         });
       }
 
       if (searchInput) searchInput.value = '';
+      if (clearSearchBtn) clearSearchBtn.style.display = 'none';
+      actualizarIndicadorFiltros();
       aplicarFiltrosAntirrebote();
 
       if (hadActiveFilters) {
@@ -3758,6 +3811,11 @@ function configurarListenersEventos() {
   if (searchInput) {
     searchInput.addEventListener('input', (e) => {
       filtrosActuales.searchTerm = e.target.value;
+      guardarFiltrosPersistidos(filtrosActuales);
+      if (clearSearchBtn) {
+        clearSearchBtn.style.display = e.target.value ? 'block' : 'none';
+      }
+      actualizarIndicadorFiltros();
       aplicarFiltrosAntirrebote();
     });
   }
@@ -3765,7 +3823,10 @@ function configurarListenersEventos() {
   if (clearSearchBtn) {
     clearSearchBtn.addEventListener('click', () => {
       filtrosActuales.searchTerm = '';
+      guardarFiltrosPersistidos(filtrosActuales);
       if (searchInput) searchInput.value = '';
+      clearSearchBtn.style.display = 'none';
+      actualizarIndicadorFiltros();
       aplicarFiltrosAntirrebote();
     });
   }

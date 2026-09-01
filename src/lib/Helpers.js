@@ -319,6 +319,50 @@ class Helpers {
       window.__appCurrencyLocale   = 'en-US';
     }
   }
+
+  /**
+   * Clave compartida para persistencia de filtros entre páginas.
+   */
+  static SHARED_FILTERS_KEY = 'finanzapp:shared_filters:v1';
+
+  /**
+   * Carga los filtros compartidos desde localStorage.
+   * @returns {{ year: number|null, month: number|null, searchTerm: string, category: string|null }}
+   */
+  static loadSharedFilters() {
+    try {
+      const raw = localStorage.getItem(Helpers.SHARED_FILTERS_KEY);
+      if (!raw) return { year: null, month: null, searchTerm: '', category: null };
+      const parsed = JSON.parse(raw);
+      const yr = (parsed.year !== null && parsed.year !== undefined && parsed.year !== '') ? parseInt(parsed.year, 10) : null;
+      const mo = (parsed.month !== null && parsed.month !== undefined && parsed.month !== '') ? parseInt(parsed.month, 10) : null;
+      return {
+        year: (yr !== null && !isNaN(yr)) ? yr : null,
+        month: (mo !== null && !isNaN(mo) && mo >= 0 && mo <= 11) ? mo : null,
+        searchTerm: typeof parsed.searchTerm === 'string' ? parsed.searchTerm : '',
+        category: (parsed.category !== null && parsed.category !== undefined && parsed.category !== '') ? String(parsed.category) : null
+      };
+    } catch {
+      return { year: null, month: null, searchTerm: '', category: null };
+    }
+  }
+
+  /**
+   * Guarda los filtros compartidos en localStorage de manera atómica.
+   * @param {Partial<{ year: number|null, month: number|null, searchTerm: string, category: string|null }>} filters
+   */
+  static saveSharedFilters(filters) {
+    try {
+      const current = Helpers.loadSharedFilters();
+      const updated = {
+        year: filters.year !== undefined ? filters.year : current.year,
+        month: filters.month !== undefined ? filters.month : current.month,
+        searchTerm: filters.searchTerm !== undefined ? filters.searchTerm : current.searchTerm,
+        category: filters.category !== undefined ? filters.category : current.category
+      };
+      localStorage.setItem(Helpers.SHARED_FILTERS_KEY, JSON.stringify(updated));
+    } catch {}
+  }
 }
 
 Helpers.applyAppSettings();
@@ -342,5 +386,7 @@ window.Core.helpers = {
   isValidAmount:                (...a) => Helpers.isValidAmount(...a),
   validateDate:                 (...a) => Helpers.validateDate(...a),
   formatDate:                   (...a) => Helpers.formatDate(...a),
-  formatDateForInput:           (...a) => Helpers.formatDateForInput(...a)
+  formatDateForInput:           (...a) => Helpers.formatDateForInput(...a),
+  loadSharedFilters:            ()     => Helpers.loadSharedFilters(),
+  saveSharedFilters:            (...a) => Helpers.saveSharedFilters(...a)
 };
