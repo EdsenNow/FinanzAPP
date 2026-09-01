@@ -58,3 +58,11 @@ body.estadistica-page .stats-insights .insight-icon.success {
   color: var(--primary);
 }
 
+[data-theme="dark"] .summary-card.income .card-title i {
+  color: var(--success);
+}
+
+[data-theme="dark"] .summary-card.income .card-value {
+  color: var(--success);
+}
+

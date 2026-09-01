@@ -113,6 +113,14 @@ background: #EB6F92;
 font-size: 26px;
 }
 
+.summary-card.income .card-title i {
+  color: var(--success);
+}
+
+.summary-card.income .card-value {
+  color: var(--success);
+}
+
 .budget-list-card .card-header {
 display: none;
 }

@@ -4,6 +4,14 @@
 	--card-border: #e0def4;
 }
 
+[data-theme="dark"] .summary-card.income .card-title i {
+	color: var(--success);
+}
+
+[data-theme="dark"] .summary-card.income .card-value {
+	color: var(--success);
+}
+
 [data-theme="dark"] .summary-card.misc .card-title i {
 	color: var(--warning);
 }

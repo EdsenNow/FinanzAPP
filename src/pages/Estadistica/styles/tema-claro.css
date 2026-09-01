@@ -13,6 +13,14 @@ background: linear-gradient(#9c6bd7);
 color: #FFFAF3;
 }
 
+[data-theme="light"] body.estadistica-page .summary-card.income .card-title i {
+color: var(--success);
+}
+
+[data-theme="light"] body.estadistica-page .summary-card.income .card-value {
+color: var(--success);
+}
+
 [data-theme="light"] body.estadistica-page .summary-card.expenses .card-value {
 color: #b4637a;
 }

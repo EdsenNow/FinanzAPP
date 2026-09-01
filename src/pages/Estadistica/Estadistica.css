@@ -265,6 +265,14 @@ body.estadistica-page .stats-insights .insight-icon i {
   overflow: visible;
   text-overflow: clip;
 }
+
+.summary-card.income .card-title i {
+  color: var(--success);
+}
+
+.summary-card.income .card-value {
+  color: var(--success);
+}
 /* Temas */
 .estadistica-page .stats-chart-card:hover,
 .estadistica-page .stats-chart-card:hover {
