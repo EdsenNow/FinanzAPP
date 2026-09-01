@@ -695,7 +695,6 @@ body.categorias-page .main-content::-webkit-scrollbar-thumb:hover {
   background: var(--primary);
   color: var(--light);
   letter-spacing: 1px;
-  box-shadow: 0 4px 14px rgba(235, 111, 146, 0.28);
 }
 .btn-primary:hover { 
   transform: translateY(-3px) scale(1.025);

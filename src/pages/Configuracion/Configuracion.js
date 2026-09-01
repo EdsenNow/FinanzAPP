@@ -734,7 +734,15 @@
   }
 
   function normalizeState(raw) {
-    if (!raw || typeof raw !== 'object' || hasForbiddenKeys(raw)) {
+    if (!raw || typeof raw !== 'object') {
+      return {
+        transactions: [],
+        categories: [],
+        budgets: {}
+      };
+    }
+
+    if (hasForbiddenKeys(raw)) {
       throw new Error('Formato de respaldo no válido.');
     }
 
