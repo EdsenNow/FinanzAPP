@@ -15,7 +15,12 @@
      * Retorna una promesa con la cantidad de transacciones encontradas y sincronizadas.
      */
     async syncImapOnDemand() {
-      const user = window.firebase ? window.firebase.auth().currentUser : null;
+      if (window.FirestoreDB?.ensureFirebaseInitialized) {
+        window.FirestoreDB.ensureFirebaseInitialized();
+      }
+      const user = (window.firebase && window.firebase.apps && window.firebase.apps.length > 0 && typeof window.firebase.auth === 'function')
+        ? window.firebase.auth().currentUser
+        : null;
       if (!user) {
         throw new Error('No hay usuario autenticado');
       }

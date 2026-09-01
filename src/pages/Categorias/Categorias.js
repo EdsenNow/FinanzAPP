@@ -4081,7 +4081,15 @@ class GmailNotificationManager {
   }
 
   _getStorageKey() {
-    let uid = window.firebase?.auth?.()?.currentUser?.uid;
+    if (window.FirestoreDB?.ensureFirebaseInitialized) {
+      window.FirestoreDB.ensureFirebaseInitialized();
+    }
+    let uid = null;
+    if (window.firebase && window.firebase.apps && window.firebase.apps.length > 0 && typeof window.firebase.auth === 'function') {
+      try {
+        uid = window.firebase.auth().currentUser?.uid;
+      } catch {}
+    }
     if (!uid) {
       try {
         const rawAuth = localStorage.getItem('authUser');
@@ -4436,15 +4444,21 @@ class GmailNotificationManager {
       }
     });
 
-    if (window.firebase && window.firebase.auth) {
-      window.firebase.auth().onAuthStateChanged((user) => {
-        if (user) {
-          this.notifications = this._loadNotifications();
-          this.updateBadges();
-          this.renderList();
-          this.syncFromFirestore();
-        }
-      });
+    if (window.FirestoreDB?.ensureFirebaseInitialized) {
+      window.FirestoreDB.ensureFirebaseInitialized();
+    }
+
+    if (window.firebase && window.firebase.apps && window.firebase.apps.length > 0 && typeof window.firebase.auth === 'function') {
+      try {
+        window.firebase.auth().onAuthStateChanged((user) => {
+          if (user) {
+            this.notifications = this._loadNotifications();
+            this.updateBadges();
+            this.renderList();
+            this.syncFromFirestore();
+          }
+        });
+      } catch (e) {}
     }
 
     this.syncFromFirestore();
@@ -4452,14 +4466,22 @@ class GmailNotificationManager {
 
   async syncFromFirestore() {
     try {
-      let uid = window.firebase?.auth?.()?.currentUser?.uid;
+      if (window.FirestoreDB?.ensureFirebaseInitialized) {
+        window.FirestoreDB.ensureFirebaseInitialized();
+      }
+      let uid = null;
+      if (window.firebase && window.firebase.apps && window.firebase.apps.length > 0 && typeof window.firebase.auth === 'function') {
+        try {
+          uid = window.firebase.auth().currentUser?.uid;
+        } catch (e) {}
+      }
       if (!uid) {
         try {
           const rawAuth = localStorage.getItem('authUser');
           if (rawAuth) uid = JSON.parse(rawAuth).uid;
         } catch {}
       }
-      if (!uid || !window.firebase?.firestore) {
+      if (!uid || !window.firebase?.apps?.length || !window.firebase?.firestore) {
         return;
       }
       const db = window.firebase.firestore();

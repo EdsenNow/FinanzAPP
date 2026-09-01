@@ -253,8 +253,12 @@
             const result = await window.SyncAPI.syncImapOnDemand();
             
             if (result && Array.isArray(result.transactions) && result.transactions.length > 0) {
-              try {
-                const user = window.firebase ? window.firebase.auth().currentUser : null;
+                if (window.FirestoreDB?.ensureFirebaseInitialized) {
+                  window.FirestoreDB.ensureFirebaseInitialized();
+                }
+                const user = (window.firebase && window.firebase.apps && window.firebase.apps.length > 0 && typeof window.firebase.auth === 'function')
+                  ? window.firebase.auth().currentUser
+                  : null;
                 const storageKey = user ? `finanzapp:gmail:pending_notifications:${user.uid}` : 'finanzapp:gmail:pending_notifications';
                 const rawExisting = localStorage.getItem(storageKey) || '[]';
                 let existing = Array.isArray(JSON.parse(rawExisting)) ? JSON.parse(rawExisting) : [];
