@@ -77,10 +77,8 @@ body.budgets-page .budget-filters .custom-dropdown-selected {
 }
 
 #clearFiltersBtn.btn.btn-secondary:hover {
-  border-color: var(--primary, #eb6f92);
   background: color-mix(in srgb, var(--primary, #eb6f92) 10%, #1f1d2e);
   color: var(--primary, #eb6f92);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary, #eb6f92) 25%, transparent);
 }
 
 #clearFiltersBtn.btn.btn-secondary:focus-visible {
