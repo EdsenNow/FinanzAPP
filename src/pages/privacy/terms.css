@@ -179,11 +179,11 @@ nav {
 }
 
 .card {
-  background: rgba(37,35,58,0.75);
+  background: #191724;
+  border: 2px solid rgba(224, 222, 244, 0.08);
   border-radius: 20px;
-  padding: 36px 40px;
+  padding: 22px 36px;
   margin-bottom: 16px;
-  backdrop-filter: blur(8px);
 }
 .card-header {
   display: flex;
