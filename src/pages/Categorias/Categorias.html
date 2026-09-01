@@ -752,13 +752,14 @@
             </div>
           `;
 
-          item.addEventListener('click', function () {
+          item.addEventListener('click', function (e) {
+            e.stopPropagation();
             closeNotificationsMenu();
             if (window.abrirModalRevisarGmail && typeof window.abrirModalRevisarGmail === 'function') {
-              window.abrirModalRevisarGmail(n, n.id);
+              window.abrirModalRevisarGmail(n, n.id, { source: 'mobile' });
             } else {
               window.dispatchEvent(new CustomEvent('finanzapp:gmail:open-review', {
-                detail: { id: n.id }
+                detail: { id: n.id, source: 'mobile' }
               }));
             }
           });
@@ -927,14 +928,9 @@
         } else if (action === 'year') {
           openOptionsSubmenu('yearFilter', 'year', btn);
         } else if (action === 'month') {
-          openOptionsSubmenu('monthFilter', 'month', btn);
-        } else if (action === 'clear') {
-          document.getElementById('clearFiltersBtn')?.click();
-          clearSubpanel();
-          panel.querySelectorAll('.filter-active').forEach(function (b) { b.classList.remove('filter-active'); });
-        } else if (action === 'notifications') {
-          closePanel();
-          openNotificationsMenu();
+          openYearSubmenu(btn);
+        } else if (action === 'search') {
+          openSearchSubmenu(btn);
         } else if (action === 'export') {
           openExportSubmenu(btn);
         } else if (action === 'import') {
@@ -973,8 +969,11 @@
       }
 
       document.addEventListener('click', function (e) {
-        const clickedOutsideMain = !dropdown.contains(e.target);
-        const clickedOutsideNotif = !notifPanel || !notifPanel.contains(e.target);
+        if (e.target.closest('.modal, .custom-alert-overlay, .modal-backdrop, [role="dialog"], .flatpickr-calendar')) {
+          return;
+        }
+        const clickedOutsideMain = !dropdown.contains(e.target) && !document.getElementById('mobileMoreAction')?.contains(e.target);
+        const clickedOutsideNotif = (!notifPanel || !notifPanel.contains(e.target)) && !document.getElementById('mobileGmailAction')?.contains(e.target);
         if (clickedOutsideMain && dropdown.classList.contains('open')) {
           closePanel();
         }
@@ -988,13 +987,13 @@
         closeNotificationsMenu();
       });
 
-      notifClearBtn?.addEventListener('click', function () {
+      notifClearBtn?.addEventListener('click', function (e) {
+        e.stopPropagation();
         window.dispatchEvent(new CustomEvent('finanzapp:gmail:clear-all'));
-        renderNotificationsMenu();
-        closeNotificationsMenu();
       });
 
       window.addEventListener('scroll', function () {
+        if (document.querySelector('.modal.active') || document.querySelector('.custom-alert-overlay')) return;
         closePanel();
         closeNotificationsMenu();
       }, { passive: true });

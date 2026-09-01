@@ -4179,8 +4179,6 @@ class GmailNotificationManager {
 
   async clearAll() {
     if (!this.notifications || this.notifications.length === 0) return;
-    
-    this.togglePanel(false);
 
     const result = await (typeof window.showAlert === 'function'
       ? window.showAlert('Eliminar notificaciones', '¿Estás seguro de que deseas eliminar todas las notificaciones detectadas?', { variant: 'confirm', emphasis: 'danger', confirmText: 'Eliminar todas', cancelText: 'Cancelar' })
@@ -4192,6 +4190,7 @@ class GmailNotificationManager {
     this._saveNotifications();
     this.updateBadges();
     this.renderList();
+    window.dispatchEvent(new CustomEvent('finanzapp:gmail:notifications-updated'));
   }
 
   updateBadges() {
@@ -4400,6 +4399,9 @@ class GmailNotificationManager {
       const panel = document.getElementById('gmailNotifPanel');
       const bell = document.getElementById('gmailBellBtn');
       if (panel && !panel.classList.contains('hidden') && panel.style.display !== 'none') {
+        if (e.target.closest('.modal, .custom-alert-overlay, .modal-backdrop, [role="dialog"], .flatpickr-calendar')) {
+          return;
+        }
         if (!panel.contains(e.target) && (!bell || !bell.contains(e.target))) {
           this.togglePanel(false);
         }
@@ -4421,7 +4423,7 @@ class GmailNotificationManager {
       const notif = this.notifications.find(n => n.id === id);
       if (notif) {
         this.togglePanel(false);
-        abrirModalRevisarGmail(notif, id);
+        abrirModalRevisarGmail(notif, id, { source: e?.detail?.source || 'desktop' });
       }
     });
 
@@ -4622,14 +4624,18 @@ async function initGmailTransactionListener() {
 
 
 /**
- * Abre el modal preexistente en Categorias.html (#gmailReviewModal) para revisar
- * y guardar la transacción bancaria detectada por Gmail.
- * @param {Object} notif
- * @param {string} notifId
+ * Abre el modal de categorización/revisión para una notificación bancaria detectada por Gmail.
+ * Rellena automáticamente monto, descripción, fecha y sugiere la categoría correspondiente.
+ * @param {Object} notif - Objeto de notificación con datos parseados (amount, description, date, type, subject)
+ * @param {string|number|null} notifId - Identificador único de la notificación para removerla tras guardar
+ * @param {Object} [options={}] - Opciones de contexto (source: 'mobile'|'desktop')
  */
-function abrirModalRevisarGmail(notif, notifId = null) {
+function abrirModalRevisarGmail(notif, notifId = null, options = {}) {
   const modal = document.getElementById('gmailReviewModal');
   if (!modal) return;
+
+  const wasMobileOpen = options?.source === 'mobile' || !!document.getElementById('mobileNotificationsDropdown')?.classList.contains('open');
+  const wasDesktopOpen = options?.source === 'desktop' || (!document.getElementById('gmailNotifPanel')?.classList.contains('hidden') && document.getElementById('gmailNotifPanel')?.style.display !== 'none');
 
   // Eliminar cualquier modal dinámico antiguo si existía
   const oldDynamicModal = document.getElementById('gmail-authorize-modal');
@@ -4745,16 +4751,25 @@ function abrirModalRevisarGmail(notif, notifId = null) {
   // Mostrar modal preexistente usando las funciones nativas del Dashboard
   abrirModal(modal);
 
-  const closeModal = () => {
+  const closeModal = (wasCanceled = false) => {
     cerrarModal(modal);
+    if (wasCanceled) {
+      if (wasMobileOpen) {
+        const notifDropdown = document.getElementById('mobileNotificationsDropdown');
+        if (notifDropdown) notifDropdown.classList.add('open');
+      } else if (wasDesktopOpen && window.gmailNotifManager) {
+        window.gmailNotifManager.togglePanel(true);
+      }
+    }
   };
 
-  if (closeBtn) closeBtn.onclick = closeModal;
-  if (cancelBtn) cancelBtn.onclick = closeModal;
+  if (closeBtn) closeBtn.onclick = () => closeModal(true);
+  if (cancelBtn) cancelBtn.onclick = () => closeModal(true);
   if (discardBtn) {
     discardBtn.onclick = () => {
       if (notifId && gmailNotifManager) gmailNotifManager.removeNotification(notifId);
-      closeModal();
+      closeModal(false);
+      window.dispatchEvent(new CustomEvent('finanzapp:gmail:notifications-updated'));
     };
   }
 
@@ -4762,7 +4777,7 @@ function abrirModalRevisarGmail(notif, notifId = null) {
     saveBtn.onclick = async () => {
       const amountVal = parseFloat(amountInput?.value || notif.amount);
       const descVal = descInput?.value || notif.description;
-      const catVal = catDropdown?.querySelector('.custom-dropdown-selected')?.getAttribute('data-value') || selectedCatId;
+      const catVal = catDropdown?.querySelector('.custom-dropdown-selected')?.getAttribute('data-value') || null;
 
       if (!catVal) {
         alert('Por favor selecciona una categoría.');
@@ -4782,7 +4797,8 @@ function abrirModalRevisarGmail(notif, notifId = null) {
 
       if (success) {
         if (notifId && gmailNotifManager) gmailNotifManager.removeNotification(notifId);
-        closeModal();
+        closeModal(false);
+        window.dispatchEvent(new CustomEvent('finanzapp:gmail:notifications-updated'));
         if (typeof window._configMostrarToast === 'function') {
           window._configMostrarToast(`✓ Transacción agregada exitosamente`, 'exito');
         }
