@@ -287,20 +287,7 @@ class FirebaseAuth {
         prompt: 'select_account'
       });
 
-      // En navegadores Firefox, Zen Browser, Safari, o dispositivos móviles,
-      // las políticas de cookies de terceros y partición de almacenamiento bloquean popups de autenticación.
-      // Usar signInWithRedirect directamente para una experiencia 100% fluida y sin fallos.
-      const isGeckoOrMobile = /Android|iPhone|iPad|iPod|Mobile|Firefox|FxiOS|Zen|Gecko/i.test(navigator.userAgent) && !/Chrome|CriOS/i.test(navigator.userAgent) || /Firefox|Zen/i.test(navigator.userAgent);
-      if (isGeckoOrMobile) {
-        try {
-          console.info('[FirebaseAuth] Navegador Firefox/Zen o móvil detectado. Iniciando signInWithRedirect...');
-          await this.auth.signInWithRedirect(provider);
-          return { success: true, redirect: true, message: 'Redirigiendo para iniciar sesión con Google' };
-        } catch (redirErr) {
-          console.warn('[FirebaseAuth] signInWithRedirect falló, intentando popup:', redirErr);
-        }
-      }
-
+      // Inicio de sesión con ventana emergente (Popup)
       try {
         const userCredential = await this.auth.signInWithPopup(provider);
         localStorage.removeItem('logoutTimestamp');
@@ -311,17 +298,8 @@ class FirebaseAuth {
           message: 'Inicio de sesión exitoso con Google'
         };
       } catch (popupError) {
-        const code = popupError && popupError.code ? popupError.code : '';
-        console.warn('[FirebaseAuth] signInWithPopup no completó (' + code + '), ejecutando fallback con redirección...');
-
-        // Si el popup falló por cualquier motivo de ventana o bloqueo, redirigir directamente
-        try {
-          await this.auth.signInWithRedirect(provider);
-          return { success: true, redirect: true, message: 'Redirigiendo para iniciar sesión con Google' };
-        } catch (redirectError) {
-          console.error('[FirebaseAuth] signInWithRedirect fallback falló (' + redirectError.code + '):', redirectError.message);
-          return this.handleAuthError(redirectError);
-        }
+        console.error('[FirebaseAuth] Error en signInWithPopup:', popupError);
+        return this.handleAuthError(popupError);
       }
 
     } catch (error) {
