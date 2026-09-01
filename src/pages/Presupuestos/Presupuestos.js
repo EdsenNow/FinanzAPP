@@ -1709,42 +1709,39 @@
     const selectedEl = periodDropdown.querySelector('.custom-dropdown-selected');
     if (!optionsContainer || !selectedEl) return;
 
-    const periodMap = {
-      weekly: 'Semanal',
-      biweekly: 'Quincenal',
-      monthly: 'Mensual',
-      yearly: 'Anual',
-      custom: 'Personalizado'
-    };
+    const periods = [
+      { value: 'weekly', label: 'Semanal' },
+      { value: 'biweekly', label: 'Quincenal' },
+      { value: 'monthly', label: 'Mensual' },
+      { value: 'yearly', label: 'Anual' },
+      { value: 'custom', label: 'Personalizado' }
+    ];
 
-    if (periodSelect) {
-      periodSelect.value = selectedPeriod || 'monthly';
-    }
+    const currentVal = selectedPeriod || 'monthly';
+    optionsContainer.innerHTML = '';
 
-    selectedEl.setAttribute('data-value', selectedPeriod || 'monthly');
-    if (selectedEl.querySelector('span')) {
-      selectedEl.querySelector('span').textContent = periodMap[selectedPeriod] || 'Mensual';
-    }
+    periods.forEach(p => {
+      const opt = document.createElement('div');
+      opt.className = 'custom-dropdown-option' + (p.value === currentVal ? ' selected' : '');
+      opt.setAttribute('data-value', p.value);
+      opt.textContent = p.label;
 
-    optionsContainer.querySelectorAll('.custom-dropdown-option').forEach(opt => {
-      const val = opt.getAttribute('data-value');
-      opt.classList.toggle('selected', val === selectedPeriod);
       opt.onclick = (e) => {
         e.stopPropagation();
         e.preventDefault();
-        selectedEl.setAttribute('data-value', val);
+        selectedEl.setAttribute('data-value', p.value);
         if (selectedEl.querySelector('span')) {
-          selectedEl.querySelector('span').textContent = periodMap[val] || opt.textContent.trim();
+          selectedEl.querySelector('span').textContent = p.label;
         }
         if (periodSelect) {
-          periodSelect.value = val;
+          periodSelect.value = p.value;
           periodSelect.dispatchEvent(new Event('change'));
         }
         optionsContainer.querySelectorAll('.custom-dropdown-option').forEach(o => o.classList.remove('selected'));
         opt.classList.add('selected');
         periodDropdown.classList.remove('open');
 
-        if (val === 'custom') {
+        if (p.value === 'custom') {
           if (elementos.customPeriodGroup) elementos.customPeriodGroup.style.display = 'block';
           if (elementos.customEndGroup) elementos.customEndGroup.style.display = 'block';
         } else {
@@ -1752,7 +1749,26 @@
           if (elementos.customEndGroup) elementos.customEndGroup.style.display = 'none';
         }
       };
+
+      optionsContainer.appendChild(opt);
     });
+
+    const activePeriod = periods.find(p => p.value === currentVal) || periods[2];
+    selectedEl.setAttribute('data-value', activePeriod.value);
+    if (selectedEl.querySelector('span')) {
+      selectedEl.querySelector('span').textContent = activePeriod.label;
+    }
+    if (periodSelect) {
+      periodSelect.value = activePeriod.value;
+    }
+
+    if (activePeriod.value === 'custom') {
+      if (elementos.customPeriodGroup) elementos.customPeriodGroup.style.display = 'block';
+      if (elementos.customEndGroup) elementos.customEndGroup.style.display = 'block';
+    } else {
+      if (elementos.customPeriodGroup) elementos.customPeriodGroup.style.display = 'none';
+      if (elementos.customEndGroup) elementos.customEndGroup.style.display = 'none';
+    }
 
     selectedEl.onclick = (e) => {
       e.stopPropagation();

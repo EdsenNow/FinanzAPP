@@ -264,13 +264,30 @@
 	background: #EB6F92;
 }
 
+[data-theme="dark"] .budget-period-dropdown .custom-dropdown-option {
+	color: #e0def4;
+	border-radius: 8px;
+}
+
+[data-theme="dark"] .budget-period-dropdown .custom-dropdown-option:hover {
+	background: color-mix(in srgb, var(--gray) 28%, transparent);
+	color: #e0def4;
+}
+
+[data-theme="dark"] .budget-period-dropdown .custom-dropdown-option.selected {
+	background: #EB6F92;
+	color: #ffffff;
+	font-weight: 700;
+}
+
 [data-theme="dark"] .budget-category-dropdown .custom-dropdown-option:hover {
 	background: color-mix(in srgb, var(--gray) 28%, transparent);
 }
 
 [data-theme="dark"] .budget-category-dropdown .custom-dropdown-option.selected {
 	background: #EB6F92;
-	color: #f3f3f3;
+	color: #ffffff;
+	font-weight: 700;
 }
 
 [data-theme="dark"] #budgetCategory.form-control {
