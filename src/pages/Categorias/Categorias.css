@@ -216,10 +216,10 @@ body.categorias-page .app-container {
   font-size: 14px;
 }
 .nav-item:hover { 
-  background: #f19cb4 ;
-  color: var(--light);
+  background: color-mix(in srgb, var(--primary, #eb6f92) 10%, #1f1d2e);
+  color: var(--primary, #eb6f92);
   transform: translateX(4px);
-  border-color: #f19cb4;
+  border-color: transparent;
 }
 .nav-item.active { 
   background: var(--primary);
@@ -627,7 +627,7 @@ body.categorias-page .main-content::-webkit-scrollbar-thumb:hover {
   margin-left: auto;
 }
 .summary-card {
-  background: var(--summary-card-bg, var(--card-bg));
+  background: #1f1d2e;
   border-radius: 22px;
   padding: 20px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);

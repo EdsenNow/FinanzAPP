@@ -52,10 +52,10 @@
 }
 
 [data-theme="dark"] .nav-item:hover {
-  background: #f19cb4;
-  color: #ffffff;
+  background: color-mix(in srgb, var(--primary, #eb6f92) 10%, #1f1d2e);
+  color: var(--primary, #eb6f92);
   transform: translateX(4px);
-  border-color: #f19cb4;
+  border-color: transparent;
 }
 
 [data-theme="dark"] .nav-item.active {

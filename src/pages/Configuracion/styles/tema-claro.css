@@ -87,9 +87,10 @@
 }
 
 [data-theme="light"] .nav-item:hover {
-  background: #d9a2b1;
-  color: #ffffff;
-  border-color: #d9a2b1;
+  background: color-mix(in srgb, var(--primary, #b4637a) 12%, #fffaf3);
+  color: var(--primary, #b4637a);
+  transform: translateX(4px);
+  border-color: transparent;
 }
 
 [data-theme="light"] .nav-item.active {

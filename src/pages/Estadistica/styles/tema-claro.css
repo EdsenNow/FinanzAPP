@@ -80,10 +80,10 @@ background: #faf4ed;
 }
 
 [data-theme="light"] .nav-item:hover {
-background: #D9A2B1;
-color: #ffffff;
+background: color-mix(in srgb, var(--primary, #b4637a) 12%, #fffaf3);
+color: var(--primary, #b4637a);
 transform: translateX(4px);
-border-color: #D9A2B1;
+border-color: transparent;
 }
 
 [data-theme="light"] .nav-item.active {
