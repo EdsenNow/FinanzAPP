@@ -147,7 +147,6 @@ color: #575279;
   border: 3px solid #f2e9e1;
 }
 
-[data-theme="light"] .filter-group:hover,
 [data-theme="light"] .filter-group:has(.custom-dropdown.open),
 [data-theme="light"] .filter-group:focus-within {
   border: 3px solid var(--primary);
