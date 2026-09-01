@@ -173,17 +173,19 @@ class GmailAPI {
     try {
       if (window.FirestoreDB) {
         await window.FirestoreDB.ensureUserContext();
-        if (window.FirestoreDB.currentUserId) return window.FirestoreDB.currentUserId;
+        if (window.FirestoreDB.currentUserId && window.FirestoreDB.currentUserId !== 'guest') {
+          return window.FirestoreDB.currentUserId;
+        }
       }
       if (window.firebaseAuth) {
         const u = window.firebaseAuth.getCurrentUser();
-        if (u && u.uid) return u.uid;
+        if (u && u.uid && u.uid !== 'guest') return u.uid;
       }
       const raw = localStorage.getItem('authUser');
       if (raw) {
         try {
           const parsed = JSON.parse(raw);
-          if (parsed?.uid) return parsed.uid;
+          if (parsed?.uid && parsed.uid !== 'guest') return parsed.uid;
         } catch (e) {}
       }
     } catch (e) {}
