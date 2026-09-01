@@ -600,7 +600,64 @@
     });
   }
 
+  function actualizarIndicadoresFiltrosActivos() {
+    const yearFilter = elementos.yearFilter || document.getElementById('yearFilter');
+    const monthFilter = elementos.monthFilter || document.getElementById('monthFilter');
+    const categoryFilter = elementos.categoryFilter || document.getElementById('categoryFilter');
+    const clearBtn = elementos.clearFiltersBtn || document.getElementById('clearFiltersBtn');
+    
+    const hayAnio = filtros.year !== null && filtros.year !== '';
+    const hayMes = filtros.month !== null && filtros.month !== '';
+    const hayCategoria = filtros.category !== null && filtros.category !== '' && filtros.category !== 'all';
+
+    if (yearFilter) yearFilter.classList.toggle('filter-active', hayAnio);
+    if (monthFilter) monthFilter.classList.toggle('filter-active', hayMes);
+    if (categoryFilter) categoryFilter.classList.toggle('filter-active', hayCategoria);
+    if (clearBtn) clearBtn.classList.toggle('filter-active', hayAnio || hayMes || hayCategoria);
+  }
+
+  function limpiarFiltros() {
+    filtros.year = null;
+    filtros.month = null;
+    filtros.category = null;
+    guardarFiltrosPersistidos({ year: null, month: null, category: null });
+
+    const yearFilter = elementos.yearFilter || document.getElementById('yearFilter');
+    if (yearFilter) {
+      const sel = yearFilter.querySelector('.custom-dropdown-selected');
+      if (sel && sel.querySelector('span')) sel.querySelector('span').textContent = 'Todos los años';
+      if (sel) sel.setAttribute('data-value', '');
+      yearFilter.querySelectorAll('.custom-dropdown-option').forEach(opt => {
+        opt.classList.toggle('selected', opt.getAttribute('data-value') === '');
+      });
+    }
+
+    const monthFilter = elementos.monthFilter || document.getElementById('monthFilter');
+    if (monthFilter) {
+      const sel = monthFilter.querySelector('.custom-dropdown-selected');
+      if (sel && sel.querySelector('span')) sel.querySelector('span').textContent = 'Todos los meses';
+      if (sel) sel.setAttribute('data-value', '');
+      monthFilter.querySelectorAll('.custom-dropdown-option').forEach(opt => {
+        opt.classList.toggle('selected', opt.getAttribute('data-value') === '');
+      });
+    }
+
+    const categoryFilter = elementos.categoryFilter || document.getElementById('categoryFilter');
+    if (categoryFilter) {
+      const sel = categoryFilter.querySelector('.custom-dropdown-selected');
+      if (sel && sel.querySelector('span')) sel.querySelector('span').textContent = 'Todas las categorías';
+      if (sel) sel.setAttribute('data-value', '');
+      categoryFilter.querySelectorAll('.custom-dropdown-option').forEach(opt => {
+        opt.classList.toggle('selected', opt.getAttribute('data-value') === '');
+      });
+    }
+
+    actualizarIndicadoresFiltrosActivos();
+    aplicarFiltros();
+  }
+
   function aplicarFiltros() {
+    actualizarIndicadoresFiltrosActivos();
     renderizarTodo();
   }
 
@@ -678,18 +735,23 @@
         if (dropdown.id === 'yearFilter') {
           filtros.year = value ? String(value) : null;
           guardarFiltrosPersistidos({ year: filtros.year ? parseInt(filtros.year, 10) : null });
+          actualizarIndicadoresFiltrosActivos();
           aplicarFiltros();
         } else if (dropdown.id === 'monthFilter') {
           filtros.month = value !== '' ? parseInt(value, 10) : null;
           guardarFiltrosPersistidos({ month: filtros.month });
+          actualizarIndicadoresFiltrosActivos();
           aplicarFiltros();
         } else if (dropdown.id === 'categoryFilter') {
           filtros.category = value || null;
           guardarFiltrosPersistidos({ category: filtros.category });
+          actualizarIndicadoresFiltrosActivos();
           aplicarFiltros();
         }
       });
     });
+
+    actualizarIndicadoresFiltrosActivos();
 
     document.addEventListener('click', (e) => {
       // Solo cerrar si el clic fue FUERA de cualquier custom-dropdown

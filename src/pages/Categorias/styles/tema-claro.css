@@ -463,18 +463,6 @@ color: #fffaf3;
   color: #575279;
 }
 
-[data-theme="light"] .gmail-notif-list {
-  scrollbar-color: #b4637a transparent;
-}
-
-[data-theme="light"] .gmail-notif-list::-webkit-scrollbar-thumb {
-  background: #b4637a;
-}
-
-[data-theme="light"] .gmail-notif-list::-webkit-scrollbar-thumb:hover {
-  background: color-mix(in srgb, #b4637a 80%, black);
-}
-
 [data-theme="light"] .gmail-notif-footer {
   border-top: 1px solid rgba(0, 0, 0, 0.06);
 }

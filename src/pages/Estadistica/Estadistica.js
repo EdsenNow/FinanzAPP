@@ -1394,14 +1394,27 @@ function colorWithAlpha(color, alpha = 1) {
       o.classList.toggle('selected', isSelected);
     });
     
+    function actualizarIndicadoresFiltrosActivos() {
+      const yVal = yearDD?.querySelector('.custom-dropdown-selected')?.getAttribute('data-value') || '';
+      const mVal = monthDD?.querySelector('.custom-dropdown-selected')?.getAttribute('data-value') || '';
+      const hayAnio = yVal !== '' && yVal !== null;
+      const hayMes = mVal !== '' && mVal !== null;
+
+      if (yearDD) yearDD.classList.toggle('filter-active', hayAnio);
+      if (monthDD) monthDD.classList.toggle('filter-active', hayMes);
+      if (clearBtn) clearBtn.classList.toggle('filter-active', hayAnio || hayMes);
+    }
+
     if (yearDD) configurarDropdown(yearDD, () => {
       const yVal = yearDD.querySelector('.custom-dropdown-selected')?.getAttribute('data-value');
       guardarFiltrosPersistidos({ year: yVal !== '' && yVal !== null ? parseInt(yVal, 10) : null });
+      actualizarIndicadoresFiltrosActivos();
       renderizarTodo();
     });
     if (monthDD) configurarDropdown(monthDD, () => {
       const mVal = monthDD.querySelector('.custom-dropdown-selected')?.getAttribute('data-value');
       guardarFiltrosPersistidos({ month: mVal !== '' && mVal !== null ? parseInt(mVal, 10) : null });
+      actualizarIndicadoresFiltrosActivos();
       renderizarTodo();
     });
 
@@ -1415,8 +1428,11 @@ function colorWithAlpha(color, alpha = 1) {
 
       yearDD?.querySelectorAll('.custom-dropdown-option').forEach((o,i)=>{ o.classList.toggle('selected', i===0); });
       monthDD?.querySelectorAll('.custom-dropdown-option').forEach((o,i)=>{ o.classList.toggle('selected', i===0); });
+      actualizarIndicadoresFiltrosActivos();
       renderizarTodo();
     });
+
+    actualizarIndicadoresFiltrosActivos();
 
     document.addEventListener('click', (e) => {
       if (e.target.closest('.custom-dropdown')) return;

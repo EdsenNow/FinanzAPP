@@ -2273,14 +2273,27 @@ body.categorias-page .sort-btn--asc {
   }
 }
 #clearFiltersBtn.btn.btn-secondary {
-  padding: 7px 12px;
+  padding: 7px 14px;
+  border-radius: 16px;
+  background: #1f1d2e;
+  border: 1px solid transparent;
+  color: #908caa;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 #clearFiltersBtn.btn.btn-secondary:hover {
-  border-color: #eb6f92;
-  background: color-mix(in srgb, #eb6f92 10%, var(--card-bg));
-  color: #eb6f92;
-  box-shadow: 0 0 0 2px color-mix(in srgb, #eb6f92 25%, transparent);
+  border-color: var(--primary, #eb6f92);
+  background: color-mix(in srgb, var(--primary, #eb6f92) 10%, #1f1d2e);
+  color: var(--primary, #eb6f92);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary, #eb6f92) 25%, transparent);
 }
 
 #clearFiltersBtn.btn.btn-secondary:focus-visible {
@@ -2288,9 +2301,10 @@ body.categorias-page .sort-btn--asc {
   border-color: var(--primary);
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 35%, transparent);
 }
+
 #clearFiltersBtn.btn.btn-secondary i {
   color: var(--primary);
-  font-size: 14px;
+  font-size: 13px;
 }
 
 div.amount-chip.income {
@@ -2396,24 +2410,7 @@ div.amount-chip.expense {
   flex-direction: column;
   gap: 2px;
   scrollbar-width: thin;
-  scrollbar-color: var(--primary, #eb6f92) transparent;
-}
-
-.gmail-notif-list::-webkit-scrollbar {
-  width: 5px;
-}
-
-.gmail-notif-list::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.gmail-notif-list::-webkit-scrollbar-thumb {
-  background: var(--primary, #eb6f92);
-  border-radius: 99px;
-}
-
-.gmail-notif-list::-webkit-scrollbar-thumb:hover {
-  background: color-mix(in srgb, var(--primary, #eb6f92) 80%, white);
+  scrollbar-color: #eb6f92;
 }
 
 .gmail-notif-empty {
