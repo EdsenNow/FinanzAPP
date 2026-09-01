@@ -1007,7 +1007,7 @@ max-height: 197px;
 max-width: 340px;
 overflow-y: scroll;
 scrollbar-width: thin;
-scrollbar-color: rgba(180, 99, 122, 0.7) transparent;
+scrollbar-color: #eb6f92 transparent;
 border-radius: 10px;
 }
 
@@ -1024,7 +1024,7 @@ border-radius: 10px;
 
 .mobile-actions-subpanel.is-month::-webkit-scrollbar-thumb,
 .mobile-actions-subpanel::-webkit-scrollbar-thumb {
-background: rgba(180, 99, 122, 0.75);
+background: #eb6f92;
 border-radius: 10px;
 }
 
@@ -1375,7 +1375,7 @@ background: transparent;
 
 [data-theme="dark"] .mobile-actions-subpanel.is-month::-webkit-scrollbar-thumb,
 [data-theme="dark"] .mobile-actions-subpanel::-webkit-scrollbar-thumb {
-background: rgba(215, 130, 126, 0.85);
+background: #eb6f92;
 border-radius: 10px;
 }
 
