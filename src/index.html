@@ -19,7 +19,7 @@
   <meta name="twitter:description" content="Gestiona tus finanzas personales de forma fácil, segura y eficiente." />
   <meta name="twitter:image" content="https://byfinanzapp.com/Icons/android-chrome-512x512.png" />
 
-  <meta name="theme-color" content="#6C63FF" />
+  <meta name="theme-color" content="#191724" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -81,7 +81,7 @@
 </head>
 
 <body>
-  <!-- Orbes brillantes y animados en el fondo -->
+  <!-- Fondo animado con orbes brillantes -->
   <div class="bg-orb-container" aria-hidden="true">
     <div class="orb orb-1"></div>
     <div class="orb orb-2"></div>
@@ -99,126 +99,139 @@
       <a href="#features" class="nav-link-secondary">Características</a>
       <a href="/pages/privacy/privacy.html" class="nav-link-secondary">Privacidad</a>
       <a href="/pages/privacy/terms.html" class="nav-link-secondary">Condiciones</a>
-      <a href="/pages/Login/Login.html" class="nav-link-btn"><i class="fas fa-sign-in-alt"></i> Iniciar sesión</a>
+      <a id="navAuthBtn" href="/pages/Login/Login.html" class="nav-link-btn"><i class="fas fa-sign-in-alt"></i> Iniciar sesión</a>
     </div>
   </nav>
 
   <main>
+    <!-- Hero Section -->
     <section class="hero">
       <div class="hero-badge">
-        <i class="fas fa-sparkles"></i>
-        <span>Gestión Financiera Inteligente & Privada</span>
+        <i class="fas fa-sparkles"></i> Tu dinero bajo control, siempre
       </div>
-
-      <h1>Toma el control total de tus <span class="gradient-text">finanzas</span></h1>
+      <h1>Toma el control <br class="hero-br" /><span class="gradient-text">de tus finanzas</span></h1>
+      <p class="hero-subtitle">Gestiona ingresos, presupuestos mensuales y analiza tus gastos en una plataforma rápida, privada y sin complicaciones.</p>
       
-      <p class="hero-subtitle">
-        Gestiona tus ingresos, gastos y presupuestos mensuales con métricas claras y sincronización instantánea en la nube.
-      </p>
-
       <div class="cta-group">
         <a id="ctaPrimary" class="btn btn-primary" href="/pages/Login/Login.html">
-          Empezar gratis <i class="fas fa-arrow-right" style="margin-left: 6px;"></i>
+          Empezar ahora <i class="fas fa-arrow-right" style="margin-left: 6px;"></i>
         </a>
-        <a class="btn btn-secondary" href="/pages/privacy/privacy.html">
-          <i class="fas fa-shield-alt"></i> Seguridad y Privacidad
+        <a class="btn btn-secondary" href="#features">
+          <i class="fas fa-compass"></i> Explorar funciones
         </a>
       </div>
 
-      <!-- Preview Mockup Card -->
-      <div class="hero-preview-container" aria-hidden="true">
+      <!-- App Preview Card (Glass Mockup) -->
+      <div class="hero-preview" aria-hidden="true">
         <div class="preview-card">
           <div class="preview-header">
-            <div class="preview-title-group">
-              <div class="preview-dot"></div>
-              <span class="preview-title">Resumen Financiero del Mes</span>
+            <div class="preview-dots">
+              <span class="dot red"></span>
+              <span class="dot yellow"></span>
+              <span class="dot green"></span>
             </div>
-            <span class="preview-badge"><i class="fas fa-check-circle"></i> En equilibrio</span>
+            <div class="preview-title">Resumen Financiero</div>
+            <div class="preview-badge"><i class="fas fa-check-circle"></i> Sincronizado</div>
+          </div>
+          
+          <div class="preview-grid">
+            <div class="preview-stat-card income">
+              <div class="preview-stat-label"><i class="fas fa-arrow-down"></i> Ingresos del mes</div>
+              <div class="preview-stat-val">$3,450.00</div>
+            </div>
+            <div class="preview-stat-card expense">
+              <div class="preview-stat-label"><i class="fas fa-arrow-up"></i> Gastos totales</div>
+              <div class="preview-stat-val">$1,280.00</div>
+            </div>
+            <div class="preview-stat-card balance">
+              <div class="preview-stat-label"><i class="fas fa-wallet"></i> Balance disponible</div>
+              <div class="preview-stat-val">$2,170.00</div>
+            </div>
           </div>
 
-          <div class="preview-metrics">
-            <div class="metric-box income">
-              <span class="metric-label"><i class="fas fa-arrow-down"></i> Ingresos</span>
-              <span class="metric-value">+$4,250.00</span>
+          <div class="preview-progress-box">
+            <div class="preview-progress-info">
+              <span>Presupuesto mensual</span>
+              <strong>37% utilizado</strong>
             </div>
-            <div class="metric-box expenses">
-              <span class="metric-label"><i class="fas fa-arrow-up"></i> Gastos</span>
-              <span class="metric-value">-$1,830.00</span>
-            </div>
-            <div class="metric-box balance">
-              <span class="metric-label"><i class="fas fa-wallet"></i> Disponible</span>
-              <span class="metric-value">$2,420.00</span>
-            </div>
-          </div>
-
-          <div class="preview-budget">
-            <div class="budget-info">
-              <span>Presupuesto mensual consumido</span>
-              <span class="budget-percent">43% utilizado</span>
-            </div>
-            <div class="budget-bar">
-              <div class="budget-fill"></div>
+            <div class="preview-progress-track">
+              <div class="preview-progress-fill" style="width: 37%;"></div>
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Trust Highlights -->
-    <section class="trust-strip">
-      <div class="trust-item">
-        <i class="fas fa-bolt"></i>
-        <span>Sincronización en tiempo real</span>
+    <!-- Highlights Ribbon -->
+    <section class="highlights-strip">
+      <div class="highlight-item">
+        <div class="highlight-icon"><i class="fas fa-shield-alt"></i></div>
+        <div class="highlight-text">
+          <strong>100% Privado</strong>
+          <span>Tus finanzas son solo tuyas</span>
+        </div>
       </div>
-      <div class="trust-divider"></div>
-      <div class="trust-item">
-        <i class="fas fa-lock"></i>
-        <span>100% Privado y Cifrado</span>
+      <div class="highlight-divider"></div>
+      <div class="highlight-item">
+        <div class="highlight-icon"><i class="fas fa-bolt"></i></div>
+        <div class="highlight-text">
+          <strong>En tiempo real</strong>
+          <span>Sincronización instantánea</span>
+        </div>
       </div>
-      <div class="trust-divider"></div>
-      <div class="trust-item">
-        <i class="fas fa-mobile-alt"></i>
-        <span>Acceso en todos tus dispositivos</span>
+      <div class="highlight-divider"></div>
+      <div class="highlight-item">
+        <div class="highlight-icon"><i class="fas fa-moon"></i></div>
+        <div class="highlight-text">
+          <strong>Modo Oscuro & Claro</strong>
+          <span>Diseño cuidado en cada detalle</span>
+        </div>
       </div>
     </section>
 
+    <!-- Features Section -->
     <section class="features" id="features" aria-labelledby="features-title">
-      <div class="features-header">
-        <span class="section-tag">Características</span>
-        <h2 id="features-title">Todo lo que necesitas para cuidar tu dinero</h2>
-        <p class="section-desc">Diseñado para ser rápido, intuitivo y sin complicaciones.</p>
+      <div class="section-header">
+        <span class="section-tag">CARACTERÍSTICAS</span>
+        <h2 id="features-title">Todo lo que necesitas para tu economía</h2>
+        <p class="section-subtitle">Herramientas simples y potentes para mantener tus cuentas claras y alcanzar tus metas.</p>
       </div>
 
       <div class="feature-grid">
         <article class="feature-card">
-          <div class="feature-icon pink"><i class="fas fa-chart-pie"></i></div>
-          <h3>Control de Gastos</h3>
-          <p>Registra y categoriza tus transacciones para saber con exactitud hacia dónde va cada centavo.</p>
+          <div class="feature-icon pink"><i class="fas fa-receipt"></i></div>
+          <h3>Control de transacciones</h3>
+          <p>Registra ingresos y gastos al instante con categorías personalizadas, notas detalladas y filtros rápidos.</p>
         </article>
+
         <article class="feature-card">
           <div class="feature-icon teal"><i class="fas fa-bullseye"></i></div>
-          <h3>Presupuestos Dinámicos</h3>
-          <p>Establece límites mensuales por categoría y recibe alertas visuales sobre tu ritmo de gasto.</p>
+          <h3>Presupuestos claros</h3>
+          <p>Establece límites mensuales por categoría y monitorea en tiempo real cuánto te queda por gastar.</p>
         </article>
+
         <article class="feature-card">
-          <div class="feature-icon gold"><i class="fas fa-chart-line"></i></div>
-          <h3>Estadísticas Claras</h3>
-          <p>Visualiza gráficos de evolución, promedios diarios e indicadores para tomar mejores decisiones.</p>
+          <div class="feature-icon gold"><i class="fas fa-chart-pie"></i></div>
+          <h3>Estadísticas & Gráficos</h3>
+          <p>Comprende tu distribución de gastos y tendencias mensuales con visualizaciones limpias e intuitivas.</p>
         </article>
+
         <article class="feature-card">
-          <div class="feature-icon green"><i class="fas fa-shield-alt"></i></div>
-          <h3>Seguridad en la Nube</h3>
-          <p>Tus datos se almacenan de forma segura con Firebase Authentication y Firestore DB.</p>
+          <div class="feature-icon purple"><i class="fas fa-lock"></i></div>
+          <h3>Seguridad & Nube</h3>
+          <p>Tus datos se guardan de forma segura con respaldo automático en Firebase, siempre protegidos.</p>
         </article>
       </div>
     </section>
 
-    <section class="cta-banner">
-      <div class="cta-banner-content">
-        <h2>Toma el control de tu futuro financiero</h2>
-        <p>Empieza a registrar tus movimientos hoy mismo de forma gratuita.</p>
-        <a class="btn btn-primary" href="/pages/Login/Login.html">
-          Crear cuenta gratis <i class="fas fa-arrow-right" style="margin-left: 6px;"></i>
+    <!-- Bottom CTA Card -->
+    <section class="bottom-cta">
+      <div class="bottom-cta-card">
+        <div class="bottom-cta-badge"><i class="fas fa-wallet"></i> FinanzApp</div>
+        <h2>¿Listo para organizar tus finanzas?</h2>
+        <p>Empieza a tomar mejores decisiones financieras hoy mismo.</p>
+        <a href="/pages/Login/Login.html" class="btn btn-primary btn-large">
+          Crear cuenta gratis <i class="fas fa-arrow-right" style="margin-left: 8px;"></i>
         </a>
       </div>
     </section>
@@ -228,13 +241,12 @@
     <div class="legal-links">
       <a href="/pages/privacy/privacy.html">Política de Privacidad</a>
       <a href="/pages/privacy/terms.html">Condiciones del Servicio</a>
+      <a href="/pages/Login/Login.html">Iniciar sesión</a>
     </div>
-    <p>&copy; 2026 FinanzApp. Todos los derechos reservados.</p>
+    <p>&copy; 2026 FinanzApp. Diseñado para simplificar tu vida financiera.</p>
   </footer>
 
-
   <script>
-    // Fuerte invalidación de caché para navegadores móviles rebeldes
     if ('caches' in window) {
       caches.keys().then(function(names) {
         for (let name of names) {
@@ -248,7 +260,7 @@
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then(function(registrations) {
         for (let registration of registrations) {
-          registration.unregister(); // Destruir cualquier SW anterior
+          registration.unregister();
         }
       });
     }
@@ -260,10 +272,19 @@
 
       try {
         var cta = document.getElementById('ctaPrimary');
+        var navBtn = document.getElementById('navAuthBtn');
         var isLoggedIn = localStorage.getItem('loggedIn');
-        if (cta && (isLoggedIn === 'true' || isLoggedIn === '1') && !recentLogout) {
-          cta.href = '/pages/Categorias/Categorias.html';
-          cta.innerHTML = '<i class="fas fa-th-large"></i> Ir a Categorías';
+        var isAuth = (isLoggedIn === 'true' || isLoggedIn === '1') && !recentLogout;
+
+        if (isAuth) {
+          if (cta) {
+            cta.href = '/pages/Categorias/Categorias.html';
+            cta.innerHTML = '<i class="fas fa-th-large"></i> Ir a Categorías';
+          }
+          if (navBtn) {
+            navBtn.href = '/pages/Categorias/Categorias.html';
+            navBtn.innerHTML = '<i class="fas fa-th-large"></i> Panel';
+          }
         }
 
         if (window.firebaseAuth) {
@@ -280,6 +301,5 @@
       } catch (e) {}
     })();
   </script>
-
 </body>
 </html>
