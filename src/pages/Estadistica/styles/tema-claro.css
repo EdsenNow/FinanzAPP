@@ -58,6 +58,18 @@ color: #FFFAF3 !important;
   stroke: var(--accent) !important;
 }
 
+[data-theme="light"] body.estadistica-page .summary-card.misc .card-title i,
+[data-theme="light"] body.estadistica-page .summary-card.misc .card-title svg,
+[data-theme="light"] body.estadistica-page .summary-card.misc .card-title .lucide {
+  color: var(--warning, #ea9d34) !important;
+  stroke: var(--warning, #ea9d34) !important;
+}
+
+[data-theme="light"] body.estadistica-page .summary-card.misc .card-value,
+[data-theme="light"] #txCount {
+  color: var(--warning, #ea9d34) !important;
+}
+
 [data-theme="light"] .estadistica-page .chart-title-center i[data-lucide="activity"],
 [data-theme="light"] .estadistica-page .chart-title-center svg.lucide-activity,
 [data-theme="light"] .estadistica-page .chart-title-center i.fa-wave-square {

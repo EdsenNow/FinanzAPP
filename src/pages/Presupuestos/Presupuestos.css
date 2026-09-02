@@ -173,6 +173,10 @@ font-size: 26px;
   stroke: var(--warning, #f6c177) !important;
 }
 
+.summary-card.misc .card-value {
+  color: var(--warning, #f6c177) !important;
+}
+
 .summary-card.income .card-value {
   color: var(--success);
 }

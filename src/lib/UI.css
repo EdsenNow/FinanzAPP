@@ -1208,6 +1208,10 @@ svg.lucide {
   stroke: var(--warning, #f6c177) !important;
 }
 
+.summary-card.misc .card-value {
+  color: var(--warning, #f6c177) !important;
+}
+
 /* Iconos para tarjetas de insights (Mejor mes, Gasto dominante, Balance neto) */
 .stats-insights .insight-icon,
 .stats-insights .insight-icon i,

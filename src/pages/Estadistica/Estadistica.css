@@ -336,6 +336,18 @@ body.estadistica-page .stats-insights .insight-icon .lucide {
   stroke: var(--accent, #c4a7e7) !important;
 }
 
+.summary-card.misc .card-title i,
+.summary-card.misc .card-title svg,
+.summary-card.misc .card-title .lucide {
+  color: var(--warning, #f6c177) !important;
+  stroke: var(--warning, #f6c177) !important;
+}
+
+.summary-card.misc .card-value,
+#txCount {
+  color: var(--warning, #f6c177) !important;
+}
+
 .summary-card.income .card-value {
   color: var(--success);
 }
