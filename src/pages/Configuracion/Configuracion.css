@@ -775,9 +775,11 @@ body .legal-footer-config {
 
 /* --- Panel de atajos de teclado --- */
 .shortcuts-panel {
-  background: #191724;
+  background: var(--config-input-bg, #191724);
+  border: 1px solid var(--config-card-border, rgba(255, 255, 255, 0.08));
   border-radius: 14px;
   padding: 16px 20px;
+  transition: background 0.3s ease, border-color 0.3s ease;
 }
 
 .shortcuts-panel.hidden {
@@ -798,20 +800,23 @@ body .legal-footer-config {
   align-items: center;
   gap: 8px;
   font-size: 14px;
-  color: var(--config-text);
+  color: var(--config-text, #e0def4);
 }
 
 .shortcuts-list kbd {
   background: var(--config-card-bg, #26233a);
-  border: none;
+  border: 1px solid var(--config-card-border, rgba(255, 255, 255, 0.08));
+  border-radius: 6px;
   padding: 2px 7px;
-  font-size: 14px;
-  color: #eb6f92;
+  font-size: 13px;
+  font-family: inherit;
+  font-weight: 600;
+  color: var(--primary, #eb6f92);
 }
 
 .shortcuts-note {
   font-size: 12px;
-  color: var(--config-muted);
+  color: var(--config-muted, #908caa);
   margin: 0;
 }
 

@@ -453,3 +453,24 @@
 [data-theme="light"] .imap-form .setting-label-col small {
   color: #797593;
 }
+
+/* ---------- Panel de atajos de teclado ---------- */
+[data-theme="light"] .shortcuts-panel {
+  background: #f5efea;
+  border: 1px solid #f2e9e1;
+}
+
+[data-theme="light"] .shortcuts-list li {
+  color: #575279;
+}
+
+[data-theme="light"] .shortcuts-list kbd {
+  background: #fffaf3;
+  color: #b4637a;
+  border: 1px solid #e8dfd6;
+  box-shadow: 0 1px 2px rgba(87, 82, 121, 0.08);
+}
+
+[data-theme="light"] .shortcuts-note {
+  color: #797593;
+}

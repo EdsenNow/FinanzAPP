@@ -86,3 +86,23 @@
   background: #eb6f92;
   color: #ffffff;
 }
+
+/* ---------- Panel de atajos de teclado ---------- */
+[data-theme="dark"] .shortcuts-panel {
+  background: #191724;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .shortcuts-list li {
+  color: #e0def4;
+}
+
+[data-theme="dark"] .shortcuts-list kbd {
+  background: #26233a;
+  color: #eb6f92;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .shortcuts-note {
+  color: #908caa;
+}
