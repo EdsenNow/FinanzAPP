@@ -6,8 +6,13 @@
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://byfinanzapp.com/pages/Login/Login.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <loc>https://byfinanzapp.com/pages/privacy/privacy</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://byfinanzapp.com/pages/privacy/terms</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
   </url>
 </urlset>

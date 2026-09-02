@@ -98,7 +98,7 @@ class BasePage {
         if (!authUser) return;
         const lastCheckKey = 'finanzapp:last_bg_sync';
         const lastCheck = parseInt(localStorage.getItem(lastCheckKey) || '0', 10);
-        if (Date.now() - lastCheck < 5 * 60 * 1000) return;
+        if (Date.now() - lastCheck < 60 * 1000) return;
         localStorage.setItem(lastCheckKey, Date.now().toString());
 
         window.SyncAPI.syncImapOnDemand().then(result => {

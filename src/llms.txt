@@ -1,0 +1,21 @@
+# FinanzApp
+
+> Aplicación web moderna y gratuita de finanzas personales para gestionar gastos, ingresos, presupuestos y estadísticas en tiempo real.
+
+FinanzApp es una plataforma intuitiva y segura para la administración financiera individual. Permite registrar transacciones clasificadas por categorías, definir y monitorear presupuestos mensuales, generar análisis estadísticos visuales con gráficos y sincronizar automáticamente notificaciones de correos bancarios mediante IMAP cifrado.
+
+## Páginas y Recursos Principales
+
+- [Página de Inicio](https://byfinanzapp.com/): Portal principal, características y preguntas frecuentes sobre FinanzApp.
+- [Acceso y Registro](https://byfinanzapp.com/pages/Login/Login): Autenticación mediante Google o correo electrónico.
+- [Política de Privacidad](https://byfinanzapp.com/pages/privacy/privacy): Detalles transparentes sobre el tratamiento, seguridad y eliminación de datos financieros.
+- [Condiciones del Servicio](https://byfinanzapp.com/pages/privacy/terms): Términos legales de uso y limitaciones de la aplicación.
+
+## Características Principales
+
+- **Gestión de Transacciones:** Registro ágil de ingresos y gastos con notas, fechas y categorías personalizables.
+- **Presupuestos Inteligentes:** Control de límites mensuales de gasto por categoría con alertas visuales de consumo.
+- **Reportes y Estadísticas:** Gráficos de distribución de gastos, balances y evolución histórica mensual.
+- **Sincronización Bancaria Automática:** Lectura efímera de comprobantes bancarios vía IMAP seguro (TLS) sin almacenar buzones.
+- **Seguridad en la Nube:** Almacenamiento aislado por usuario en Firebase Firestore con cifrado en tránsito y en reposo.
+- **Compatibilidad Multiplataforma:** Interfaz web responsiva accesible desde dispositivos móviles, tablets y computadoras de escritorio.

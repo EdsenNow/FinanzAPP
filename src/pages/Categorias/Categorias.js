@@ -4024,6 +4024,7 @@ class CategoriasApp extends BasePage {
             if (window.gmailNotifManager) {
               window.gmailNotifManager.syncFromFirestore();
             }
+            this._triggerBackgroundImapSync();
             resolve();
           } else {
             nullCount++;
@@ -4036,6 +4037,36 @@ class CategoriasApp extends BasePage {
 
     await boot();
     cargarTablero();
+    this._triggerBackgroundImapSync();
+  }
+
+  /**
+   * Sincroniza correos bancarios automáticamente en segundo plano cuando el usuario tiene IMAP configurado.
+   * Evita saturar con un intervalo mínimo de 60 segundos entre chequeos automáticos.
+   * @private
+   */
+  async _triggerBackgroundImapSync() {
+    try {
+      if (window.SyncAPI && typeof window.SyncAPI.syncImapOnDemand === 'function') {
+        const authUser = localStorage.getItem('authUser');
+        if (!authUser) return;
+        const lastCheckKey = 'finanzapp:last_bg_sync';
+        const lastCheck = parseInt(localStorage.getItem(lastCheckKey) || '0', 10);
+        if (Date.now() - lastCheck < 60 * 1000) return;
+        localStorage.setItem(lastCheckKey, Date.now().toString());
+
+        window.SyncAPI.syncImapOnDemand().then(result => {
+          if (result && result.count > 0) {
+            if (window.gmailNotifManager) {
+              window.gmailNotifManager.syncFromFirestore();
+            }
+            window.dispatchEvent(new CustomEvent('finanzapp:gmail:notifications-updated'));
+          }
+        }).catch(() => {
+          // Silencioso en segundo plano si no está configurado IMAP o falla la red
+        });
+      }
+    } catch {}
   }
 
   /**

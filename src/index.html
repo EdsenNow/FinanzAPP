@@ -3,20 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="FinanzApp - Gestiona tus finanzas personales, presupuestos y transacciones de forma segura y sencilla." />
+  <meta name="description" content="FinanzApp es una aplicación de finanzas personales gratuita para gestionar gastos, presupuestos e ingresos. Organiza tu dinero, crea presupuestos mensuales y analiza tus gastos con gráficos claros." />
   <meta name="robots" content="index, follow" />
+  <meta name="keywords" content="aplicación de finanzas personales, app de finanzas, control de gastos, presupuesto personal, gestor de gastos, finanzas personales gratis, FinanzApp" />
   <link rel="canonical" href="https://byfinanzapp.com/" />
 
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="FinanzApp" />
-  <meta property="og:title" content="FinanzApp - Gestión de Finanzas Personales" />
-  <meta property="og:description" content="Gestiona tus finanzas personales de forma fácil, segura y eficiente." />
+  <meta property="og:title" content="FinanzApp – Aplicación de Finanzas Personales Gratis" />
+  <meta property="og:description" content="Gestiona tus gastos, presupuestos e ingresos fácilmente con FinanzApp. La aplicación de finanzas personales gratuita, privada y siempre disponible." />
   <meta property="og:url" content="https://byfinanzapp.com/" />
   <meta property="og:image" content="https://byfinanzapp.com/Icons/android-chrome-512x512.png" />
 
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="FinanzApp - Gestión de Finanzas Personales" />
-  <meta name="twitter:description" content="Gestiona tus finanzas personales de forma fácil, segura y eficiente." />
+  <meta name="twitter:title" content="FinanzApp – Aplicación de Finanzas Personales Gratis" />
+  <meta name="twitter:description" content="Gestiona tus gastos, presupuestos e ingresos fácilmente con FinanzApp. Gratuita, privada y siempre disponible." />
   <meta name="twitter:image" content="https://byfinanzapp.com/Icons/android-chrome-512x512.png" />
 
   <meta name="theme-color" content="#191724" />
@@ -25,7 +26,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="FinanzApp" />
 
-  <title>FinanzApp - Gestión de Finanzas Personales</title>
+  <title>FinanzApp – Aplicación de Finanzas Personales Gratis</title>
 
   <link rel="manifest" href="/Icons/site.webmanifest" />
   <link rel="icon" href="/Icons/favicon.ico" sizes="any" />
@@ -41,22 +42,103 @@
         const recentLogout = logoutTimestamp && (Date.now() - parseInt(logoutTimestamp, 10)) < LOGOUT_BLOCK_MS;
         const loggedIn = localStorage.getItem('loggedIn');
         if ((loggedIn === 'true' || loggedIn === '1') && !recentLogout) {
-          window.location.replace('/pages/Categorias/Categorias.html');
+          window.location.replace('/pages/Categorias/Categorias');
         }
       } catch (e) {}
     })();
   </script>
 
-  <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-app-compat.js" crossorigin="anonymous"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-app-check-compat.js" crossorigin="anonymous"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-auth-compat.js" crossorigin="anonymous"></script>
-  <script src="/__config.js?v=2026080301"></script>
-  <script src="/lib/FirebaseAuth.js?v=2026080301"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"></noscript>
 
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" crossorigin="anonymous">
   <link rel="stylesheet" href="/lib/fonts.css">
-  <link rel="stylesheet" href="/lib/fontawesome/v5/css/all.min.css">
+  <link rel="preload" as="style" href="/lib/fontawesome/v5/css/all.min.css">
+  <link rel="stylesheet" href="/lib/fontawesome/v5/css/all.min.css" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="/lib/fontawesome/v5/css/all.min.css"></noscript>
   <link rel="stylesheet" href="/index.css">
+
+  <!-- Schema.org: SoftwareApplication -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "FinanzApp",
+    "alternateName": "FinanzApp - Aplicación de Finanzas Personales",
+    "description": "Aplicación web gratuita de finanzas personales para gestionar gastos, ingresos y presupuestos mensuales. Incluye categorías, estadísticas, gráficos y sincronización bancaria automática.",
+    "url": "https://byfinanzapp.com",
+    "applicationCategory": "FinanceApplication",
+    "applicationSubCategory": "Personal Finance",
+    "operatingSystem": "Web, Android, iOS",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": [
+      "Control de gastos e ingresos",
+      "Presupuestos mensuales por categoría",
+      "Estadísticas y gráficos de gastos",
+      "Sincronización bancaria automática",
+      "Modo oscuro y modo claro",
+      "Respaldo automático en la nube"
+    ],
+    "screenshot": "https://byfinanzapp.com/Icons/android-chrome-512x512.png",
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "5",
+      "reviewCount": "1"
+    }
+  }
+  </script>
+
+  <!-- Schema.org: FAQPage -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "¿Qué es FinanzApp?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "FinanzApp es una aplicación de finanzas personales gratuita y basada en web. Te permite registrar y categorizar tus gastos e ingresos, crear presupuestos mensuales y visualizar tus finanzas con gráficos claros e intuitivos."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "¿FinanzApp es completamente gratis?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Sí, FinanzApp es completamente gratuita. Puedes registrarte con tu cuenta de Google o correo electrónico y usar todas sus funciones sin ningún costo."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "¿Cómo funciona la aplicación de finanzas personales FinanzApp?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "FinanzApp funciona como una aplicación web: inicias sesión, agregas tus transacciones (gastos e ingresos), las organizas por categorías y ves tus estadísticas en tiempo real. Opcionalmente puedes sincronizar tus correos bancarios para que los gastos se registren automáticamente."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "¿Mis datos financieros están seguros en FinanzApp?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Sí. FinanzApp usa Firebase de Google con cifrado en tránsito (TLS) y en reposo. Tus datos son privados y solo tú puedes acceder a ellos. No se comparte ninguna información con terceros."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "¿Puedo usar FinanzApp en mi teléfono?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Sí. FinanzApp es una aplicación web responsiva que funciona en cualquier dispositivo con navegador: móvil (Android e iPhone), tablet y computadora, sin necesidad de descargar nada."
+        }
+      }
+    ]
+  }
+  </script>
 </head>
 
 <body>
@@ -89,7 +171,7 @@
         <i class="fas fa-sparkles"></i> Tu dinero bajo control, siempre
       </div>
       <h1>Toma el control <br class="hero-br" /><span class="gradient-text">de tus finanzas</span></h1>
-      <p class="hero-subtitle">Gestiona ingresos, presupuestos mensuales y analiza tus gastos en una plataforma rápida, privada y sin complicaciones.</p>
+      <p class="hero-subtitle">La <strong>aplicación de finanzas personales</strong> gratuita para gestionar tus gastos, ingresos y presupuestos mensuales en un solo lugar — rápida, privada y sin complicaciones.</p>
       
       <div class="cta-group">
         <a id="ctaPrimary" class="btn btn-primary" href="/pages/Login/Login.html">
@@ -163,6 +245,67 @@
       </div>
     </section>
 
+    <!-- FAQ Section -->
+    <section class="faq-section" id="faq" aria-labelledby="faq-title">
+      <div class="section-header">
+        <span class="section-tag">PREGUNTAS FRECUENTES</span>
+        <h2 id="faq-title">Todo sobre FinanzApp</h2>
+        <p class="section-subtitle">Respuestas rápidas sobre tu nueva aplicación de finanzas personales.</p>
+      </div>
+
+      <div class="faq-list">
+        <details class="faq-item" open>
+          <summary class="faq-question">
+            <h3>¿Qué es FinanzApp?</h3>
+            <i class="fas fa-chevron-down faq-icon" aria-hidden="true"></i>
+          </summary>
+          <div class="faq-answer">
+            <p>FinanzApp es una <strong>aplicación de finanzas personales</strong> gratuita y basada en web. Te permite registrar y categorizar tus gastos e ingresos, crear presupuestos mensuales y visualizar tus finanzas con gráficos claros e intuitivos.</p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-question">
+            <h3>¿FinanzApp es completamente gratis?</h3>
+            <i class="fas fa-chevron-down faq-icon" aria-hidden="true"></i>
+          </summary>
+          <div class="faq-answer">
+            <p>Sí, FinanzApp es 100% gratuita. Puedes registrarte con tu cuenta de Google o correo electrónico y usar todas las funciones de la aplicación de finanzas sin ningún costo.</p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-question">
+            <h3>¿Cómo funciona la aplicación de finanzas personales?</h3>
+            <i class="fas fa-chevron-down faq-icon" aria-hidden="true"></i>
+          </summary>
+          <div class="faq-answer">
+            <p>Inicias sesión, agregas tus transacciones (gastos e ingresos), las organizas por categorías y ves tus estadísticas en tiempo real. Opcionalmente, FinanzApp puede sincronizar tus correos bancarios para registrar gastos automáticamente.</p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-question">
+            <h3>¿Puedo usar FinanzApp en mi teléfono?</h3>
+            <i class="fas fa-chevron-down faq-icon" aria-hidden="true"></i>
+          </summary>
+          <div class="faq-answer">
+            <p>Sí. FinanzApp es una aplicación web responsiva que funciona en cualquier dispositivo con navegador: móvil (Android e iPhone), tablet y computadora, sin necesidad de descargar nada.</p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-question">
+            <h3>¿Mis datos financieros están seguros?</h3>
+            <i class="fas fa-chevron-down faq-icon" aria-hidden="true"></i>
+          </summary>
+          <div class="faq-answer">
+            <p>Sí. FinanzApp usa Firebase de Google con cifrado en tránsito (TLS) y en reposo. Tus datos son estrictamente privados y solo tú puedes acceder a ellos. No compartimos ninguna información con terceros.</p>
+          </div>
+        </details>
+      </div>
+    </section>
+
     <!-- Bottom CTA Card -->
     <section class="bottom-cta">
       <div class="bottom-cta-card">
@@ -207,7 +350,7 @@
       });
     }
 
-    (async function () {
+    (function () {
       const LOGOUT_BLOCK_MS = 60000;
       const logoutTimestamp = localStorage.getItem('logoutTimestamp');
       const recentLogout = logoutTimestamp && (Date.now() - parseInt(logoutTimestamp, 10)) < LOGOUT_BLOCK_MS;
@@ -229,16 +372,50 @@
           }
         }
 
-        if (window.firebaseAuth) {
-          const initialized = await window.firebaseAuth.init();
-          if (initialized && window.firebaseAuth.auth) {
-            window.firebaseAuth.auth.onAuthStateChanged(function (user) {
-              if (user && !recentLogout) {
-                localStorage.setItem('loggedIn', 'true');
-                window.location.replace('/pages/Categorias/Categorias.html');
-              }
+        // Carga diferida e inteligente de Firebase únicamente si hay sesión previa o en tiempo de inactividad
+        function loadFirebaseAsync() {
+          if (window._fbLoaded) return;
+          window._fbLoaded = true;
+          
+          function loadScript(src) {
+            return new Promise((resolve, reject) => {
+              const s = document.createElement('script');
+              s.src = src;
+              s.crossOrigin = 'anonymous';
+              s.onload = resolve;
+              s.onerror = reject;
+              document.body.appendChild(s);
             });
           }
+
+          loadScript('https://www.gstatic.com/firebasejs/11.6.0/firebase-app-compat.js')
+            .then(() => Promise.all([
+              loadScript('https://www.gstatic.com/firebasejs/11.6.0/firebase-auth-compat.js'),
+              loadScript('/__config.js?v=2026090101'),
+              loadScript('/lib/FirebaseAuth.js?v=2026090101')
+            ]))
+            .then(async () => {
+              if (window.firebaseAuth) {
+                const initialized = await window.firebaseAuth.init();
+                if (initialized && window.firebaseAuth.auth) {
+                  window.firebaseAuth.auth.onAuthStateChanged(function (user) {
+                    if (user && !recentLogout) {
+                      localStorage.setItem('loggedIn', 'true');
+                      window.location.replace('/pages/Categorias/Categorias.html');
+                    }
+                  });
+                }
+              }
+            })
+            .catch(() => {});
+        }
+
+        if (isAuth) {
+          loadFirebaseAsync();
+        } else if ('requestIdleCallback' in window) {
+          requestIdleCallback(() => setTimeout(loadFirebaseAsync, 3000));
+        } else {
+          window.addEventListener('load', () => setTimeout(loadFirebaseAsync, 3000));
         }
       } catch (e) {}
     })();

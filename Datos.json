@@ -1,0 +1,484 @@
+{
+  "version": 1,
+  "exportedAt": "2026-09-01T17:00:00.000Z",
+  "settings": {
+    "theme": "dark",
+    "categoryViewMode": "cards",
+    "currency": "USD",
+    "numberFormat": "us",
+    "tooltips": "on",
+    "shortcuts": "on",
+    "dateFormat": "dmy",
+    "confirmDelete": "on",
+    "autoRenewBudgets": "on",
+    "txPerPage": "10",
+    "showCents": "on",
+    "censorAmounts": "off"
+  },
+  "state": {
+    "categories": [
+      {
+        "id": "cat_1",
+        "name": "Nómina y Salario",
+        "fixedType": "income",
+        "icon": "fas fa-money-bill-wave",
+        "color": "#9ccfd8",
+        "isDefault": false,
+        "isPinned": true,
+        "transactions": [
+          {
+            "id": "tx_08",
+            "categoryId": "cat_1",
+            "categoryName": "Nómina y Salario",
+            "amount": 1750.00,
+            "type": "income",
+            "description": "Cobro de nómina 1ra quincena",
+            "date": "2026-08-15T08:00:00.000Z"
+          },
+          {
+            "id": "tx_17",
+            "categoryId": "cat_1",
+            "categoryName": "Nómina y Salario",
+            "amount": 1750.00,
+            "type": "income",
+            "description": "Cobro de nómina 2da quincena",
+            "date": "2026-08-30T08:00:00.000Z"
+          }
+        ]
+      },
+      {
+        "id": "cat_2",
+        "name": "Alimentación y Supermercado",
+        "fixedType": "expense",
+        "icon": "fas fa-shopping-cart",
+        "color": "#eb6f92",
+        "isDefault": false,
+        "isPinned": true,
+        "transactions": [
+          {
+            "id": "tx_01",
+            "categoryId": "cat_2",
+            "categoryName": "Alimentación y Supermercado",
+            "amount": 115.50,
+            "type": "expense",
+            "description": "Supermercado semanal",
+            "date": "2026-08-02T11:20:00.000Z"
+          },
+          {
+            "id": "tx_06",
+            "categoryId": "cat_2",
+            "categoryName": "Alimentación y Supermercado",
+            "amount": 58.40,
+            "type": "expense",
+            "description": "Frutería y carnicería",
+            "date": "2026-08-12T17:00:00.000Z"
+          },
+          {
+            "id": "tx_12",
+            "categoryId": "cat_2",
+            "categoryName": "Alimentación y Supermercado",
+            "amount": 142.30,
+            "type": "expense",
+            "description": "Compra mensual hipermercado",
+            "date": "2026-08-22T18:40:00.000Z"
+          },
+          {
+            "id": "tx_16",
+            "categoryId": "cat_2",
+            "categoryName": "Alimentación y Supermercado",
+            "amount": 18.75,
+            "type": "expense",
+            "description": "Café y panadería artesanal",
+            "date": "2026-08-28T16:45:00.000Z"
+          },
+          {
+            "id": "tx_19",
+            "categoryId": "cat_2",
+            "categoryName": "Alimentación y Supermercado",
+            "amount": 120.00,
+            "type": "expense",
+            "description": "Supermercado inicio de mes",
+            "date": "2026-09-01T10:15:00.000Z"
+          }
+        ]
+      },
+      {
+        "id": "cat_3",
+        "name": "Transporte y Gasolina",
+        "fixedType": "expense",
+        "icon": "fas fa-gas-pump",
+        "color": "#31748f",
+        "isDefault": false,
+        "isPinned": true,
+        "transactions": [
+          {
+            "id": "tx_02",
+            "categoryId": "cat_3",
+            "categoryName": "Transporte y Gasolina",
+            "amount": 45.00,
+            "type": "expense",
+            "description": "Recarga de gasolina",
+            "date": "2026-08-04T08:30:00.000Z"
+          },
+          {
+            "id": "tx_07",
+            "categoryId": "cat_3",
+            "categoryName": "Transporte y Gasolina",
+            "amount": 28.00,
+            "type": "expense",
+            "description": "Viajes en Uber",
+            "date": "2026-08-14T09:15:00.000Z"
+          },
+          {
+            "id": "tx_11",
+            "categoryId": "cat_3",
+            "categoryName": "Transporte y Gasolina",
+            "amount": 75.00,
+            "type": "expense",
+            "description": "Mantenimiento preventivo vehículo",
+            "date": "2026-08-20T16:20:00.000Z"
+          },
+          {
+            "id": "tx_20",
+            "categoryId": "cat_3",
+            "categoryName": "Transporte y Gasolina",
+            "amount": 50.00,
+            "type": "expense",
+            "description": "Gasolina tanque lleno",
+            "date": "2026-09-01T14:20:00.000Z"
+          }
+        ]
+      },
+      {
+        "id": "cat_4",
+        "name": "Vivienda y Servicios",
+        "fixedType": "expense",
+        "icon": "fas fa-home",
+        "color": "#f6c177",
+        "isDefault": false,
+        "isPinned": false,
+        "transactions": [
+          {
+            "id": "tx_03",
+            "categoryId": "cat_4",
+            "categoryName": "Vivienda y Servicios",
+            "amount": 85.20,
+            "type": "expense",
+            "description": "Factura de electricidad e internet",
+            "date": "2026-08-05T15:45:00.000Z"
+          },
+          {
+            "id": "tx_15",
+            "categoryId": "cat_4",
+            "categoryName": "Vivienda y Servicios",
+            "amount": 42.10,
+            "type": "expense",
+            "description": "Servicio de agua y mantenimiento",
+            "date": "2026-08-27T13:10:00.000Z"
+          }
+        ]
+      },
+      {
+        "id": "cat_5",
+        "name": "Entretenimiento y Ocio",
+        "fixedType": "expense",
+        "icon": "fas fa-film",
+        "color": "#c4a7e7",
+        "isDefault": false,
+        "isPinned": false,
+        "transactions": [
+          {
+            "id": "tx_04",
+            "categoryId": "cat_5",
+            "categoryName": "Entretenimiento y Ocio",
+            "amount": 62.00,
+            "type": "expense",
+            "description": "Cena restaurante con amigos",
+            "date": "2026-08-08T20:15:00.000Z"
+          },
+          {
+            "id": "tx_10",
+            "categoryId": "cat_5",
+            "categoryName": "Entretenimiento y Ocio",
+            "amount": 24.99,
+            "type": "expense",
+            "description": "Suscripción Netflix & Spotify",
+            "date": "2026-08-18T10:00:00.000Z"
+          },
+          {
+            "id": "tx_13",
+            "categoryId": "cat_5",
+            "categoryName": "Entretenimiento y Ocio",
+            "amount": 38.50,
+            "type": "expense",
+            "description": "Boletos de cine y snacks",
+            "date": "2026-08-24T19:30:00.000Z"
+          }
+        ]
+      },
+      {
+        "id": "cat_6",
+        "name": "Salud y Bienestar",
+        "fixedType": "expense",
+        "icon": "fas fa-heartbeat",
+        "color": "#9ccfd8",
+        "isDefault": false,
+        "isPinned": false,
+        "transactions": [
+          {
+            "id": "tx_05",
+            "categoryId": "cat_6",
+            "categoryName": "Salud y Bienestar",
+            "amount": 34.50,
+            "type": "expense",
+            "description": "Farmacia y vitaminas",
+            "date": "2026-08-10T12:10:00.000Z"
+          },
+          {
+            "id": "tx_14",
+            "categoryId": "cat_6",
+            "categoryName": "Salud y Bienestar",
+            "amount": 60.00,
+            "type": "expense",
+            "description": "Consulta médica y análisis",
+            "date": "2026-08-25T11:00:00.000Z"
+          }
+        ]
+      },
+      {
+        "id": "cat_7",
+        "name": "Freelance e Inversiones",
+        "fixedType": "income",
+        "icon": "fas fa-laptop-code",
+        "color": "#f6c177",
+        "isDefault": false,
+        "isPinned": false,
+        "transactions": [
+          {
+            "id": "tx_09",
+            "categoryId": "cat_7",
+            "categoryName": "Freelance e Inversiones",
+            "amount": 450.00,
+            "type": "income",
+            "description": "Proyecto diseño web freelance",
+            "date": "2026-08-17T14:30:00.000Z"
+          },
+          {
+            "id": "tx_18",
+            "categoryId": "cat_7",
+            "categoryName": "Freelance e Inversiones",
+            "amount": 95.00,
+            "type": "income",
+            "description": "Dividendos fondos indexados",
+            "date": "2026-08-31T12:00:00.000Z"
+          }
+        ]
+      }
+    ],
+    "transactions": [
+      {
+        "id": "tx_01",
+        "categoryId": "cat_2",
+        "categoryName": "Alimentación y Supermercado",
+        "amount": 115.50,
+        "type": "expense",
+        "description": "Supermercado semanal",
+        "date": "2026-08-02T11:20:00.000Z"
+      },
+      {
+        "id": "tx_02",
+        "categoryId": "cat_3",
+        "categoryName": "Transporte y Gasolina",
+        "amount": 45.00,
+        "type": "expense",
+        "description": "Recarga de gasolina",
+        "date": "2026-08-04T08:30:00.000Z"
+      },
+      {
+        "id": "tx_03",
+        "categoryId": "cat_4",
+        "categoryName": "Vivienda y Servicios",
+        "amount": 85.20,
+        "type": "expense",
+        "description": "Factura de electricidad e internet",
+        "date": "2026-08-05T15:45:00.000Z"
+      },
+      {
+        "id": "tx_04",
+        "categoryId": "cat_5",
+        "categoryName": "Entretenimiento y Ocio",
+        "amount": 62.00,
+        "type": "expense",
+        "description": "Cena restaurante con amigos",
+        "date": "2026-08-08T20:15:00.000Z"
+      },
+      {
+        "id": "tx_05",
+        "categoryId": "cat_6",
+        "categoryName": "Salud y Bienestar",
+        "amount": 34.50,
+        "type": "expense",
+        "description": "Farmacia y vitaminas",
+        "date": "2026-08-10T12:10:00.000Z"
+      },
+      {
+        "id": "tx_06",
+        "categoryId": "cat_2",
+        "categoryName": "Alimentación y Supermercado",
+        "amount": 58.40,
+        "type": "expense",
+        "description": "Frutería y carnicería",
+        "date": "2026-08-12T17:00:00.000Z"
+      },
+      {
+        "id": "tx_07",
+        "categoryId": "cat_3",
+        "categoryName": "Transporte y Gasolina",
+        "amount": 28.00,
+        "type": "expense",
+        "description": "Viajes en Uber",
+        "date": "2026-08-14T09:15:00.000Z"
+      },
+      {
+        "id": "tx_08",
+        "categoryId": "cat_1",
+        "categoryName": "Nómina y Salario",
+        "amount": 1750.00,
+        "type": "income",
+        "description": "Cobro de nómina 1ra quincena",
+        "date": "2026-08-15T08:00:00.000Z"
+      },
+      {
+        "id": "tx_09",
+        "categoryId": "cat_7",
+        "categoryName": "Freelance e Inversiones",
+        "amount": 450.00,
+        "type": "income",
+        "description": "Proyecto diseño web freelance",
+        "date": "2026-08-17T14:30:00.000Z"
+      },
+      {
+        "id": "tx_10",
+        "categoryId": "cat_5",
+        "categoryName": "Entretenimiento y Ocio",
+        "amount": 24.99,
+        "type": "expense",
+        "description": "Suscripción Netflix & Spotify",
+        "date": "2026-08-18T10:00:00.000Z"
+      },
+      {
+        "id": "tx_11",
+        "categoryId": "cat_3",
+        "categoryName": "Transporte y Gasolina",
+        "amount": 75.00,
+        "type": "expense",
+        "description": "Mantenimiento preventivo vehículo",
+        "date": "2026-08-20T16:20:00.000Z"
+      },
+      {
+        "id": "tx_12",
+        "categoryId": "cat_2",
+        "categoryName": "Alimentación y Supermercado",
+        "amount": 142.30,
+        "type": "expense",
+        "description": "Compra mensual hipermercado",
+        "date": "2026-08-22T18:40:00.000Z"
+      },
+      {
+        "id": "tx_13",
+        "categoryId": "cat_5",
+        "categoryName": "Entretenimiento y Ocio",
+        "amount": 38.50,
+        "type": "expense",
+        "description": "Boletos de cine y snacks",
+        "date": "2026-08-24T19:30:00.000Z"
+      },
+      {
+        "id": "tx_14",
+        "categoryId": "cat_6",
+        "categoryName": "Salud y Bienestar",
+        "amount": 60.00,
+        "type": "expense",
+        "description": "Consulta médica y análisis",
+        "date": "2026-08-25T11:00:00.000Z"
+      },
+      {
+        "id": "tx_15",
+        "categoryId": "cat_4",
+        "categoryName": "Vivienda y Servicios",
+        "amount": 42.10,
+        "type": "expense",
+        "description": "Servicio de agua y mantenimiento",
+        "date": "2026-08-27T13:10:00.000Z"
+      },
+      {
+        "id": "tx_16",
+        "categoryId": "cat_2",
+        "categoryName": "Alimentación y Supermercado",
+        "amount": 18.75,
+        "type": "expense",
+        "description": "Café y panadería artesanal",
+        "date": "2026-08-28T16:45:00.000Z"
+      },
+      {
+        "id": "tx_17",
+        "categoryId": "cat_1",
+        "categoryName": "Nómina y Salario",
+        "amount": 1750.00,
+        "type": "income",
+        "description": "Cobro de nómina 2da quincena",
+        "date": "2026-08-30T08:00:00.000Z"
+      },
+      {
+        "id": "tx_18",
+        "categoryId": "cat_7",
+        "categoryName": "Freelance e Inversiones",
+        "amount": 95.00,
+        "type": "income",
+        "description": "Dividendos fondos indexados",
+        "date": "2026-08-31T12:00:00.000Z"
+      },
+      {
+        "id": "tx_19",
+        "categoryId": "cat_2",
+        "categoryName": "Alimentación y Supermercado",
+        "amount": 120.00,
+        "type": "expense",
+        "description": "Supermercado inicio de mes",
+        "date": "2026-09-01T10:15:00.000Z"
+      },
+      {
+        "id": "tx_20",
+        "categoryId": "cat_3",
+        "categoryName": "Transporte y Gasolina",
+        "amount": 50.00,
+        "type": "expense",
+        "description": "Gasolina tanque lleno",
+        "date": "2026-09-01T14:20:00.000Z"
+      }
+    ],
+    "budgets": [
+      {
+        "id": "budget_1",
+        "categoryId": "cat_2",
+        "categoryName": "Alimentación y Supermercado",
+        "amount": 500.00,
+        "period": "monthly"
+      },
+      {
+        "id": "budget_2",
+        "categoryId": "cat_3",
+        "categoryName": "Transporte y Gasolina",
+        "amount": 250.00,
+        "period": "monthly"
+      },
+      {
+        "id": "budget_3",
+        "categoryId": "cat_5",
+        "categoryName": "Entretenimiento y Ocio",
+        "amount": 180.00,
+        "period": "monthly"
+      }
+    ]
+  }
+}

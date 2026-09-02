@@ -147,6 +147,8 @@ async function processHtml(filePath) {
     if (!content.trim()) continue;
     if (/\ssrc\s*=/i.test(attrs)) continue; // ya es externo
     if (/\stype\s*=\s*["']module["']/i.test(attrs)) continue; // no soportado
+    if (/\stype\s*=\s*["']application\/ld\+json["']/i.test(attrs)) continue; // Schema.org JSON-LD
+    if (/\stype\s*=\s*["'](?:application\/json|text\/template|text\/html)["']/i.test(attrs)) continue;
 
     const hash = shortHash(content);
     const fileName = relativeDir === '.'
