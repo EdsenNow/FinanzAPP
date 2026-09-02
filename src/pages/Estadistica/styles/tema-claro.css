@@ -13,16 +13,49 @@ background: linear-gradient(#9c6bd7);
 color: #FFFAF3;
 }
 
-[data-theme="light"] body.estadistica-page .summary-card.income .card-title i {
-color: var(--success);
+[data-theme="light"] body.estadistica-page .summary-card.income .card-title i,
+[data-theme="light"] body.estadistica-page .summary-card.income .card-title svg,
+[data-theme="light"] body.estadistica-page .summary-card.income .card-title .lucide,
+[data-theme="light"] body.estadistica-page .summary-card.daily-income .card-title i,
+[data-theme="light"] body.estadistica-page .summary-card.daily-income .card-title svg,
+[data-theme="light"] body.estadistica-page .summary-card.daily-income .card-title .lucide {
+  color: var(--success) !important;
+  stroke: var(--success) !important;
 }
 
 [data-theme="light"] body.estadistica-page .summary-card.income .card-value {
-color: var(--success);
+  color: var(--success);
+}
+
+[data-theme="light"] body.estadistica-page .summary-card.expenses .card-title i,
+[data-theme="light"] body.estadistica-page .summary-card.expenses .card-title svg,
+[data-theme="light"] body.estadistica-page .summary-card.expenses .card-title .lucide,
+[data-theme="light"] body.estadistica-page .summary-card.daily-expense .card-title i,
+[data-theme="light"] body.estadistica-page .summary-card.daily-expense .card-title svg,
+[data-theme="light"] body.estadistica-page .summary-card.daily-expense .card-title .lucide {
+  color: #b4637a !important;
+  stroke: #b4637a !important;
 }
 
 [data-theme="light"] body.estadistica-page .summary-card.expenses .card-value {
-color: #b4637a;
+  color: #b4637a;
+}
+
+[data-theme="light"] body.estadistica-page .summary-card.balance .card-title i,
+[data-theme="light"] body.estadistica-page .summary-card.balance .card-title svg,
+[data-theme="light"] body.estadistica-page .summary-card.balance .card-title .lucide,
+[data-theme="light"] body.estadistica-page .summary-card.net-daily .card-title i,
+[data-theme="light"] body.estadistica-page .summary-card.net-daily .card-title svg,
+[data-theme="light"] body.estadistica-page .summary-card.net-daily .card-title .lucide {
+  color: var(--accent) !important;
+  stroke: var(--accent) !important;
+}
+
+[data-theme="light"] body.estadistica-page .summary-card.total-transactions .card-title i,
+[data-theme="light"] body.estadistica-page .summary-card.total-transactions .card-title svg,
+[data-theme="light"] body.estadistica-page .summary-card.total-transactions .card-title .lucide {
+  color: var(--primary) !important;
+  stroke: var(--primary) !important;
 }
 
 [data-theme="light"] .estadistica-page .chart-title-center i[data-lucide="activity"],

@@ -304,8 +304,41 @@ body.estadistica-page .stats-insights .insight-icon i {
   text-overflow: clip;
 }
 
-.summary-card.income .card-title i {
-  color: var(--success);
+.summary-card.income .card-title i,
+.summary-card.income .card-title svg,
+.summary-card.income .card-title .lucide,
+.summary-card.daily-income .card-title i,
+.summary-card.daily-income .card-title svg,
+.summary-card.daily-income .card-title .lucide {
+  color: var(--success) !important;
+  stroke: var(--success) !important;
+}
+
+.summary-card.expenses .card-title i,
+.summary-card.expenses .card-title svg,
+.summary-card.expenses .card-title .lucide,
+.summary-card.daily-expense .card-title i,
+.summary-card.daily-expense .card-title svg,
+.summary-card.daily-expense .card-title .lucide {
+  color: var(--danger, #eb6f92) !important;
+  stroke: var(--danger, #eb6f92) !important;
+}
+
+.summary-card.balance .card-title i,
+.summary-card.balance .card-title svg,
+.summary-card.balance .card-title .lucide,
+.summary-card.net-daily .card-title i,
+.summary-card.net-daily .card-title svg,
+.summary-card.net-daily .card-title .lucide {
+  color: var(--accent, #c4a7e7) !important;
+  stroke: var(--accent, #c4a7e7) !important;
+}
+
+.summary-card.total-transactions .card-title i,
+.summary-card.total-transactions .card-title svg,
+.summary-card.total-transactions .card-title .lucide {
+  color: var(--primary, #c4a7e7) !important;
+  stroke: var(--primary, #c4a7e7) !important;
 }
 
 .summary-card.income .card-value {

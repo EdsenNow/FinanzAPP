@@ -1170,5 +1170,47 @@ svg.lucide {
   }
 }
 
+/* ===== Summary Cards Icons Colors ===== */
+.summary-card.income .card-title i,
+.summary-card.income .card-title svg,
+.summary-card.income .card-title .lucide,
+.summary-card.daily-income .card-title i,
+.summary-card.daily-income .card-title svg,
+.summary-card.daily-income .card-title .lucide {
+  color: var(--success, #2D957B) !important;
+  stroke: var(--success, #2D957B) !important;
+}
 
+.summary-card.expenses .card-title i,
+.summary-card.expenses .card-title svg,
+.summary-card.expenses .card-title .lucide,
+.summary-card.daily-expense .card-title i,
+.summary-card.daily-expense .card-title svg,
+.summary-card.daily-expense .card-title .lucide {
+  color: var(--danger, #eb6f92) !important;
+  stroke: var(--danger, #eb6f92) !important;
+}
 
+.summary-card.balance .card-title i,
+.summary-card.balance .card-title svg,
+.summary-card.balance .card-title .lucide,
+.summary-card.net-daily .card-title i,
+.summary-card.net-daily .card-title svg,
+.summary-card.net-daily .card-title .lucide {
+  color: var(--accent, #c4a7e7) !important;
+  stroke: var(--accent, #c4a7e7) !important;
+}
+
+.summary-card.misc .card-title i,
+.summary-card.misc .card-title svg,
+.summary-card.misc .card-title .lucide {
+  color: var(--warning, #f6c177) !important;
+  stroke: var(--warning, #f6c177) !important;
+}
+
+.summary-card.total-transactions .card-title i,
+.summary-card.total-transactions .card-title svg,
+.summary-card.total-transactions .card-title .lucide {
+  color: var(--primary, #c4a7e7) !important;
+  stroke: var(--primary, #c4a7e7) !important;
+}
