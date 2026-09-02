@@ -1,16 +1,23 @@
 [data-theme="light"] body.estadistica-page .stats-insights .insight-icon.primary { 
 background: linear-gradient(#b4637a); 
-color: #FFFAF3;
+color: #FFFAF3 !important;
 }
 
 [data-theme="light"] body.estadistica-page .stats-insights .insight-icon.accent { 
 background: linear-gradient(#2D957B); 
-color: #FFFAF3;
+color: #FFFAF3 !important;
 }
 
 [data-theme="light"] body.estadistica-page .stats-insights .insight-icon.success { 
 background: linear-gradient(#9c6bd7); 
-color: #FFFAF3;
+color: #FFFAF3 !important;
+}
+
+[data-theme="light"] body.estadistica-page .stats-insights .insight-icon i,
+[data-theme="light"] body.estadistica-page .stats-insights .insight-icon svg,
+[data-theme="light"] body.estadistica-page .stats-insights .insight-icon .lucide {
+  color: #FFFAF3 !important;
+  stroke: #FFFAF3 !important;
 }
 
 [data-theme="light"] body.estadistica-page .summary-card.income .card-title i,
@@ -49,13 +56,6 @@ color: #FFFAF3;
 [data-theme="light"] body.estadistica-page .summary-card.net-daily .card-title .lucide {
   color: var(--accent) !important;
   stroke: var(--accent) !important;
-}
-
-[data-theme="light"] body.estadistica-page .summary-card.total-transactions .card-title i,
-[data-theme="light"] body.estadistica-page .summary-card.total-transactions .card-title svg,
-[data-theme="light"] body.estadistica-page .summary-card.total-transactions .card-title .lucide {
-  color: var(--primary) !important;
-  stroke: var(--primary) !important;
 }
 
 [data-theme="light"] .estadistica-page .chart-title-center i[data-lucide="activity"],
@@ -141,15 +141,22 @@ font-weight: 400;
 
 [data-theme="light"] body.estadistica-page .stats-insights .insight-icon.primary { 
 background: linear-gradient(#b4637a); 
-color: #FFFAF3;
+color: #FFFAF3 !important;
 }
 [data-theme="light"] body.estadistica-page .stats-insights .insight-icon.accent { 
 background: linear-gradient(#2D957B); 
-color: #FFFAF3;
+color: #FFFAF3 !important;
 }
 [data-theme="light"] body.estadistica-page .stats-insights .insight-icon.success { 
 background: linear-gradient(#9c6bd7); 
-color: #FFFAF3;
+color: #FFFAF3 !important;
+}
+
+[data-theme="light"] body.estadistica-page .stats-insights .insight-icon i,
+[data-theme="light"] body.estadistica-page .stats-insights .insight-icon svg,
+[data-theme="light"] body.estadistica-page .stats-insights .insight-icon .lucide {
+  color: #FFFAF3 !important;
+  stroke: #FFFAF3 !important;
 }
 
 [data-theme="light"] .logo-icon {

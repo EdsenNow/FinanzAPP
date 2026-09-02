@@ -1208,9 +1208,12 @@ svg.lucide {
   stroke: var(--warning, #f6c177) !important;
 }
 
-.summary-card.total-transactions .card-title i,
-.summary-card.total-transactions .card-title svg,
-.summary-card.total-transactions .card-title .lucide {
-  color: var(--primary, #c4a7e7) !important;
-  stroke: var(--primary, #c4a7e7) !important;
+/* Iconos para tarjetas de insights (Mejor mes, Gasto dominante, Balance neto) */
+.stats-insights .insight-icon,
+.stats-insights .insight-icon i,
+.stats-insights .insight-icon svg,
+.stats-insights .insight-icon .lucide {
+  color: #fffaf3 !important;
+  stroke: #fffaf3 !important;
 }
+
