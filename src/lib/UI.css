@@ -729,6 +729,12 @@ html body .undo-btn:active {
   gap: 10px; 
 }
 
+.shortcut-keys {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .shortcuts-note { 
   color: var(--gray); 
   margin-top: 12px; 

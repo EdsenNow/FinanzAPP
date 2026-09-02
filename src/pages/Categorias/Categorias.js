@@ -994,76 +994,100 @@ document.addEventListener('keydown', (e) => {
   document.addEventListener('keydown', (e) => {
     if (window.__appShortcutsEnabled === false) return;
     const isEditing = isEditableTarget(document.activeElement);
-    const withMod = e.ctrlKey || e.metaKey || e.altKey;
+    const withOtherMod = e.ctrlKey || e.metaKey;
 
-    if (!withMod && (e.key === '?' || (e.shiftKey && e.key === '/')) && !isEditing) {
+    // Shift + Delete: Eliminar todas las categorías
+    if (e.shiftKey && e.key === 'Delete' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      const btn = document.getElementById('clearAllCategoriesBtn');
+      if (btn) {
+        e.preventDefault();
+        btn.click();
+      }
+      return;
+    }
+
+    // Ayuda directa con ? (o Shift+/) cuando no se edita
+    if (!withOtherMod && !e.altKey && (e.key === '?' || (e.shiftKey && e.key === '/')) && !isEditing) {
       e.preventDefault();
       openShortcutsModal();
       return;
     }
 
-    if (!withMod && e.key === '/' && !e.shiftKey && !isEditing) {
+    // A partir de aquí se requiere Alt (sin Ctrl ni Meta) y no estar editando un campo de texto
+    if (!e.altKey || withOtherMod || isEditing) return;
+
+    const key = e.key ? e.key.toLowerCase() : '';
+    const code = e.code || '';
+
+    // Alt + H: Mostrar ayuda
+    if (key === 'h' || code === 'KeyH') {
+      e.preventDefault();
+      openShortcutsModal();
+      return;
+    }
+
+    // Alt + B: Buscar transacción
+    if (key === 'b' || code === 'KeyB') {
       const searchInput = document.getElementById('searchInput');
       if (searchInput) { e.preventDefault(); searchInput.focus(); }
       return;
     }
 
-    if (!withMod && e.key.toLowerCase() === 'n' && !isEditing) {
+    // Alt + N: Nueva categoría
+    if (key === 'n' || code === 'KeyN') {
       const btn = document.getElementById('addCategoryBtn');
       const modal = document.getElementById('categoryModal');
       if (btn && modal) { e.preventDefault(); abrirModal(modal, btn); }
       return;
     }
 
-    if (!withMod && e.key.toLowerCase() === 's' && !isEditing) {
+    // Alt + E: Abrir menú Exportar
+    if (key === 'e' || code === 'KeyE') {
       const btn = document.getElementById('exportDropdownBtn');
       const menu = document.getElementById('exportDropdown');
       if (btn && menu) { e.preventDefault(); menu.classList.toggle('active'); btn.focus(); }
       return;
     }
 
-    if (!withMod && e.key.toLowerCase() === 'j' && !isEditing) {
+    // Alt + J: Exportar JSON
+    if (key === 'j' || code === 'KeyJ') {
       const btn = document.getElementById('exportJsonBtn');
       if (btn) { e.preventDefault(); btn.click(); }
       return;
     }
 
-    if (!withMod && e.key.toLowerCase() === 'p' && !isEditing) {
+    // Alt + P: Exportar PDF
+    if (key === 'p' || code === 'KeyP') {
       const btn = document.getElementById('exportPdfBtn');
       if (btn) { e.preventDefault(); btn.click(); }
       return;
     }
 
-    if (!withMod && e.key.toLowerCase() === 'i' && !isEditing) {
+    // Alt + I: Importar datos
+    if (key === 'i' || code === 'KeyI') {
       const btn = document.getElementById('importStateBtn');
       if (btn) { e.preventDefault(); btn.click(); }
       return;
     }
 
-    if (!withMod && e.key.toLowerCase() === 'y' && !isEditing) {
+    // Alt + A: Abrir filtro Año
+    if (key === 'a' || code === 'KeyA') {
       const dd = document.getElementById('yearFilter');
       if (dd) { e.preventDefault(); dd.classList.add('open'); dd.querySelector('.custom-dropdown-selected')?.focus?.(); }
       return;
     }
 
-    if (!withMod && e.key.toLowerCase() === 'm' && !isEditing) {
+    // Alt + M: Abrir filtro Mes
+    if (key === 'm' || code === 'KeyM') {
       const dd = document.getElementById('monthFilter');
       if (dd) { e.preventDefault(); dd.classList.add('open'); dd.querySelector('.custom-dropdown-selected')?.focus?.(); }
       return;
     }
 
-    if (!withMod && e.key.toLowerCase() === 'l' && !isEditing) {
+    // Alt + L: Limpiar filtros
+    if (key === 'l' || code === 'KeyL') {
       const btn = document.getElementById('clearFiltersBtn');
       if (btn) { e.preventDefault(); btn.click(); }
-      return;
-    }
-
-    if (e.shiftKey && e.key === 'Delete' && !withMod) {
-      const btn = document.getElementById('clearAllCategoriesBtn');
-      if (btn) {
-        e.preventDefault();
-        btn.click();
-      }
       return;
     }
   });

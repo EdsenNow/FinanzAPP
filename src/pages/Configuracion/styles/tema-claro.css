@@ -457,7 +457,6 @@
 /* ---------- Panel de atajos de teclado ---------- */
 [data-theme="light"] .shortcuts-panel {
   background: #f5efea;
-  border: 1px solid #f2e9e1;
 }
 
 [data-theme="light"] .shortcuts-list li {
