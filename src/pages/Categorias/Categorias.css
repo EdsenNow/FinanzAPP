@@ -218,10 +218,13 @@ body.categorias-page .app-container {
   color: white;
   border-color: var(--primary);
 }
-.nav-item i { 
+.nav-item i,
+.nav-item svg { 
   font-size: 20px;
-  width: 24px;
+  width: 21px;
+  height: 21px;
   text-align: center;
+  flex-shrink: 0;
 }
 .sidebar-footer { 
   margin-top: auto;

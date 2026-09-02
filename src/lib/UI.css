@@ -1143,12 +1143,15 @@ svg.lucide {
   height: 17px;
 }
 
+.nav-item i,
+.nav-item svg,
+.nav-item .lucide,
 .nav-link .lucide,
 .nav-link svg.lucide,
 .sidebar-link .lucide,
 .mobile-nav-item .lucide {
-  width: 1.25em;
-  height: 1.25em;
+  width: 21px;
+  height: 21px;
 }
 
 .category-icon .lucide,
@@ -1190,12 +1193,6 @@ svg.lucide {
 .transaction-type-btn[data-value=""] i,
 .transaction-type-btn[data-value=""] svg {
   color: var(--accent, #c4a7e7);
-}
-
-.svg.lucide.lucido-sun,
-.svg.lucide.lucido-moon {
-  width: 100px;
-  height: 100px;
 }
 
 .lucide-spin {
