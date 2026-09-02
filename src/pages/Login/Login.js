@@ -183,15 +183,26 @@
           return;
         }
 
+        const isCancelled = result?.cancelled || 
+                            result?.error === 'auth/popup-closed-by-user' || 
+                            result?.error === 'auth/cancelled-popup-request' ||
+                            String(result?.rawError || '').includes('closed-by-user') ||
+                            String(result?.message || '').includes('cancelado');
+
         if (!result || !result.success) {
-          if (!result?.cancelled) {
+          if (!isCancelled) {
             showAlert('Error al iniciar sesión', result?.message || 'No se pudo iniciar sesión con Google.', { variant: 'error' });
           }
         }
         restoreButton();
       } catch (error) {
-        console.error('Error inesperado en login con Google:', error);
-        showAlert('Error', 'Ocurrió un error inesperado al conectar con Google.', { variant: 'error' });
+        const isCancelled = error?.code === 'auth/popup-closed-by-user' || 
+                            error?.code === 'auth/cancelled-popup-request' ||
+                            String(error?.message || '').includes('closed-by-user');
+        if (!isCancelled) {
+          console.error('Error inesperado en login con Google:', error);
+          showAlert('Error', 'Ocurrió un error inesperado al conectar con Google.', { variant: 'error' });
+        }
         restoreButton();
       }
     });

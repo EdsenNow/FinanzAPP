@@ -434,12 +434,18 @@ class FirebaseAuth {
       'auth/internal-error': 'Error interno de autenticación. Verifica que el inicio de sesión con Google esté habilitado en Firebase Console, que el dominio esté autorizado y que no estés en modo privado o bloqueando cookies de terceros.'
     };
 
-    const message = errorMessages[error.code] || error.message || 'Error desconocido';
+    const isCancelled = error?.code === 'auth/popup-closed-by-user' || 
+                        error?.code === 'auth/cancelled-popup-request' ||
+                        String(error?.message || '').includes('closed-by-user') ||
+                        String(error?.message || '').includes('cancelled-popup');
+
+    const message = errorMessages[error?.code] || error?.message || 'Error desconocido';
 
     return {
       success: false,
-      error: error.code || 'unknown',
-      rawError: error.message || error.code || String(error),
+      error: error?.code || 'unknown',
+      cancelled: isCancelled,
+      rawError: error?.message || error?.code || String(error),
       message: message
     };
   }
