@@ -116,8 +116,8 @@ class TableManager {
       const icon = currentHeader.querySelector('.sort-icon');
       if (icon) {
         icon.style.display = 'inline-block';
-        icon.className = 'sort-icon fas';
-        icon.classList.add(this.config.sortDirection === 'asc' ? 'fa-arrow-up' : 'fa-arrow-down');
+        icon.setAttribute('data-lucide', this.config.sortDirection === 'asc' ? 'arrow-up' : 'arrow-down');
+        window.LucideHelper?.refresh(currentHeader);
       }
     }
   }

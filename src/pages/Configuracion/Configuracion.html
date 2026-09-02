@@ -32,7 +32,8 @@
 
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" crossorigin="anonymous">
   <link rel="stylesheet" href="/lib/fonts.css">
-  <link rel="stylesheet" href="/lib/fontawesome/v5/css/all.min.css">
+  <script src="/lib/lucide/lucide.min.js"></script>
+  <script src="/lib/LucideIcons.js"></script>
 
   <link rel="stylesheet" href="/pages/Categorias/Categorias.css?v=20260824003">
   <link rel="stylesheet" href="/lib/UI.css?v=20260824003">
@@ -83,19 +84,19 @@
       </div>
       <nav class="nav-links">
         <a href="../Categorias/Categorias.html" class="nav-item">
-          <i class="fas fa-home"></i>
+          <i data-lucide="layout-grid"></i>
           <span>Categorías</span>
         </a>
         <a href="../Presupuestos/Presupuestos.html" class="nav-item">
-          <i class="fas fa-wallet"></i>
+          <i data-lucide="wallet"></i>
           <span>Presupuestos</span>
         </a>
         <a href="../Estadistica/Estadistica.html" class="nav-item">
-          <i class="fas fa-chart-pie"></i>
+          <i data-lucide="pie-chart"></i>
           <span>Estadisticas</span>
         </a>
         <a href="../Configuracion/Configuracion.html" class="nav-item active" aria-current="page">
-          <i class="fas fa-cog"></i>
+          <i data-lucide="settings"></i>
           <span>Configuracion</span>
         </a>
       </nav>
@@ -107,10 +108,10 @@
             <div class="user-email"></div>
           </div>
           <button class="btn btn-icon app-tooltip" id="themeToggle" data-tooltip="Cambiar tema">
-            <i class="fas fa-moon"></i>
+            <i data-lucide="moon"></i>
           </button>
           <button class="btn btn-icon app-tooltip" id="logoutButton" data-tooltip="Cerrar sesión">
-            <i class="fas fa-sign-out-alt"></i>
+            <i data-lucide="log-out"></i>
           </button>
         </div>
 
@@ -141,7 +142,7 @@
             <!-- Grupo 1: Visualización y Formato -->
             <div class="settings-section">
               <div class="settings-section-header">
-                <span class="section-icon-badge"><i class="fas fa-palette"></i></span>
+                <span class="section-icon-badge"><i data-lucide="palette"></i></span>
                 <span>Visualización y Formato</span>
               </div>
 
@@ -150,7 +151,7 @@
                 <div class="custom-dropdown" id="themePreference">
                   <div class="custom-dropdown-selected" data-value="dark" tabindex="0">
                     <span>Oscuro</span>
-                    <i class="fas fa-chevron-down"></i>
+                    <i data-lucide="chevron-down"></i>
                   </div>
                   <div class="custom-dropdown-options">
                     <div class="custom-dropdown-option selected" data-value="dark">Oscuro</div>
@@ -164,7 +165,7 @@
                 <div class="custom-dropdown" id="categoryViewPreference">
                   <div class="custom-dropdown-selected" data-value="compact" tabindex="0">
                     <span>Compacto</span>
-                    <i class="fas fa-chevron-down"></i>
+                    <i data-lucide="chevron-down"></i>
                   </div>
                   <div class="custom-dropdown-options">
                     <div class="custom-dropdown-option" data-value="extended">Extendido</div>
@@ -178,7 +179,7 @@
                 <div class="custom-dropdown" id="currencyPreference">
                   <div class="custom-dropdown-selected" data-value="DOP" tabindex="0">
                     <span>Peso Dominicano (RD$)</span>
-                    <i class="fas fa-chevron-down"></i>
+                    <i data-lucide="chevron-down"></i>
                   </div>
                   <div class="custom-dropdown-options">
                     <div class="custom-dropdown-option selected" data-value="DOP">Peso Dominicano (RD$)</div>
@@ -193,7 +194,7 @@
                 <div class="custom-dropdown" id="numberFormatPreference">
                   <div class="custom-dropdown-selected" data-value="us" tabindex="0">
                     <span>1,234.56</span>
-                    <i class="fas fa-chevron-down"></i>
+                    <i data-lucide="chevron-down"></i>
                   </div>
                   <div class="custom-dropdown-options">
                     <div class="custom-dropdown-option selected" data-value="us">1,234.56</div>
@@ -207,7 +208,7 @@
                 <div class="custom-dropdown" id="showCentsPreference">
                   <div class="custom-dropdown-selected" data-value="off" tabindex="0">
                     <span>Desactivado</span>
-                    <i class="fas fa-chevron-down"></i>
+                    <i data-lucide="chevron-down"></i>
                   </div>
                   <div class="custom-dropdown-options">
                     <div class="custom-dropdown-option" data-value="on">Activado</div>
@@ -221,7 +222,7 @@
                 <div class="custom-dropdown" id="censorAmountsPreference">
                   <div class="custom-dropdown-selected" data-value="off" tabindex="0">
                     <span>Desactivado</span>
-                    <i class="fas fa-chevron-down"></i>
+                    <i data-lucide="chevron-down"></i>
                   </div>
                   <div class="custom-dropdown-options">
                     <div class="custom-dropdown-option selected" data-value="off">Desactivado</div>
@@ -235,7 +236,7 @@
                 <div class="custom-dropdown" id="dateFormatPreference">
                   <div class="custom-dropdown-selected" data-value="dmy" tabindex="0">
                     <span>DD/MM/AAAA</span>
-                    <i class="fas fa-chevron-down"></i>
+                    <i data-lucide="chevron-down"></i>
                   </div>
                   <div class="custom-dropdown-options">
                     <div class="custom-dropdown-option selected" data-value="dmy">DD/MM/AAAA</div>
@@ -253,7 +254,7 @@
             <!-- Grupo 2: Operaciones y Presupuestos -->
             <div class="settings-section">
               <div class="settings-section-header">
-                <span class="section-icon-badge"><i class="fas fa-wallet"></i></span>
+                <span class="section-icon-badge"><i data-lucide="wallet"></i></span>
                 <span>Operaciones y Presupuestos</span>
               </div>
 
@@ -262,7 +263,7 @@
                 <div class="custom-dropdown" id="txPerPagePreference">
                   <div class="custom-dropdown-selected" data-value="10" tabindex="0">
                     <span>10</span>
-                    <i class="fas fa-chevron-down"></i>
+                    <i data-lucide="chevron-down"></i>
                   </div>
                   <div class="custom-dropdown-options">
                     <div class="custom-dropdown-option selected" data-value="10">10</div>
@@ -278,7 +279,7 @@
                 <div class="custom-dropdown" id="autoRenewBudgetsPreference">
                   <div class="custom-dropdown-selected" data-value="on" tabindex="0">
                     <span>Activado</span>
-                    <i class="fas fa-chevron-down"></i>
+                    <i data-lucide="chevron-down"></i>
                   </div>
                   <div class="custom-dropdown-options">
                     <div class="custom-dropdown-option selected" data-value="on">Activado</div>
@@ -292,7 +293,7 @@
                 <div class="custom-dropdown" id="confirmDeletePreference">
                   <div class="custom-dropdown-selected" data-value="on" tabindex="0">
                     <span>Activado</span>
-                    <i class="fas fa-chevron-down"></i>
+                    <i data-lucide="chevron-down"></i>
                   </div>
                   <div class="custom-dropdown-options">
                     <div class="custom-dropdown-option selected" data-value="on">Activado</div>
@@ -305,7 +306,7 @@
             <!-- Grupo 3: Interacción y Accesibilidad -->
             <div class="settings-section">
               <div class="settings-section-header">
-                <span class="section-icon-badge"><i class="fas fa-bell"></i></span>
+                <span class="section-icon-badge"><i data-lucide="bell"></i></span>
                 <span>Interacción y Ayudas</span>
               </div>
 
@@ -314,7 +315,7 @@
                 <div class="custom-dropdown" id="tooltipsPreference">
                   <div class="custom-dropdown-selected" data-value="on" tabindex="0">
                     <span>Activado</span>
-                    <i class="fas fa-chevron-down"></i>
+                    <i data-lucide="chevron-down"></i>
                   </div>
                   <div class="custom-dropdown-options">
                     <div class="custom-dropdown-option selected" data-value="on">Activado</div>
@@ -328,12 +329,12 @@
                 <div class="custom-dropdown" id="shortcutsPreference">
                   <div class="custom-dropdown-selected" data-value="on" tabindex="0">
                     <span>Activado</span>
-                    <i class="fas fa-chevron-down"></i>
+                    <i data-lucide="chevron-down"></i>
                   </div>
                   <div class="custom-dropdown-options">
                     <div class="custom-dropdown-option selected" data-value="on">Activado</div>
                     <div class="custom-dropdown-option" data-value="off">Desactivado</div>
-                    <div class="custom-dropdown-option shortcut-view-option" data-value="view"><i class="fas fa-keyboard" aria-hidden="true"></i> Ver atajos disponibles</div>
+                    <div class="custom-dropdown-option shortcut-view-option" data-value="view"><i data-lucide="keyboard" aria-hidden="true"></i> Ver atajos disponibles</div>
                   </div>
                 </div>
               </div>
@@ -358,10 +359,10 @@
             </div>
             <div class="settings-actions">
               <button class="btn btn-primary" type="submit" id="savePreferencesBtn">
-                <i class="fas fa-save" aria-hidden="true"></i> Guardar
+                <i data-lucide="save" aria-hidden="true"></i> Guardar
               </button>
               <button class="btn btn-secondary" type="button" id="resetPreferencesBtn">
-                <i class="fas fa-undo" aria-hidden="true"></i> Restablecer
+                <i data-lucide="rotate-ccw" aria-hidden="true"></i> Restablecer
               </button>
             </div>
           </form>
@@ -375,14 +376,14 @@
 
             <div class="data-actions">
               <button class="btn btn-secondary app-tooltip" type="button" id="exportBackupBtn" data-tooltip="Exportar respaldo (descargar JSON)">
-                <i class="fas fa-file-export" aria-hidden="true"></i> Exportar respaldo
+                <i data-lucide="file-up" aria-hidden="true"></i> Exportar respaldo
               </button>
               <label class="btn btn-secondary file-label" for="importBackupInput">
-                <i class="fas fa-file-import" aria-hidden="true"></i> Importar respaldo
+                <i data-lucide="file-down" aria-hidden="true"></i> Importar respaldo
               </label>
               <input type="file" id="importBackupInput" class="hidden" accept="application/json" aria-hidden="true">
               <button class="btn btn-danger" type="button" id="clearDataBtn">
-                <i class="fas fa-trash" aria-hidden="true"></i> Reiniciar datos
+                <i data-lucide="trash-2" aria-hidden="true"></i> Reiniciar datos
               </button>
             </div>
 
@@ -425,15 +426,15 @@
               <div class="setting-row">
                 <div class="setting-label-col" style="display: flex; flex-direction: column; align-items: flex-start; justify-content: center;">
                   <label for="imapPassword" style="margin: 0; font-weight: 500;">Contraseña de App</label>
-                  <button type="button" id="openTutorialBtn" class="btn btn-secondary btn-sm" style="display: inline-block; margin-top: 4px; font-size: 11px; padding: 3px 10px; background: var(--config-pill-bg); color: var(--config-pill-text); border: 1px solid var(--config-focus); border-radius: 12px; cursor: pointer;">
-                    <i class="fas fa-question-circle"></i> ¿Cómo generar una?
+                  <button type="button" id="openTutorialBtn" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 4px; margin-top: 4px; font-size: 11px; padding: 3px 10px; background: var(--config-pill-bg); color: var(--config-pill-text); border: 1px solid var(--config-focus); border-radius: 12px; cursor: pointer;">
+                    <i data-lucide="help-circle" style="width: 13px; height: 13px;"></i> ¿Cómo generar una?
                   </button>
                 </div>
                 <div class="setting-control">
                   <div class="password-wrapper">
                     <input type="password" id="imapPassword" class="form-control" placeholder="16 letras sin espacios" required>
                     <button type="button" class="toggle-password-btn" id="toggleImapPassword" aria-label="Mostrar u ocultar contraseña">
-                      <i class="far fa-eye" id="toggleImapPasswordIcon"></i>
+                      <i data-lucide="eye" id="toggleImapPasswordIcon"></i>
                     </button>
                   </div>
                 </div>
@@ -451,10 +452,10 @@
 
               <div class="imap-actions-row" style="display: flex; gap: 10px; align-items: center; margin-top: 4px;">
                 <button type="button" id="saveImapBtn" class="btn btn-primary">
-                  <i class="fas fa-save"></i> Guardar
+                  <i data-lucide="save"></i> Guardar
                 </button>
                 <button type="button" id="syncImapBtn" class="btn btn-secondary" style="display: none;">
-                  <i class="fas fa-sync-alt"></i> Sincronizar
+                  <i data-lucide="refresh-cw"></i> Sincronizar
                 </button>
               </div>
             </form>
@@ -470,7 +471,7 @@
   <!-- Modal Tutorial IMAP / Google App Password -->
   <div class="custom-alert tutorial-modal hidden" id="tutorialModal" role="dialog" aria-modal="true" tabindex="-1">
     <h3 class="custom-alert-title">
-      <i class="fas fa-key"></i> Contraseña de Aplicación
+      <i data-lucide="key"></i> Contraseña de Aplicación
     </h3>
     <div class="custom-alert-message">
       
@@ -481,8 +482,9 @@
           <span class="tutorial-step-badge badge-step-1">Paso 1</span>
         </div>
         <p class="tutorial-step-desc">Abre el enlace oficial, selecciona tu cuenta e ingresa tu clave o huella:</p>
-        <a href="https://accounts.google.com/AccountChooser?continue=https%3A%2F%2Fmyaccount.google.com%2Fapppasswords" target="_blank" rel="noopener noreferrer" class="tutorial-btn-link">
-          <i class="fab fa-google"></i> Abrir Contraseñas de Aplicaciones <i class="fas fa-external-link-alt" style="font-size: 11px;"></i>
+        <a href="https://accounts.google.com/AccountChooser?continue=https%3A%2F%2Fmyaccount.google.com%2Fapppasswords" target="_blank" rel="noopener noreferrer" class="tutorial-btn-link" style="display: inline-flex; align-items: center; gap: 6px;">
+          <svg width="15" height="15" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/></svg>
+          Abrir Contraseñas de Aplicaciones <i data-lucide="external-link" style="width: 13px; height: 13px;"></i>
         </a>
         <small class="tutorial-note">* Google te pedirá verificar tu identidad antes de entrar.</small>
         <small class="tutorial-note" style="display: block; margin-top: 4px;">* <strong>Requisito:</strong> Debes tener activada la <em>Verificación en 2 pasos</em> en Google para que esta opción esté disponible.</small>
@@ -543,19 +545,19 @@
 
   <nav class="mobile-bottom-nav" aria-label="Navegacion movil">
     <a href="../Categorias/Categorias.html" class="mobile-nav-item">
-      <i class="fas fa-home" aria-hidden="true"></i>
+      <i data-lucide="layout-grid" aria-hidden="true"></i>
       <span class="mobile-nav-label">Categorías</span>
     </a>
     <a href="../Presupuestos/Presupuestos.html" class="mobile-nav-item">
-      <i class="fas fa-wallet" aria-hidden="true"></i>
+      <i data-lucide="wallet" aria-hidden="true"></i>
       <span class="mobile-nav-label">Presupuesto</span>
     </a>
     <a href="../Estadistica/Estadistica.html" class="mobile-nav-item">
-      <i class="fas fa-chart-pie" aria-hidden="true"></i>
+      <i data-lucide="pie-chart" aria-hidden="true"></i>
       <span class="mobile-nav-label">Estadistica</span>
     </a>
     <a href="../Configuracion/Configuracion.html" class="mobile-nav-item active" aria-current="page">
-      <i class="fas fa-cog" aria-hidden="true"></i>
+      <i data-lucide="settings" aria-hidden="true"></i>
       <span class="mobile-nav-label">Config</span>
     </a>
   </nav>

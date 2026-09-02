@@ -34,7 +34,8 @@
 
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" crossorigin="anonymous">
   <link rel="stylesheet" href="/lib/fonts.css">
-  <link rel="stylesheet" href="/lib/fontawesome/v5/css/all.min.css">
+  <script src="/lib/lucide/lucide.min.js"></script>
+  <script src="/lib/LucideIcons.js"></script>
 
   <link rel="stylesheet" href="/pages/Categorias/Categorias.css?v=202511120001">
   <link rel="stylesheet" href="/lib/UI.css?v=20260505">
@@ -84,19 +85,19 @@
       </div>
       <nav class="nav-links">
         <a href="../Categorias/Categorias.html" class="nav-item">
-          <i class="fas fa-home"></i>
+          <i data-lucide="layout-grid"></i>
           <span>Categorías</span>
         </a>
         <a href="../Presupuestos/Presupuestos.html" class="nav-item">
-          <i class="fas fa-wallet"></i>
+          <i data-lucide="wallet"></i>
           <span>Presupuestos</span>
         </a>
         <a href="Estadistica.html" class="nav-item active">
-          <i class="fas fa-chart-pie"></i>
+          <i data-lucide="pie-chart"></i>
           <span>Estadísticas</span>
         </a>
         <a href="../Configuracion/Configuracion.html" class="nav-item">
-          <i class="fas fa-cog"></i>
+          <i data-lucide="settings"></i>
           <span>Configuración</span>
         </a>
       </nav>
@@ -108,10 +109,10 @@
             <div class="user-email"></div>
           </div>
           <button class="btn btn-icon app-tooltip" id="themeToggle" data-tooltip="Cambiar tema">
-            <i class="fas fa-sun"></i>
+            <i data-lucide="sun"></i>
           </button>
           <button class="btn btn-icon app-tooltip" id="logoutButton" data-tooltip="Cerrar sesión">
-            <i class="fas fa-sign-out-alt"></i>
+            <i data-lucide="log-out"></i>
           </button>
         </div>
         
@@ -126,12 +127,12 @@
       <header class="page-header">
         <div class="mobile-actions-dropdown" id="mobileActionsDropdown">
           <button class="mobile-actions-toggle" id="mobileActionsToggle" type="button" aria-expanded="false" aria-controls="mobileActionsPanel">
-            <i class="fas fa-bars"></i>
+            <i data-lucide="menu"></i>
           </button>
           <div class="mobile-drawer-backdrop" id="mobileDrawerBackdrop" aria-hidden="true"></div>
           <div class="mobile-actions-panel" id="mobileActionsPanel" role="menu">
             <button class="mobile-actions-close" id="mobileActionsClose" type="button" aria-label="Cerrar menú">
-              <i class="fas fa-times" aria-hidden="true"></i>
+              <i data-lucide="x" aria-hidden="true"></i>
             </button>
             <div class="mobile-drawer-profile">
               <div class="mobile-drawer-avatar" id="mobileDrawerAvatar">I</div>
@@ -144,16 +145,16 @@
             <div class="mobile-drawer-divider"></div>
 
             <div class="mobile-drawer-section">
-              <button class="mobile-actions-btn" type="button" data-action="year"><i class="fas fa-calendar" aria-hidden="true"></i> Filtrar año</button>
-              <button class="mobile-actions-btn" type="button" data-action="month"><i class="fas fa-calendar-alt" aria-hidden="true"></i> Filtrar mes</button>
-              <button class="mobile-actions-btn" type="button" data-action="clear"><i class="fas fa-broom" aria-hidden="true"></i> Limpiar filtros</button>
+              <button class="mobile-actions-btn" type="button" data-action="year"><i data-lucide="calendar-range" aria-hidden="true"></i> Filtrar año</button>
+              <button class="mobile-actions-btn" type="button" data-action="month"><i data-lucide="calendar" aria-hidden="true"></i> Filtrar mes</button>
+              <button class="mobile-actions-btn" type="button" data-action="clear"><i data-lucide="rotate-ccw" aria-hidden="true"></i> Limpiar filtros</button>
             </div>
 
             <div class="mobile-drawer-divider"></div>
 
             <div class="mobile-drawer-section mobile-drawer-section-footer">
-              <button class="mobile-actions-btn" type="button" data-action="theme"><i class="fas fa-adjust" aria-hidden="true"></i> Cambiar tema</button>
-              <button class="mobile-actions-btn danger" type="button" data-action="logout"><i class="fas fa-sign-out-alt" aria-hidden="true"></i> Cerrar sesión</button>
+              <button class="mobile-actions-btn" type="button" data-action="theme"><i data-lucide="sun-moon" aria-hidden="true"></i> Cambiar tema</button>
+              <button class="mobile-actions-btn danger" type="button" data-action="logout"><i data-lucide="log-out" aria-hidden="true"></i> Cerrar sesión</button>
             </div>
           </div>
         </div>
@@ -163,7 +164,7 @@
             <div class="custom-dropdown" id="yearFilter">
               <div class="custom-dropdown-selected" data-value="">
                 <span>Todos los años</span>
-                <i class="fas fa-chevron-down"></i>
+                <i data-lucide="chevron-down"></i>
               </div>
               <div class="custom-dropdown-options">
                 
@@ -175,7 +176,7 @@
             <div class="custom-dropdown" id="monthFilter">
               <div class="custom-dropdown-selected" data-value="">
                 <span>Todos los meses</span>
-                <i class="fas fa-chevron-down"></i>
+                <i data-lucide="chevron-down"></i>
               </div>
               <div class="custom-dropdown-options">
                 <div class="custom-dropdown-option" data-value="">Todos los meses</div>
@@ -195,29 +196,29 @@
             </div>
           </div>
           <button class="btn btn-secondary" id="clearFiltersBtn">
-            <i class="fas fa-times"></i> Limpiar Filtros
+            <i data-lucide="x"></i> Limpiar Filtros
           </button>
         </div>
       </header>
 
       <section class="stats-summary-cards">
         <div class="summary-card stats-summary-card income">
-          <div class="card-title"><i class="fas fa-arrow-up"></i> Ingresos Totales</div>
+          <div class="card-title"><i data-lucide="arrow-up-right"></i> Ingresos Totales</div>
           <div class="card-value" id="sumIncome">0.00</div>
           <div class="card-change" id="avgIncome">Promedio Mensual: 0.00</div>
         </div>
         <div class="summary-card stats-summary-card expenses">
-          <div class="card-title"><i class="fas fa-arrow-down"></i> Gastos Totales</div>
+          <div class="card-title"><i data-lucide="arrow-down-left"></i> Gastos Totales</div>
           <div class="card-value" id="sumExpenses">0.00</div>
           <div class="card-change" id="avgExpenses">Promedio Mensual: 0.00</div>
         </div>
         <div class="summary-card stats-summary-card balance">
-          <div class="card-title"><i class="fas fa-balance-scale"></i> Balance Total</div>
+          <div class="card-title"><i data-lucide="scale"></i> Balance Total</div>
           <div class="card-value" id="sumBalance">0.00</div>
           <div class="card-change" id="avgBalance">Promedio Mensual: 0.00</div>
         </div>
         <div class="summary-card stats-summary-card misc">
-          <div class="card-title"><i class="fas fa-receipt"></i> Transacciones Totales</div>
+          <div class="card-title"><i data-lucide="receipt"></i> Transacciones Totales</div>
           <div class="card-value" id="txCount">0</div>
           <div class="card-change" id="avgTicket">Ticket Promedio: 0.00</div>
         </div>
@@ -226,17 +227,17 @@
       
       <section class="stats-summary-cards" id="dailyStats">
         <div class="summary-card stats-summary-card income">
-          <div class="card-title"><i class="fas fa-sun"></i> Ingresos diarios</div>
+          <div class="card-title"><i data-lucide="sun"></i> Ingresos diarios</div>
           <div class="card-value" id="dailyIncome">0.00</div>
           <div class="card-change">Actualizado al día de hoy</div>
         </div>
         <div class="summary-card stats-summary-card expenses">
-          <div class="card-title"><i class="fas fa-moon"></i> Gastos diarios</div>
+          <div class="card-title"><i data-lucide="moon"></i> Gastos diarios</div>
           <div class="card-value" id="dailyExpenses">0.00</div>
           <div class="card-change">Actualizado al día de hoy</div>
         </div>
         <div class="summary-card stats-summary-card balance">
-          <div class="card-title"><i class="fas fa-chart-line"></i> Promedio diario</div>
+          <div class="card-title"><i data-lucide="trending-up"></i> Promedio diario</div>
           <div class="card-value" id="dailyAverage">0.00</div>
           <div class="card-change">Promedio neto diario</div>
         </div>
@@ -245,7 +246,7 @@
         <div class="summary-card stats-summary-card">
           <div class="card-title">
             <span class="insight-icon accent">
-              <i class="fas fa-trophy"></i>
+              <i data-lucide="trophy"></i>
             </span>
             Mejor mes
           </div>
@@ -255,7 +256,7 @@
         <div class="summary-card stats-summary-card">
           <div class="card-title">
             <span class="insight-icon primary">
-              <i class="fas fa-fire"></i>
+              <i data-lucide="flame"></i>
             </span>
             Gasto dominante
           </div>
@@ -265,7 +266,7 @@
         <div class="summary-card stats-summary-card">
           <div class="card-title">
             <span class="insight-icon success">
-              <i class="fas fa-chart-line"></i>
+              <i data-lucide="trending-up"></i>
             </span>
             Balance neto
           </div>
@@ -276,28 +277,28 @@
 
       <section class="stats-charts-grid">
         <div class="stats-chart-card chart-full">
-          <h3 class="chart-title-center"><i class="fas fa-wave-square"></i> Flujo Mensual</h3>
+          <h3 class="chart-title-center"><i data-lucide="activity"></i> Flujo Mensual</h3>
           <div id="cashflowSummary" class="chart-subtitle"></div>
           <div class="chart-wrap"><canvas id="chartCashflowArea"></canvas></div>
         </div>
 
         <div class="stats-chart-card chart-half">
-          <h3 class="chart-title-center"><i class="fas fa-arrow-up"></i> Ingresos por categoría</h3>
+          <h3 class="chart-title-center"><i data-lucide="arrow-up-right"></i> Ingresos por categoría</h3>
           <div class="chart-wrap"><canvas id="chartIncomeByCategory"></canvas></div>
         </div>
 
         <div class="stats-chart-card chart-half">
-          <h3 class="chart-title-center"><i class="fas fa-arrow-down"></i> Gastos por categoría</h3>
+          <h3 class="chart-title-center"><i data-lucide="arrow-down-left"></i> Gastos por categoría</h3>
           <div class="chart-wrap"><canvas id="chartExpenseByCategory"></canvas></div>
         </div>
 
         <div class="stats-chart-card chart-full">
-          <h3 class="chart-title-center"><i class="fas fa-calendar-day" style="color: var(--success);"></i> Ingresos por día del mes</h3>
+          <h3 class="chart-title-center"><i data-lucide="calendar" style="color: var(--success);"></i> Ingresos por día del mes</h3>
           <div class="chart-wrap chart-heatmap-wrap"><canvas id="chartIncomeByDay"></canvas></div>
         </div>
 
         <div class="stats-chart-card chart-full">
-          <h3 class="chart-title-center"><i class="fas fa-calendar-alt" style="color: var(--primary);"></i> Gastos por día del mes</h3>
+          <h3 class="chart-title-center"><i data-lucide="calendar-range" style="color: var(--primary);"></i> Gastos por día del mes</h3>
           <div class="chart-wrap chart-heatmap-wrap"><canvas id="chartHeatmap"></canvas></div>
         </div>
 
@@ -316,19 +317,19 @@
 
   <nav class="mobile-bottom-nav" aria-label="Navegación móvil">
     <a href="../Categorias/Categorias.html" class="mobile-nav-item">
-      <i class="fas fa-home" aria-hidden="true"></i>
+      <i data-lucide="layout-grid" aria-hidden="true"></i>
       <span class="mobile-nav-label">Categorías</span>
     </a>
     <a href="../Presupuestos/Presupuestos.html" class="mobile-nav-item">
-      <i class="fas fa-wallet" aria-hidden="true"></i>
+      <i data-lucide="wallet" aria-hidden="true"></i>
       <span class="mobile-nav-label">Presupuesto</span>
     </a>
     <a href="../Estadistica/Estadistica.html" class="mobile-nav-item active" aria-current="page">
-      <i class="fas fa-chart-pie" aria-hidden="true"></i>
+      <i data-lucide="pie-chart" aria-hidden="true"></i>
       <span class="mobile-nav-label">Estadística</span>
     </a>
     <a href="../Configuracion/Configuracion.html" class="mobile-nav-item">
-      <i class="fas fa-cog" aria-hidden="true"></i>
+      <i data-lucide="settings" aria-hidden="true"></i>
       <span class="mobile-nav-label">Configuración</span>
     </a>
   </nav>

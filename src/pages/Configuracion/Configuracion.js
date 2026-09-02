@@ -232,7 +232,8 @@
         const isPassword = passInput.type === 'password';
         passInput.type = isPassword ? 'text' : 'password';
         if (passIcon) {
-          passIcon.className = isPassword ? 'far fa-eye-slash' : 'far fa-eye';
+          passIcon.setAttribute('data-lucide', isPassword ? 'eye-off' : 'eye');
+          window.LucideHelper?.refresh(toggleBtn);
         }
       });
     }
@@ -262,7 +263,8 @@
       }
 
       saveBtn.disabled = true;
-      saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+      saveBtn.innerHTML = '<i data-lucide="loader-2" class="lucide-spin"></i> Guardando...';
+      window.LucideHelper?.refresh(saveBtn);
 
       try {
         if (window.FirestoreDB) {
@@ -279,14 +281,16 @@
         }
       } finally {
         saveBtn.disabled = false;
-        saveBtn.innerHTML = '<i class="fas fa-save"></i> Guardar';
+        saveBtn.innerHTML = '<i data-lucide="save"></i> Guardar';
+        window.LucideHelper?.refresh(saveBtn);
       }
     });
 
     if (syncBtn) {
       syncBtn.addEventListener('click', async () => {
         syncBtn.disabled = true;
-        syncBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sincronizando...';
+        syncBtn.innerHTML = '<i data-lucide="loader-2" class="lucide-spin"></i> Sincronizando...';
+        window.LucideHelper?.refresh(syncBtn);
 
         try {
           if (window.SyncAPI && typeof window.SyncAPI.syncImapOnDemand === 'function') {
@@ -341,7 +345,8 @@
           }
         } finally {
           syncBtn.disabled = false;
-          syncBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Sincronizar';
+          syncBtn.innerHTML = '<i data-lucide="refresh-cw"></i> Sincronizar';
+          window.LucideHelper?.refresh(syncBtn);
         }
       });
     }
@@ -630,10 +635,11 @@
   });
 
   function updateThemeIcon(theme) {
-    const iconClass = theme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
-
     const sidebarIcon = elements.themeToggle?.querySelector('i');
-    if (sidebarIcon) sidebarIcon.className = iconClass;
+    if (sidebarIcon) {
+      sidebarIcon.setAttribute('data-lucide', theme === 'light' ? 'moon' : 'sun');
+      window.LucideHelper?.refresh(elements.themeToggle);
+    }
   }
 
   function updateFormatPreview() {

@@ -25,14 +25,20 @@ color: var(--success);
 color: #b4637a;
 }
 
+[data-theme="light"] .estadistica-page .chart-title-center i[data-lucide="activity"],
+[data-theme="light"] .estadistica-page .chart-title-center svg.lucide-activity,
 [data-theme="light"] .estadistica-page .chart-title-center i.fa-wave-square {
 color: #9c6bd7;
 }
 
+[data-theme="light"] .estadistica-page .chart-title-center i[data-lucide="arrow-up-right"],
+[data-theme="light"] .estadistica-page .chart-title-center svg.lucide-arrow-up-right,
 [data-theme="light"] .estadistica-page .chart-title-center i.fa-arrow-up {
 color: #2D957B;
 }
 
+[data-theme="light"] .estadistica-page .chart-title-center i[data-lucide="arrow-down-left"],
+[data-theme="light"] .estadistica-page .chart-title-center svg.lucide-arrow-down-left,
 [data-theme="light"] .estadistica-page .chart-title-center i.fa-arrow-down {
 color: #b4637a;
 }
@@ -129,14 +135,20 @@ display: none !important;
 color: #b4637a;
 }
 
+[data-theme="light"] .estadistica-page .chart-title-center i[data-lucide="activity"],
+[data-theme="light"] .estadistica-page .chart-title-center svg.lucide-activity,
 [data-theme="light"] .estadistica-page .chart-title-center i.fa-wave-square {
 color: #9c6bd7;
 }
 
+[data-theme="light"] .estadistica-page .chart-title-center i[data-lucide="arrow-up-right"],
+[data-theme="light"] .estadistica-page .chart-title-center svg.lucide-arrow-up-right,
 [data-theme="light"] .estadistica-page .chart-title-center i.fa-arrow-up {
 color: #2D957B;
 }
 
+[data-theme="light"] .estadistica-page .chart-title-center i[data-lucide="arrow-down-left"],
+[data-theme="light"] .estadistica-page .chart-title-center svg.lucide-arrow-down-left,
 [data-theme="light"] .estadistica-page .chart-title-center i.fa-arrow-down {
 color: #b4637a;
 }

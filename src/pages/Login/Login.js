@@ -28,7 +28,8 @@
     } else {
       if (googleSignInBtn) {
         googleSignInBtn.disabled = true;
-        googleSignInBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Firebase no disponible';
+        googleSignInBtn.innerHTML = '<i data-lucide="alert-triangle"></i> Firebase no disponible';
+        window.LucideHelper?.refresh(googleSignInBtn);
       }
     }
   });
@@ -137,7 +138,8 @@
     googleSignInBtn.addEventListener('click', async () => {
       googleSignInBtn.disabled = true;
       const originalContent = googleSignInBtn.innerHTML;
-      googleSignInBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Iniciando sesión...';
+      googleSignInBtn.innerHTML = '<i data-lucide="loader-2" class="lucide-spin"></i> Iniciando sesión...';
+      window.LucideHelper?.refresh(googleSignInBtn);
 
       let isCompleted = false;
 
@@ -251,7 +253,8 @@
       }
 
       emailLoginButton.disabled = true;
-      emailLoginButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Iniciando sesión...';
+      emailLoginButton.innerHTML = '<i data-lucide="loader-2" class="lucide-spin"></i> Iniciando sesión...';
+      window.LucideHelper?.refresh(emailLoginButton);
 
       try {
       const rememberMe = document.getElementById('rememberMe')?.checked ?? true;
@@ -346,7 +349,8 @@
       }
 
       sendRecoveryEmailButton.disabled = true;
-      sendRecoveryEmailButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+      sendRecoveryEmailButton.innerHTML = '<i data-lucide="loader-2" class="lucide-spin"></i> Enviando...';
+      window.LucideHelper?.refresh(sendRecoveryEmailButton);
 
       try {
         const result = await window.firebaseAuth.resetPassword(email);
@@ -423,7 +427,8 @@
       }
 
       emailRegisterButton.disabled = true;
-      emailRegisterButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creando cuenta...';
+      emailRegisterButton.innerHTML = '<i data-lucide="loader-2" class="lucide-spin"></i> Creando cuenta...';
+      window.LucideHelper?.refresh(emailRegisterButton);
 
       try {
         const result = await window.firebaseAuth.registerWithEmail(email, password, name);

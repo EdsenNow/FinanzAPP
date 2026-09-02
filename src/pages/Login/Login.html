@@ -37,7 +37,8 @@
 
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" crossorigin="anonymous">
   <link rel="stylesheet" href="/lib/fonts.css">
-  <link rel="stylesheet" href="/lib/fontawesome/v5/css/all.min.css">
+  <script src="/lib/lucide/lucide.min.js"></script>
+  <script src="/lib/LucideIcons.js"></script>
 
   <link rel="stylesheet" href="/pages/Login/Login.css?v=20260824003">
   <link rel="stylesheet" href="/pages/Login/styles/mobile.css?v=20260824003">
@@ -95,12 +96,12 @@
           </div>
 
           <button class="btn btn-primary" id="showEmailLogin" type="button">
-            <i class="fas fa-envelope"></i> Continuar con correo
+            <i data-lucide="mail"></i> Continuar con correo
           </button>
 
           <div class="guest-login-container">
             <button class="btn btn-back" id="loginAsGuest" type="button">
-              <i class="fas fa-user"></i> Continuar como invitado
+              <i data-lucide="user"></i> Continuar como invitado
             </button>
           </div>
         </div>
@@ -133,7 +134,7 @@
             <div class="password-wrapper">
               <input type="password" class="form-control" id="password" placeholder="">
               <button type="button" class="toggle-password" id="togglePassword" data-target="password">
-                <i class="fas fa-eye"></i>
+                <i data-lucide="eye"></i>
               </button>
             </div>
             <div class="forgot-password-link" style="text-align: right; margin-top: 8px; font-size: 13px;">
@@ -151,7 +152,7 @@
           </button>
 
           <button class="btn btn-back" style="width: 100%;" id="backFromLogin" type="button">
-            <i class="fas fa-arrow-left"></i> Volver atrás
+            <i data-lucide="arrow-left"></i> Volver atrás
           </button>
         </div>
 
@@ -179,7 +180,7 @@
           </button>
 
           <button class="btn btn-back" style="width: 100%; margin-top: 10px;" id="backFromRecovery" type="button">
-            <i class="fas fa-arrow-left"></i> Volver a Iniciar Sesión
+            <i data-lucide="arrow-left"></i> Volver a Iniciar Sesión
           </button>
         </div>
       </div>
@@ -208,7 +209,7 @@
             <div class="password-wrapper">
               <input type="password" class="form-control" id="registerPassword">
               <button type="button" class="toggle-password" id="toggleRegisterPassword" data-target="registerPassword">
-                <i class="fas fa-eye"></i>
+                <i data-lucide="eye"></i>
               </button>
             </div>
             <div class="error-message hidden" id="registerPasswordError"></div>
@@ -218,7 +219,7 @@
             <div class="password-wrapper">
               <input type="password" class="form-control" id="registerPasswordConfirm">
               <button type="button" class="toggle-password" id="toggleRegisterPasswordConfirm" data-target="registerPasswordConfirm">
-                <i class="fas fa-eye"></i>
+                <i data-lucide="eye"></i>
               </button>
             </div>
             <div class="error-message hidden" id="registerPasswordConfirmError"></div>
@@ -229,7 +230,7 @@
           </button>
 
           <button class="btn btn-back" style="width: 100%;" id="backFromRegister">
-            <i class="fas fa-arrow-left"></i> Volver atrás
+            <i data-lucide="arrow-left"></i> Volver atrás
           </button>
         </div>
 
@@ -272,11 +273,12 @@
         
         if (input.type === 'password') {
           input.type = 'text';
-          btn.innerHTML = '<i class="fas fa-eye-slash"></i>';
+          btn.innerHTML = '<i data-lucide="eye-off"></i>';
         } else {
           input.type = 'password';
-          btn.innerHTML = '<i class="fas fa-eye"></i>';
+          btn.innerHTML = '<i data-lucide="eye"></i>';
         }
+        window.LucideHelper?.refresh(btn);
       });
     });
 

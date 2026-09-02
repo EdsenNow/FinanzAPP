@@ -73,10 +73,11 @@ class RenderizadorUI {
     if (budgets.length === 0) {
       container.innerHTML = `
         <div class="empty-state">
-          <i class="fas fa-file-invoice-dollar"></i>
+          <i data-lucide="receipt"></i>
           <p>No hay presupuestos creados</p>
         </div>
       `;
+      window.LucideHelper?.refresh(container);
       return;
     }
     
@@ -131,12 +132,12 @@ class RenderizadorUI {
         <div class="card-top">
           <div class="category-info-box">
             <h3>
-              <i class="fas fa-wallet"></i>
+              <i data-lucide="wallet"></i>
               ${this.escapeHtml(budget.name)}
             </h3>
             ${dateRangeText ? `
               <div class="budget-custom-duration">
-                <i class="fas fa-calendar-alt"></i>
+                <i data-lucide="calendar"></i>
                 <span>${dateRangeText}</span>
               </div>
             ` : ''}
@@ -175,10 +176,10 @@ class RenderizadorUI {
         
         <div class="actions">
           <button class="btn btn-icon btn-edit app-tooltip" data-tooltip="Editar" data-id="${budget.id}">
-            <i class="fas fa-edit"></i>
+            <i data-lucide="pencil"></i>
           </button>
           <button class="btn btn-icon btn-delete app-tooltip" data-tooltip="Eliminar" data-id="${budget.id}">
-            <i class="fas fa-trash"></i>
+            <i data-lucide="trash-2"></i>
           </button>
         </div>
       `;
@@ -196,6 +197,8 @@ class RenderizadorUI {
       
       container.appendChild(card);
     });
+
+    window.LucideHelper?.refresh(container);
   }
 
   renderizarTabla(tbody, budgets, categories, transactions, callbacks = {}) {
@@ -242,10 +245,10 @@ class RenderizadorUI {
         </td>
         <td>
           <button class="btn btn-sm btn-icon btn-edit app-tooltip" data-tooltip="Editar" data-id="${budget.id}">
-            <i class="fas fa-edit"></i>
+            <i data-lucide="pencil"></i>
           </button>
           <button class="btn btn-sm btn-icon btn-delete app-tooltip" data-tooltip="Eliminar" data-id="${budget.id}">
-            <i class="fas fa-trash"></i>
+            <i data-lucide="trash-2"></i>
           </button>
         </td>
       `;
@@ -263,6 +266,8 @@ class RenderizadorUI {
       
       tbody.appendChild(row);
     });
+
+    window.LucideHelper?.refresh(tbody);
   }
 
   calcularGastado(budget, transactions) {

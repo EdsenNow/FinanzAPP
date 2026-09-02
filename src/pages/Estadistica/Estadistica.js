@@ -429,7 +429,10 @@ function colorWithAlpha(color, alpha = 1) {
       } catch (e) {}
       
       const icon = btn?.querySelector('i');
-      if (icon) icon.className = theme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+      if (icon) {
+        icon.setAttribute('data-lucide', theme === 'light' ? 'moon' : 'sun');
+        window.LucideHelper?.refresh(btn);
+      }
       
       renderizarTodo();
     };

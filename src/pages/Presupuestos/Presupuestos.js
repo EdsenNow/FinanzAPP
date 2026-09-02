@@ -660,13 +660,14 @@
       const icon = header.querySelector('.sort-icon');
       if (!icon) return;
 
-      icon.classList.remove('fa-sort', 'fa-sort-up', 'fa-sort-down');
-
       if (header.getAttribute('data-key') === ordenTabla.key) {
-        icon.classList.add(ordenTabla.direction === 'asc' ? 'fa-sort-up' : 'fa-sort-down');
+        icon.setAttribute('data-lucide', ordenTabla.direction === 'asc' ? 'arrow-up' : 'arrow-down');
+        icon.style.opacity = '1';
       } else {
-        icon.classList.add('fa-sort');
+        icon.setAttribute('data-lucide', 'chevrons-up-down');
+        icon.style.opacity = '0.35';
       }
+      window.LucideHelper?.refresh(header);
     });
   }
 
@@ -1281,10 +1282,11 @@
     if (presupuestosFiltrados.length === 0) {
       container.innerHTML = `
         <div class="empty-state">
-          <i class="fas fa-file-invoice-dollar"></i>
+          <i data-lucide="receipt"></i>
           <p>No hay presupuestos creados</p>
         </div>
       `;
+      window.LucideHelper?.refresh(container);
       return;
     }
     
@@ -1347,7 +1349,7 @@
             </h3>
             ${dateRangeText ? `
               <div class="budget-custom-duration">
-                <i class="fas fa-calendar-alt"></i>
+                <i data-lucide="calendar"></i>
                 <span>${dateRangeText}</span>
               </div>
             ` : ''}
@@ -1390,13 +1392,13 @@
         
         <div class="actions">
           <button type="button" class="btn btn-icon btn-sync app-tooltip" data-tooltip="Sincronizar" data-id="${budget.id}">
-            <i class="fas fa-sync-alt"></i>
+            <i data-lucide="refresh-cw"></i>
           </button>
           <button type="button" class="btn btn-icon btn-edit app-tooltip" data-tooltip="Editar" data-id="${budget.id}">
-            <i class="fas fa-edit"></i>
+            <i data-lucide="pencil"></i>
           </button>
           <button type="button" class="btn btn-icon btn-delete app-tooltip" data-tooltip="Eliminar" data-id="${budget.id}">
-            <i class="fas fa-trash"></i>
+            <i data-lucide="trash-2"></i>
           </button>
         </div>
       `);
@@ -1410,6 +1412,8 @@
 
       container.appendChild(card);
     });
+
+    window.LucideHelper?.refresh(container);
   }
 
   function renderizarTabla() {
@@ -1532,13 +1536,13 @@
         </td>
         <td>
           <button type="button" class="btn btn-sm btn-icon btn-sync app-tooltip" data-tooltip="Sincronizar" data-id="${budget.id}">
-            <i class="fas fa-sync-alt"></i>
+            <i data-lucide="refresh-cw"></i>
           </button>
           <button type="button" class="btn btn-sm btn-icon btn-edit app-tooltip" data-tooltip="Editar" data-id="${budget.id}">
-            <i class="fas fa-edit"></i>
+            <i data-lucide="pencil"></i>
           </button>
           <button type="button" class="btn btn-sm btn-icon btn-delete app-tooltip" data-tooltip="Eliminar" data-id="${budget.id}">
-            <i class="fas fa-trash"></i>
+            <i data-lucide="trash-2"></i>
           </button>
         </td>
       `;
@@ -1552,6 +1556,8 @@
 
       tbody.appendChild(row);
     });
+
+    window.LucideHelper?.refresh(tbody);
 
     if (elementos.budgetTableInfo) {
       elementos.budgetTableInfo.textContent = `Mostrando ${inicio + 1} a ${fin} de ${totalItems} presupuestos`;
@@ -1732,7 +1738,8 @@
     editingBudgetId = null;
     
     if (elementos.budgetModalTitle) {
-      elementos.budgetModalTitle.innerHTML = '<i class="fas fa-plus"></i> Crear Presupuesto';
+      elementos.budgetModalTitle.innerHTML = '<i data-lucide="plus"></i> Crear Presupuesto';
+      window.LucideHelper?.refresh(elementos.budgetModalTitle);
     }
     
     if (elementos.budgetForm) {
@@ -1767,7 +1774,8 @@
     editingBudgetId = budgetId;
     
     if (elementos.budgetModalTitle) {
-      elementos.budgetModalTitle.innerHTML = '<i class="fas fa-edit"></i> Editar Presupuesto';
+      elementos.budgetModalTitle.innerHTML = '<i data-lucide="pencil"></i> Editar Presupuesto';
+      window.LucideHelper?.refresh(elementos.budgetModalTitle);
     }
     
     poblarDropdownCategoriasModal(budget.categoryId);
@@ -1873,20 +1881,20 @@
     drawer.innerHTML = `
       <div class="confirm-drawer-handle"></div>
       <div class="sync-drawer-header">
-        <div class="sync-icon-wrapper"><i class="fas fa-sync-alt"></i></div>
+        <div class="sync-icon-wrapper"><i data-lucide="refresh-cw"></i></div>
         <h3>Sincronizar <strong>${escapeHtml(nombre)}</strong></h3>
         <p>¿Desde cuándo quieres que este presupuesto cuente transacciones?</p>
       </div>
       <div class="sync-drawer-options">
         <button class="btn-sync-option btn-sync-desde-hoy">
-          <div class="sync-option-icon"><i class="fas fa-calendar-day"></i></div>
+          <div class="sync-option-icon"><i data-lucide="calendar"></i></div>
           <div class="sync-option-content">
             <h4>Desde hoy</h4>
             <span>Solo transacciones futuras</span>
           </div>
         </button>
         <button class="btn-sync-option btn-sync-con-historial">
-          <div class="sync-option-icon"><i class="fas fa-history"></i></div>
+          <div class="sync-option-icon"><i data-lucide="history"></i></div>
           <div class="sync-option-content">
             <h4>Incluir historial</h4>
             <span>Contar transacciones de este período</span>
@@ -1896,6 +1904,7 @@
       <button class="btn btn-secondary sync-drawer-cancel-btn confirm-drawer-cancel">Cancelar</button>
     `;
     document.body.appendChild(drawer);
+    window.LucideHelper?.refresh(drawer);
     activeDrawer = drawer;
 
     requestAnimationFrame(() => {
@@ -2292,7 +2301,8 @@
   function actualizarIconoTema(theme) {
     const icon = elementos.themeToggle?.querySelector('i');
     if (icon) {
-      icon.className = theme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+      icon.setAttribute('data-lucide', theme === 'light' ? 'moon' : 'sun');
+      window.LucideHelper?.refresh(elementos.themeToggle);
     }
   }
 
@@ -2621,22 +2631,25 @@
   }
 
   function obtenerIconoCategoria(nombre) {
+    if (window.LucideHelper?.getCategoryIcon) {
+      return window.LucideHelper.getCategoryIcon(nombre);
+    }
     const n = (nombre || '').toLowerCase();
-    if (n.includes('aliment') || n.includes('comida') || n.includes('restaur') || n.includes('super') || n.includes('cena') || n.includes('almuerz')) return 'fas fa-utensils';
-    if (n.includes('transp') || n.includes('gasolin') || n.includes('vehic') || n.includes('auto') || n.includes('carro') || n.includes('uber') || n.includes('taxi') || n.includes('combust')) return 'fas fa-car';
-    if (n.includes('vivien') || n.includes('casa') || n.includes('hogar') || n.includes('alquiler') || n.includes('renta') || n.includes('hipotec')) return 'fas fa-home';
-    if (n.includes('servici') || n.includes('luz') || n.includes('agua') || n.includes('electr') || n.includes('internet') || n.includes('gas') || n.includes('telef')) return 'fas fa-bolt';
-    if (n.includes('salud') || n.includes('medic') || n.includes('farmac') || n.includes('doctor') || n.includes('hospital') || n.includes('dent') || n.includes('seguro')) return 'fas fa-heartbeat';
-    if (n.includes('educ') || n.includes('estudio') || n.includes('curso') || n.includes('univers') || n.includes('coleg') || n.includes('libro')) return 'fas fa-graduation-cap';
-    if (n.includes('entreten') || n.includes('ocio') || n.includes('divers') || n.includes('cine') || n.includes('juego') || n.includes('stream') || n.includes('netflix') || n.includes('spotify')) return 'fas fa-gamepad';
-    if (n.includes('ropa') || n.includes('vest') || n.includes('calzado') || n.includes('moda') || n.includes('zapat')) return 'fas fa-tshirt';
-    if (n.includes('ahorro') || n.includes('invers') || n.includes('fondo') || n.includes('banco')) return 'fas fa-piggy-bank';
-    if (n.includes('viaje') || n.includes('vacac') || n.includes('hotel') || n.includes('vuelo')) return 'fas fa-plane';
-    if (n.includes('mascota') || n.includes('veterin') || n.includes('perro') || n.includes('gato')) return 'fas fa-paw';
-    if (n.includes('trabajo') || n.includes('negoc') || n.includes('oficin') || n.includes('emprend')) return 'fas fa-briefcase';
-    if (n.includes('gym') || n.includes('depor') || n.includes('fit') || n.includes('ejercic')) return 'fas fa-dumbbell';
-    if (n.includes('compra') || n.includes('shopping') || n.includes('tienda')) return 'fas fa-shopping-bag';
-    return 'fas fa-wallet';
+    if (n.includes('aliment') || n.includes('comida') || n.includes('restaur') || n.includes('super') || n.includes('cena') || n.includes('almuerz')) return 'utensils';
+    if (n.includes('transp') || n.includes('gasolin') || n.includes('vehic') || n.includes('auto') || n.includes('carro') || n.includes('uber') || n.includes('taxi') || n.includes('combust')) return 'car';
+    if (n.includes('vivien') || n.includes('casa') || n.includes('hogar') || n.includes('alquiler') || n.includes('renta') || n.includes('hipotec')) return 'home';
+    if (n.includes('servici') || n.includes('luz') || n.includes('agua') || n.includes('electr') || n.includes('internet') || n.includes('gas') || n.includes('telef')) return 'zap';
+    if (n.includes('salud') || n.includes('medic') || n.includes('farmac') || n.includes('doctor') || n.includes('hospital') || n.includes('dent') || n.includes('seguro')) return 'activity';
+    if (n.includes('educ') || n.includes('estudio') || n.includes('curso') || n.includes('univers') || n.includes('coleg') || n.includes('libro')) return 'graduation-cap';
+    if (n.includes('entreten') || n.includes('ocio') || n.includes('divers') || n.includes('cine') || n.includes('juego') || n.includes('stream') || n.includes('netflix') || n.includes('spotify')) return 'gamepad-2';
+    if (n.includes('ropa') || n.includes('vest') || n.includes('calzado') || n.includes('moda') || n.includes('zapat')) return 'shirt';
+    if (n.includes('ahorro') || n.includes('invers') || n.includes('fondo') || n.includes('banco')) return 'piggy-bank';
+    if (n.includes('viaje') || n.includes('vacac') || n.includes('hotel') || n.includes('vuelo')) return 'plane';
+    if (n.includes('mascota') || n.includes('veterin') || n.includes('perro') || n.includes('gato')) return 'paw-print';
+    if (n.includes('trabajo') || n.includes('negoc') || n.includes('oficin') || n.includes('emprend')) return 'briefcase';
+    if (n.includes('gym') || n.includes('depor') || n.includes('fit') || n.includes('ejercic')) return 'dumbbell';
+    if (n.includes('compra') || n.includes('shopping') || n.includes('tienda')) return 'shopping-bag';
+    return 'wallet';
   }
 
   function getBudgetDisplayName(budget, categoria = null) {

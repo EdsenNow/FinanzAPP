@@ -34,7 +34,8 @@
 
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" crossorigin="anonymous">
   <link rel="stylesheet" href="/lib/fonts.css">
-  <link rel="stylesheet" href="/lib/fontawesome/v5/css/all.min.css">
+  <script src="/lib/lucide/lucide.min.js"></script>
+  <script src="/lib/LucideIcons.js"></script>
 
   <link rel="stylesheet" href="/pages/Categorias/Categorias.css?v=20260824003">
   <link rel="stylesheet" href="/lib/UI.css?v=20260824003">
@@ -92,19 +93,19 @@
       </div>
       <nav class="nav-links">
         <a href="../Categorias/Categorias.html" class="nav-item">
-          <i class="fas fa-home"></i>
+          <i data-lucide="layout-grid"></i>
           <span>Categorías</span>
         </a>
         <a href="Presupuestos.html" class="nav-item active">
-          <i class="fas fa-wallet"></i>
+          <i data-lucide="wallet"></i>
           <span>Presupuestos</span>
         </a>
         <a href="../Estadistica/Estadistica.html" class="nav-item">
-          <i class="fas fa-chart-pie"></i>
+          <i data-lucide="pie-chart"></i>
           <span>Estadísticas</span>
         </a>
         <a href="../Configuracion/Configuracion.html" class="nav-item">
-          <i class="fas fa-cog"></i>
+          <i data-lucide="settings"></i>
           <span>Configuración</span>
         </a>
       </nav>
@@ -116,10 +117,10 @@
             <div class="user-email"></div>
           </div>
           <button class="btn btn-icon app-tooltip" id="themeToggle" data-tooltip="Cambiar tema">
-            <i class="fas fa-sun"></i>
+            <i data-lucide="sun"></i>
           </button>
           <button class="btn btn-icon app-tooltip" id="logoutButton" data-tooltip="Cerrar sesión">
-            <i class="fas fa-sign-out-alt"></i>
+            <i data-lucide="log-out"></i>
           </button>
         </div>
         
@@ -134,12 +135,12 @@
       <header class="page-header">
         <div class="mobile-actions-dropdown" id="mobileActionsDropdown">
           <button class="mobile-actions-toggle" id="mobileActionsToggle" type="button" aria-expanded="false" aria-controls="mobileActionsPanel">
-            <i class="fas fa-bars"></i>
+            <i data-lucide="menu"></i>
           </button>
           <div class="mobile-drawer-backdrop" id="mobileDrawerBackdrop" aria-hidden="true"></div>
           <div class="mobile-actions-panel" id="mobileActionsPanel" role="menu">
             <button class="mobile-actions-close" id="mobileActionsClose" type="button" aria-label="Cerrar menú">
-              <i class="fas fa-times" aria-hidden="true"></i>
+              <i data-lucide="x" aria-hidden="true"></i>
             </button>
             <div class="mobile-drawer-profile">
               <div class="mobile-drawer-avatar" id="mobileDrawerAvatar">I</div>
@@ -152,16 +153,16 @@
             <div class="mobile-drawer-divider"></div>
 
             <div class="mobile-drawer-section">
-              <button class="mobile-actions-btn" type="button" data-action="year"><i class="fas fa-calendar" aria-hidden="true"></i> Filtrar año</button>
-              <button class="mobile-actions-btn" type="button" data-action="month"><i class="fas fa-calendar-alt" aria-hidden="true"></i> Filtrar mes</button>
-              <button class="mobile-actions-btn" type="button" data-action="clear"><i class="fas fa-broom" aria-hidden="true"></i> Limpiar filtros</button>
+              <button class="mobile-actions-btn" type="button" data-action="year"><i data-lucide="calendar-range" aria-hidden="true"></i> Filtrar año</button>
+              <button class="mobile-actions-btn" type="button" data-action="month"><i data-lucide="calendar" aria-hidden="true"></i> Filtrar mes</button>
+              <button class="mobile-actions-btn" type="button" data-action="clear"><i data-lucide="rotate-ccw" aria-hidden="true"></i> Limpiar filtros</button>
             </div>
 
             <div class="mobile-drawer-divider"></div>
 
             <div class="mobile-drawer-section mobile-drawer-section-footer">
-              <button class="mobile-actions-btn" type="button" data-action="theme"><i class="fas fa-adjust" aria-hidden="true"></i> Cambiar tema</button>
-              <button class="mobile-actions-btn danger" type="button" data-action="logout"><i class="fas fa-sign-out-alt" aria-hidden="true"></i> Cerrar sesión</button>
+              <button class="mobile-actions-btn" type="button" data-action="theme"><i data-lucide="sun-moon" aria-hidden="true"></i> Cambiar tema</button>
+              <button class="mobile-actions-btn danger" type="button" data-action="logout"><i data-lucide="log-out" aria-hidden="true"></i> Cerrar sesión</button>
             </div>
           </div>
         </div>
@@ -171,7 +172,7 @@
             <div class="custom-dropdown" id="yearFilter">
               <div class="custom-dropdown-selected" data-value="">
                 <span>Todos los años</span>
-                <i class="fas fa-chevron-down"></i>
+                <i data-lucide="chevron-down"></i>
               </div>
               <div class="custom-dropdown-options">
                 
@@ -183,7 +184,7 @@
             <div class="custom-dropdown" id="monthFilter">
               <div class="custom-dropdown-selected" data-value="">
                 <span>Todos los meses</span>
-                <i class="fas fa-chevron-down"></i>
+                <i data-lucide="chevron-down"></i>
               </div>
               <div class="custom-dropdown-options">
                 <div class="custom-dropdown-option selected" data-value="">Todos los meses</div>
@@ -202,32 +203,32 @@
               </div>
             </div>
           <button class="btn btn-secondary" id="clearFiltersBtn">
-            <i class="fas fa-times"></i> Limpiar Filtros
+            <i data-lucide="x"></i> Limpiar Filtros
           </button>
           <button class="btn btn-primary" id="addBudgetBtn">
-            <i class="fas fa-plus"></i> Crear Presupuesto
+            <i data-lucide="plus"></i> Crear Presupuesto
           </button>
         </div>
       </header>
 
       <section class="summary-cards budget-summary">
         <div class="summary-card income">
-          <div class="card-title"><i class="fas fa-dollar-sign"></i> Total Presupuestado</div>
+          <div class="card-title"><i data-lucide="circle-dollar-sign"></i> Total Presupuestado</div>
           <div class="card-value" id="totalBudgeted">0.00</div>
           <div class="card-change">Total de presupuestos activos</div>
         </div>
         <div class="summary-card expenses">
-          <div class="card-title"><i class="fas fa-shopping-cart"></i> Total Gastado</div>
+          <div class="card-title"><i data-lucide="shopping-cart"></i> Total Gastado</div>
           <div class="card-value" id="totalSpent">0.00</div>
           <div class="card-change">Suma de gastos realizados</div>
         </div>
         <div class="summary-card balance">
-          <div class="card-title"><i class="fas fa-piggy-bank"></i> Disponible</div>
+          <div class="card-title"><i data-lucide="piggy-bank"></i> Disponible</div>
           <div class="card-value" id="totalAvailable">0.00</div>
           <div class="card-change">Presupuesto restante</div>
         </div>
         <div class="summary-card misc">
-          <div class="card-title"><i class="fas fa-percentage"></i> Cumplimiento</div>
+          <div class="card-title"><i data-lucide="percent"></i> Cumplimiento</div>
           <div class="card-value" id="complianceRate">0%</div>
           <div class="card-change">Presupuestos dentro del límite</div>
         </div>
@@ -239,7 +240,7 @@
         <div class="card-body">
           <div class="budgets-container" id="budgetsContainer">
             <div class="empty-state">
-                <i class="fas fa-file-invoice-dollar"></i>
+                <i data-lucide="receipt"></i>
               <p>No hay presupuestos creados</p>
             </div>
           </div>
@@ -252,7 +253,7 @@
   <div id="budgetModal" class="modal-overlay hidden">
     <div class="modal budget-modal">
       <div class="modal-header">
-        <h2 id="budgetModalTitle"><i class="fas fa-plus"></i> Crear Presupuesto</h2>
+        <h2 id="budgetModalTitle"><i data-lucide="plus"></i> Crear Presupuesto</h2>
       </div>
       <div class="modal-body">
         <form id="budgetForm">
@@ -261,7 +262,7 @@
             <div class="custom-dropdown budget-category-dropdown" id="budgetCategoryDropdown">
               <div class="custom-dropdown-selected" data-value="">
                 <span>Selecciona una categoría</span>
-                <i class="fas fa-chevron-down"></i>
+                <i data-lucide="chevron-down"></i>
               </div>
               <div class="custom-dropdown-options">
                 <div class="custom-dropdown-option selected" data-value="">Selecciona una categoría</div>
@@ -283,7 +284,7 @@
               <div class="custom-dropdown budget-period-dropdown" id="budgetPeriodDropdown">
                 <div class="custom-dropdown-selected" data-value="monthly">
                   <span>Selecciona un período</span>
-                  <i class="fas fa-chevron-down"></i>
+                  <i data-lucide="chevron-down"></i>
                 </div>
                 <div class="custom-dropdown-options">
                   <div class="custom-dropdown-option selected placeholder-option" data-value="">Selecciona un período</div>
@@ -309,7 +310,7 @@
               <div class="date-picker-wrapper">
                 <input type="text" class="form-control date-picker-input" id="budgetStartDate" placeholder="Seleccionar fecha" readonly>
                 <button type="button" class="date-picker-btn" onclick="openDatePicker('start')">
-                  <i class="fas fa-calendar-alt"></i>
+                  <i data-lucide="calendar"></i>
                 </button>
               </div>
             </div>
@@ -319,7 +320,7 @@
               <div class="date-picker-wrapper">
                 <input type="text" class="form-control date-picker-input" id="budgetEndDate" placeholder="Seleccionar fecha" readonly>
                 <button type="button" class="date-picker-btn" onclick="openDatePicker('end')">
-                  <i class="fas fa-calendar-alt"></i>
+                  <i data-lucide="calendar"></i>
                 </button>
               </div>
             </div>
@@ -356,11 +357,11 @@
         <div class="date-picker-container">
           <div class="date-picker-header">
             <button class="date-nav-btn" id="prevMonthBtn">
-              <i class="fas fa-chevron-left"></i>
+              <i data-lucide="chevron-left"></i>
             </button>
             <h3 id="currentMonthYear">Enero 2024</h3>
             <button class="date-nav-btn" id="nextMonthBtn">
-              <i class="fas fa-chevron-right"></i>
+              <i data-lucide="chevron-right"></i>
             </button>
           </div>
           <div class="date-picker-calendar">
@@ -391,23 +392,23 @@
 
   <nav class="mobile-bottom-nav" aria-label="Navegación móvil">
     <a href="../Categorias/Categorias.html" class="mobile-nav-item">
-      <i class="fas fa-home" aria-hidden="true"></i>
+      <i data-lucide="layout-grid" aria-hidden="true"></i>
       <span class="mobile-nav-label">Categorías</span>
     </a>
     <a href="../Presupuestos/Presupuestos.html" class="mobile-nav-item active" aria-current="page">
-      <i class="fas fa-wallet" aria-hidden="true"></i>
+      <i data-lucide="wallet" aria-hidden="true"></i>
       <span class="mobile-nav-label">Presupuesto</span>
     </a>
     <button class="mobile-nav-create" type="button" id="mobileCreateAction" aria-label="Crear presupuesto">
-      <i class="fas fa-plus" aria-hidden="true"></i>
+      <i data-lucide="plus" aria-hidden="true"></i>
       <span class="mobile-nav-label">Crear</span>
     </button>
     <a href="../Estadistica/Estadistica.html" class="mobile-nav-item">
-      <i class="fas fa-chart-pie" aria-hidden="true"></i>
+      <i data-lucide="pie-chart" aria-hidden="true"></i>
       <span class="mobile-nav-label">Estadística</span>
     </a>
     <a href="../Configuracion/Configuracion.html" class="mobile-nav-item">
-      <i class="fas fa-cog" aria-hidden="true"></i>
+      <i data-lucide="settings" aria-hidden="true"></i>
       <span class="mobile-nav-label">Configuración</span>
     </a>
   </nav>

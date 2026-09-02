@@ -13,14 +13,20 @@ body.estadistica-page .stats-insights .insight-icon.success {
   color: #1F1D2E;
 }
 
+.estadistica-page .chart-title-center i[data-lucide="activity"],
+.estadistica-page .chart-title-center svg.lucide-activity,
 .estadistica-page .chart-title-center i.fa-wave-square {
   color: #c4a7e7;
 }
 
+.estadistica-page .chart-title-center i[data-lucide="arrow-up-right"],
+.estadistica-page .chart-title-center svg.lucide-arrow-up-right,
 .estadistica-page .chart-title-center i.fa-arrow-up {
   color: #2D957B;
 }
 
+.estadistica-page .chart-title-center i[data-lucide="arrow-down-left"],
+.estadistica-page .chart-title-center svg.lucide-arrow-down-left,
 .estadistica-page .chart-title-center i.fa-arrow-down {
   color: #eb6f92;
 }

@@ -55,9 +55,8 @@
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"></noscript>
 
   <link rel="stylesheet" href="/lib/fonts.css">
-  <link rel="preload" as="style" href="/lib/fontawesome/v5/css/all.min.css">
-  <link rel="stylesheet" href="/lib/fontawesome/v5/css/all.min.css" media="print" onload="this.media='all'">
-  <noscript><link rel="stylesheet" href="/lib/fontawesome/v5/css/all.min.css"></noscript>
+  <script src="/lib/lucide/lucide.min.js"></script>
+  <script src="/lib/LucideIcons.js"></script>
   <link rel="stylesheet" href="/index.css">
 
   <!-- Schema.org: SoftwareApplication -->
@@ -160,7 +159,7 @@
       <a href="#features" class="nav-link-secondary">Características</a>
       <a href="/pages/privacy/privacy.html" class="nav-link-secondary">Privacidad</a>
       <a href="/pages/privacy/terms.html" class="nav-link-secondary">Condiciones</a>
-      <a id="navAuthBtn" href="/pages/Login/Login.html" class="nav-link-btn"><i class="fas fa-sign-in-alt"></i> Iniciar sesión</a>
+      <a id="navAuthBtn" href="/pages/Login/Login.html" class="nav-link-btn"><i data-lucide="log-in"></i> Iniciar sesión</a>
     </div>
   </nav>
 
@@ -168,17 +167,17 @@
     <!-- Hero Section -->
     <section class="hero">
       <div class="hero-badge">
-        <i class="fas fa-sparkles"></i> Tu dinero bajo control, siempre
+        <i data-lucide="sparkles"></i> Tu dinero bajo control, siempre
       </div>
       <h1>Toma el control <br class="hero-br" /><span class="gradient-text">de tus finanzas</span></h1>
       <p class="hero-subtitle">La <strong>aplicación de finanzas personales</strong> gratuita para gestionar tus gastos, ingresos y presupuestos mensuales en un solo lugar — rápida, privada y sin complicaciones.</p>
       
       <div class="cta-group">
         <a id="ctaPrimary" class="btn btn-primary" href="/pages/Login/Login.html">
-          Empezar ahora <i class="fas fa-arrow-right" style="margin-left: 6px;"></i>
+          Empezar ahora <i data-lucide="arrow-right" style="margin-left: 6px;"></i>
         </a>
         <a class="btn btn-secondary" href="#features">
-          <i class="fas fa-compass"></i> Explorar funciones
+          <i data-lucide="compass"></i> Explorar funciones
         </a>
       </div>
     </section>
@@ -186,7 +185,7 @@
     <!-- Highlights Ribbon -->
     <section class="highlights-strip">
       <div class="highlight-item">
-        <div class="highlight-icon"><i class="fas fa-shield-alt"></i></div>
+        <div class="highlight-icon"><i data-lucide="shield"></i></div>
         <div class="highlight-text">
           <strong>100% Privado</strong>
           <span>Tus finanzas son solo tuyas</span>
@@ -194,7 +193,7 @@
       </div>
       <div class="highlight-divider"></div>
       <div class="highlight-item">
-        <div class="highlight-icon"><i class="fas fa-bolt"></i></div>
+        <div class="highlight-icon"><i data-lucide="zap"></i></div>
         <div class="highlight-text">
           <strong>En tiempo real</strong>
           <span>Sincronización instantánea</span>
@@ -202,7 +201,7 @@
       </div>
       <div class="highlight-divider"></div>
       <div class="highlight-item">
-        <div class="highlight-icon"><i class="fas fa-moon"></i></div>
+        <div class="highlight-icon"><i data-lucide="moon"></i></div>
         <div class="highlight-text">
           <strong>Modo Oscuro & Claro</strong>
           <span>Diseño cuidado en cada detalle</span>
@@ -220,25 +219,25 @@
 
       <div class="feature-grid">
         <article class="feature-card">
-          <div class="feature-icon pink"><i class="fas fa-receipt"></i></div>
+          <div class="feature-icon pink"><i data-lucide="receipt"></i></div>
           <h3>Control de transacciones</h3>
           <p>Registra ingresos y gastos al instante con categorías personalizadas, notas detalladas y filtros rápidos.</p>
         </article>
 
         <article class="feature-card">
-          <div class="feature-icon teal"><i class="fas fa-bullseye"></i></div>
+          <div class="feature-icon teal"><i data-lucide="target"></i></div>
           <h3>Presupuestos claros</h3>
           <p>Establece límites mensuales por categoría y monitorea en tiempo real cuánto te queda por gastar.</p>
         </article>
 
         <article class="feature-card">
-          <div class="feature-icon gold"><i class="fas fa-chart-pie"></i></div>
+          <div class="feature-icon gold"><i data-lucide="pie-chart"></i></div>
           <h3>Estadísticas & Gráficos</h3>
           <p>Comprende tu distribución de gastos y tendencias mensuales con visualizaciones limpias e intuitivas.</p>
         </article>
 
         <article class="feature-card">
-          <div class="feature-icon purple"><i class="fas fa-lock"></i></div>
+          <div class="feature-icon purple"><i data-lucide="lock"></i></div>
           <h3>Seguridad & Nube</h3>
           <p>Tus datos se guardan de forma segura con respaldo automático en Firebase, siempre protegidos.</p>
         </article>
@@ -257,7 +256,7 @@
         <details class="faq-item" open>
           <summary class="faq-question">
             <h3>¿Qué es FinanzApp?</h3>
-            <i class="fas fa-chevron-down faq-icon" aria-hidden="true"></i>
+            <i data-lucide="chevron-down" class="faq-icon" aria-hidden="true"></i>
           </summary>
           <div class="faq-answer">
             <p>FinanzApp es una <strong>aplicación de finanzas personales</strong> gratuita y basada en web. Te permite registrar y categorizar tus gastos e ingresos, crear presupuestos mensuales y visualizar tus finanzas con gráficos claros e intuitivos.</p>
@@ -267,7 +266,7 @@
         <details class="faq-item">
           <summary class="faq-question">
             <h3>¿FinanzApp es completamente gratis?</h3>
-            <i class="fas fa-chevron-down faq-icon" aria-hidden="true"></i>
+            <i data-lucide="chevron-down" class="faq-icon" aria-hidden="true"></i>
           </summary>
           <div class="faq-answer">
             <p>Sí, FinanzApp es 100% gratuita. Puedes registrarte con tu cuenta de Google o correo electrónico y usar todas las funciones de la aplicación de finanzas sin ningún costo.</p>
@@ -277,7 +276,7 @@
         <details class="faq-item">
           <summary class="faq-question">
             <h3>¿Cómo funciona la aplicación de finanzas personales?</h3>
-            <i class="fas fa-chevron-down faq-icon" aria-hidden="true"></i>
+            <i data-lucide="chevron-down" class="faq-icon" aria-hidden="true"></i>
           </summary>
           <div class="faq-answer">
             <p>Inicias sesión, agregas tus transacciones (gastos e ingresos), las organizas por categorías y ves tus estadísticas en tiempo real. Opcionalmente, FinanzApp puede sincronizar tus correos bancarios para registrar gastos automáticamente.</p>
@@ -287,7 +286,7 @@
         <details class="faq-item">
           <summary class="faq-question">
             <h3>¿Puedo usar FinanzApp en mi teléfono?</h3>
-            <i class="fas fa-chevron-down faq-icon" aria-hidden="true"></i>
+            <i data-lucide="chevron-down" class="faq-icon" aria-hidden="true"></i>
           </summary>
           <div class="faq-answer">
             <p>Sí. FinanzApp es una aplicación web responsiva que funciona en cualquier dispositivo con navegador: móvil (Android e iPhone), tablet y computadora, sin necesidad de descargar nada.</p>
@@ -297,7 +296,7 @@
         <details class="faq-item">
           <summary class="faq-question">
             <h3>¿Mis datos financieros están seguros?</h3>
-            <i class="fas fa-chevron-down faq-icon" aria-hidden="true"></i>
+            <i data-lucide="chevron-down" class="faq-icon" aria-hidden="true"></i>
           </summary>
           <div class="faq-answer">
             <p>Sí. FinanzApp usa Firebase de Google con cifrado en tránsito (TLS) y en reposo. Tus datos son estrictamente privados y solo tú puedes acceder a ellos. No compartimos ninguna información con terceros.</p>
@@ -316,7 +315,7 @@
         <h2>¿Listo para organizar tus finanzas?</h2>
         <p>Empieza a tomar mejores decisiones financieras hoy mismo.</p>
         <a href="/pages/Login/Login.html" class="btn btn-primary btn-large">
-          Crear cuenta gratis <i class="fas fa-arrow-right" style="margin-left: 8px;"></i>
+          Crear cuenta gratis <i data-lucide="arrow-right" style="margin-left: 8px;"></i>
         </a>
       </div>
     </section>
@@ -364,12 +363,13 @@
         if (isAuth) {
           if (cta) {
             cta.href = '/pages/Categorias/Categorias.html';
-            cta.innerHTML = '<i class="fas fa-th-large"></i> Ir a Categorías';
+            cta.innerHTML = '<i data-lucide="layout-grid"></i> Ir a Categorías';
           }
           if (navBtn) {
             navBtn.href = '/pages/Categorias/Categorias.html';
-            navBtn.innerHTML = '<i class="fas fa-th-large"></i> Panel';
+            navBtn.innerHTML = '<i data-lucide="layout-grid"></i> Panel';
           }
+          window.LucideHelper?.refresh();
         }
 
         // Carga diferida e inteligente de Firebase únicamente si hay sesión previa o en tiempo de inactividad
