@@ -1,21 +1,21 @@
 body.estadistica-page .stats-insights .insight-icon.primary { 
   background: linear-gradient(#EB6F92); 
-  color: #fffaf3;
+  color: #1F1D2E;
 }
 
 body.estadistica-page .stats-insights .insight-icon.accent { 
   background: linear-gradient(#2D957B); 
-  color: #fffaf3;
+  color: #1F1D2E;
 }
 
 body.estadistica-page .stats-insights .insight-icon.success { 
   background: linear-gradient(#c4a7e7); 
-  color: #fffaf3;
+  color: #1F1D2E;
 }
 
 body.estadistica-page .stats-insights .insight-icon i,
 body.estadistica-page .stats-insights .insight-icon svg {
-  color: #fffaf3;
+  color: inherit;
 }
 
 .estadistica-page .chart-title-center i[data-lucide="activity"],

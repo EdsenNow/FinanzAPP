@@ -13,11 +13,6 @@ background: linear-gradient(#9c6bd7);
 color: #FFFAF3;
 }
 
-[data-theme="light"] body.estadistica-page .stats-insights .insight-icon i,
-[data-theme="light"] body.estadistica-page .stats-insights .insight-icon svg {
-  color: #FFFAF3;
-}
-
 [data-theme="light"] body.estadistica-page .summary-card.income .card-title i,
 [data-theme="light"] body.estadistica-page .summary-card.income .card-title svg,
 [data-theme="light"] body.estadistica-page .summary-card.daily-income .card-title i,
