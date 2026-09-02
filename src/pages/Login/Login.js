@@ -139,10 +139,34 @@
       const originalContent = googleSignInBtn.innerHTML;
       googleSignInBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Iniciando sesión...';
 
+      let isCompleted = false;
+
       const restoreButton = () => {
+        if (isCompleted) return;
+        isCompleted = true;
         googleSignInBtn.disabled = false;
         googleSignInBtn.innerHTML = originalContent;
+        window.removeEventListener('focus', checkQuickCancel);
+        document.removeEventListener('visibilitychange', checkQuickCancel);
       };
+
+      // Si el usuario cierra el popup de Google, la ventana principal recupera el foco casi de inmediato
+      const checkQuickCancel = () => {
+        setTimeout(() => {
+          if (!isCompleted) {
+            const isAuth = localStorage.getItem('loggedIn') === '1' || localStorage.getItem('loggedIn') === 'true';
+            const currentUser = (window.firebase?.apps?.length && typeof window.firebase.auth === 'function')
+              ? window.firebase.auth().currentUser
+              : null;
+            if (!isAuth && !currentUser) {
+              restoreButton();
+            }
+          }
+        }, 350);
+      };
+
+      window.addEventListener('focus', checkQuickCancel);
+      document.addEventListener('visibilitychange', checkQuickCancel);
 
       try {
         const result = await window.firebaseAuth.loginWithGoogle();
@@ -153,6 +177,9 @@
         }
 
         if (result && result.success) {
+          isCompleted = true;
+          window.removeEventListener('focus', checkQuickCancel);
+          document.removeEventListener('visibilitychange', checkQuickCancel);
           asegurarConfiguracionPorDefecto();
 
           try {
