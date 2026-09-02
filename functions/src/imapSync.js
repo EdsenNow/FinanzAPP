@@ -67,38 +67,50 @@ async function syncImapTransactions(email, appPassword, targetSenders, uid) {
     let lock = await client.getMailboxLock(mailboxPath);
 
     try {
-      // Determinar la fecha desde la cual buscar correos (última sincronización o login con margen de 24h)
-      const lastSync = userData.imapSettings?.lastSyncAt || userData.imap?.lastSyncAt || userData.lastLoginAt;
-      let sinceDate = null;
-      if (lastSync) {
-        const parsed = new Date(lastSync);
-        if (!isNaN(parsed.getTime())) {
-          // Margen de seguridad de 24 horas antes para evitar pérdidas por husos horarios
-          sinceDate = new Date(parsed.getTime() - 24 * 60 * 60 * 1000);
+      // Enriquecer y normalizar remitentes bancarios para evitar fallos por remitentes truncados o subdominios
+      const expandedSenders = new Set();
+      for (const s of targetSenders) {
+        const clean = String(s || '').trim().toLowerCase();
+        if (!clean) continue;
+        expandedSenders.add(clean);
+        if (clean.includes('qik')) {
+          expandedSenders.add('notificaciones@qik.do');
+          expandedSenders.add('info@qik.do');
+          expandedSenders.add('alertas@qik.do');
+          expandedSenders.add('qik.do');
+        }
+        if (clean.includes('popular') || clean.includes('bpd') || clean.includes('popularenli')) {
+          expandedSenders.add('notificaciones@popularenlinea.com.do');
+          expandedSenders.add('notificaciones@popularenlinea.com');
+          expandedSenders.add('alertas@bpd.com.do');
+          expandedSenders.add('avisos@bpd.com.do');
+          expandedSenders.add('popularenlinea.com.do');
+          expandedSenders.add('bpd.com.do');
+        }
+        if (clean.includes('bhd')) {
+          expandedSenders.add('notificaciones@bhd.com.do');
+          expandedSenders.add('bhd.com.do');
+        }
+        if (clean.includes('banreservas')) {
+          expandedSenders.add('notificaciones@banreservas.com.do');
+          expandedSenders.add('banreservas.com.do');
         }
       }
-      if (!sinceDate) {
-        // Por defecto, buscar los últimos 30 días
-        sinceDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-      }
+
+      // Ventana de búsqueda de 15 días para garantizar que nunca se omitan transacciones recientes por diferencias horarias
+      const sinceDate = new Date(Date.now() - 15 * 24 * 60 * 60 * 1000);
 
       const matchedUids = new Set();
-      for (const sender of targetSenders) {
+      for (const sender of expandedSenders) {
         const cleanSender = String(sender).trim();
         if (!cleanSender) continue;
 
-        const searchQuery = { from: cleanSender };
-        if (sinceDate && !isNaN(sinceDate.getTime())) {
-          searchQuery.since = sinceDate;
-        }
-
         try {
-          const results = await client.search(searchQuery, { uid: true });
+          const results = await client.search({ from: cleanSender, since: sinceDate }, { uid: true });
           if (Array.isArray(results)) {
             results.forEach(id => matchedUids.add(id));
           }
         } catch (searchErr) {
-          console.warn(`[IMAP] Fallo al buscar remitente ${cleanSender} con since:`, searchErr?.message || searchErr);
           try {
             const fallbackResults = await client.search({ from: cleanSender }, { uid: true });
             if (Array.isArray(fallbackResults)) {
@@ -110,17 +122,12 @@ async function syncImapTransactions(email, appPassword, targetSenders, uid) {
         if (cleanSender.includes('@')) {
           const domain = cleanSender.split('@')[1];
           if (domain) {
-            const domQuery = { from: domain };
-            if (sinceDate && !isNaN(sinceDate.getTime())) {
-              domQuery.since = sinceDate;
-            }
             try {
-              const domResults = await client.search(domQuery, { uid: true });
+              const domResults = await client.search({ from: domain, since: sinceDate }, { uid: true });
               if (Array.isArray(domResults)) {
                 domResults.forEach(id => matchedUids.add(id));
               }
             } catch (searchErr) {
-              console.warn(`[IMAP] Fallo al buscar dominio ${domain} con since:`, searchErr?.message || searchErr);
               try {
                 const fallbackResults = await client.search({ from: domain }, { uid: true });
                 if (Array.isArray(fallbackResults)) {
@@ -132,7 +139,21 @@ async function syncImapTransactions(email, appPassword, targetSenders, uid) {
         }
       }
 
-      console.log(`[IMAP Sync] Mailbox: ${mailboxPath} - UIDs encontrados: ${matchedUids.size} (desde ${sinceDate.toISOString().split('T')[0]})`);
+      // Si no se encontraron con since, hacer búsqueda fallback directa para todos los remitentes
+      if (matchedUids.size === 0) {
+        for (const sender of expandedSenders) {
+          const cleanSender = String(sender).trim();
+          if (!cleanSender) continue;
+          try {
+            const results = await client.search({ from: cleanSender }, { uid: true });
+            if (Array.isArray(results)) {
+              results.forEach(id => matchedUids.add(id));
+            }
+          } catch {}
+        }
+      }
+
+      console.log(`[IMAP Sync] Mailbox: ${mailboxPath} - UIDs encontrados: ${matchedUids.size}`);
 
       if (matchedUids.size > 0) {
         const searchResults = Array.from(matchedUids);
