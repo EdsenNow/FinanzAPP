@@ -79,18 +79,24 @@ function unfilterPNG(buf) {
   }
   return { w, h, pixels };
 }
-function resizeRGBA(srcPixels, srcW, srcH, dstW, dstH) {
+
+// Area averaging downsampler for crisp icons from a sub-region (crop)
+function resizeRGBACrop(srcPixels, srcW, srcH, cropX, cropY, cropSize, dstW, dstH) {
   const dst = Buffer.alloc(dstW * dstH * 4);
-  const xRatio = srcW / dstW, yRatio = srcH / dstH;
+  const xRatio = cropSize / dstW, yRatio = cropSize / dstH;
+
   for (let dy = 0; dy < dstH; dy++) {
-    const srcYStart = Math.floor(dy * yRatio);
-    const srcYEnd = Math.min(srcH, Math.ceil((dy + 1) * yRatio));
+    const srcYStart = cropY + Math.floor(dy * yRatio);
+    const srcYEnd = cropY + Math.min(cropSize, Math.ceil((dy + 1) * yRatio));
     for (let dx = 0; dx < dstW; dx++) {
-      const srcXStart = Math.floor(dx * xRatio);
-      const srcXEnd = Math.min(srcW, Math.ceil((dx + 1) * xRatio));
+      const srcXStart = cropX + Math.floor(dx * xRatio);
+      const srcXEnd = cropX + Math.min(cropSize, Math.ceil((dx + 1) * xRatio));
+
       let totalR = 0, totalG = 0, totalB = 0, totalA = 0, count = 0;
       for (let sy = srcYStart; sy < srcYEnd; sy++) {
+        if (sy < 0 || sy >= srcH) continue;
         for (let sx = srcXStart; sx < srcXEnd; sx++) {
+          if (sx < 0 || sx >= srcW) continue;
           const sIdx = (sy * srcW + sx) * 4;
           const a = srcPixels[sIdx + 3];
           totalR += srcPixels[sIdx] * a;
@@ -101,7 +107,7 @@ function resizeRGBA(srcPixels, srcW, srcH, dstW, dstH) {
         }
       }
       const dstIdx = (dy * dstW + dx) * 4;
-      if (totalA === 0) {
+      if (totalA === 0 || count === 0) {
         dst[dstIdx] = 0; dst[dstIdx + 1] = 0; dst[dstIdx + 2] = 0; dst[dstIdx + 3] = 0;
       } else {
         dst[dstIdx] = Math.round(totalR / totalA);
@@ -113,6 +119,7 @@ function resizeRGBA(srcPixels, srcW, srcH, dstW, dstH) {
   }
   return dst;
 }
+
 function makeICO(pngList) {
   const count = pngList.length;
   const header = Buffer.alloc(6);
@@ -138,7 +145,7 @@ function makeICO(pngList) {
 const inputBuf = fs.readFileSync('C:/Users/edsen/.gemini/antigravity-ide/brain/dfe28d2d-61a3-4b03-885b-741859a47b20/.user_uploaded/media_1788363978729.png');
 const { w, h, pixels } = unfilterPNG(inputBuf);
 
-// 2. Flood fill outer corners
+// 2. Flood fill outer corners to separate outer transparent background
 const isOuter = new Uint8Array(w * h);
 const queue = [];
 const corners = [[0, 0], [w-1, 0], [0, h-1], [w-1, h-1]];
@@ -165,7 +172,7 @@ while (head < queue.length) {
   }
 }
 
-// 3. Render 1024x1024 with pure white interior
+// 3. Render full resolution with pure white interior
 const processedPixels = Buffer.alloc(w * h * 4);
 const PINK_R = 235, PINK_G = 111, PINK_B = 146; // #eb6f92
 
@@ -191,29 +198,37 @@ for (let y = 0; y < h; y++) {
   }
 }
 
-// 4. Generate all sizes
-const png512 = encodePNG(512, 512, resizeRGBA(processedPixels, 1024, 1024, 512, 512));
-const png222 = encodePNG(222, 222, resizeRGBA(processedPixels, 1024, 1024, 222, 222));
-const png192 = encodePNG(192, 192, resizeRGBA(processedPixels, 1024, 1024, 192, 192));
-const png180 = encodePNG(180, 180, resizeRGBA(processedPixels, 1024, 1024, 180, 180));
-const png48 = encodePNG(48, 48, resizeRGBA(processedPixels, 1024, 1024, 48, 48));
-const png32 = encodePNG(32, 32, resizeRGBA(processedPixels, 1024, 1024, 32, 32));
-const png16 = encodePNG(16, 16, resizeRGBA(processedPixels, 1024, 1024, 16, 16));
+// 4. Crop tightly to the squircle boundaries so the icon is MAXIMIZED edge-to-edge
+// Squircle is at minX: 99, maxX: 925, minY: 68, maxY: 918 (827 x 851, center ~ 512, 493)
+const cropSize = 856;
+const cropX = Math.round(512 - cropSize / 2); // 84
+const cropY = Math.round(493 - cropSize / 2); // 65
 
-// 5. Generate ICO
+console.log(`Cropping square region: x=${cropX}, y=${cropY}, size=${cropSize} to maximize favicon in browser tab`);
+
+// 5. Generate all sizes with edge-to-edge maximized visibility
+const png512 = encodePNG(512, 512, resizeRGBACrop(processedPixels, 1024, 1024, cropX, cropY, cropSize, 512, 512));
+const png222 = encodePNG(222, 222, resizeRGBACrop(processedPixels, 1024, 1024, cropX, cropY, cropSize, 222, 222));
+const png192 = encodePNG(192, 192, resizeRGBACrop(processedPixels, 1024, 1024, cropX, cropY, cropSize, 192, 192));
+const png180 = encodePNG(180, 180, resizeRGBACrop(processedPixels, 1024, 1024, cropX, cropY, cropSize, 180, 180));
+const png48 = encodePNG(48, 48, resizeRGBACrop(processedPixels, 1024, 1024, cropX, cropY, cropSize, 48, 48));
+const png32 = encodePNG(32, 32, resizeRGBACrop(processedPixels, 1024, 1024, cropX, cropY, cropSize, 32, 32));
+const png16 = encodePNG(16, 16, resizeRGBACrop(processedPixels, 1024, 1024, cropX, cropY, cropSize, 16, 16));
+
+// 6. Generate Multi-Resolution ICO
 const icoBuf = makeICO([
   { width: 16, height: 16, buf: png16 },
   { width: 32, height: 32, buf: png32 },
   { width: 48, height: 48, buf: png48 }
 ]);
 
-// 6. Generate SVG
+// 7. Generate SVG with embedded high-res image
 const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
   <image href="data:image/png;base64,${png512.toString('base64')}" width="512" height="512"/>
 </svg>
 `;
 
-// 7. Write files
+// 8. Write files to src/
 fs.writeFileSync('src/assets/logo-oscuro-square.png', png222);
 fs.writeFileSync('src/assets/logo-claro-square.png', png222);
 fs.writeFileSync('src/assets/logo-oscuro.png', png222);
@@ -228,4 +243,4 @@ fs.writeFileSync('src/Icons/favicon-16x16.png', png16);
 fs.writeFileSync('src/Icons/favicon.ico', icoBuf);
 fs.writeFileSync('src/Icons/favicon.svg', svgContent);
 
-console.log('All icons generated and written successfully!');
+console.log('All maximized icons generated and written successfully!');
