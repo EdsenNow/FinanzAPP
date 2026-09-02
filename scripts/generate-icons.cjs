@@ -141,13 +141,15 @@ function makeICO(pngList) {
 }
 
 // -------------------------------------------------------------
-// 1. CARGA DE IMÁGENES FUENTE SUBIDAS POR EL USUARIO
+// 1. CARGA DE IMÁGENES FUENTE
 // -------------------------------------------------------------
-const DARK_SRC = 'C:/Users/edsen/.gemini/antigravity-ide/brain/dfe28d2d-61a3-4b03-885b-741859a47b20/.user_uploaded/media_1788369196507.png';
-const LIGHT_SRC = 'C:/Users/edsen/.gemini/antigravity-ide/brain/dfe28d2d-61a3-4b03-885b-741859a47b20/.user_uploaded/media_1788369196560.png';
+// Modo Claro usa #B4637A (imagen malva/rosa suave)
+// Modo Oscuro usa #EB6F92 (imagen rosa vibrante)
+const CLARO_SRC = 'C:/Users/edsen/.gemini/antigravity-ide/brain/dfe28d2d-61a3-4b03-885b-741859a47b20/.user_uploaded/media_1788369196507.png';
+const OSCURO_SRC = 'C:/Users/edsen/.gemini/antigravity-ide/brain/dfe28d2d-61a3-4b03-885b-741859a47b20/.user_uploaded/media_1788369196560.png';
 
-const darkData = unfilterPNG(fs.readFileSync(DARK_SRC));
-const lightData = unfilterPNG(fs.readFileSync(LIGHT_SRC));
+const claroData = unfilterPNG(fs.readFileSync(CLARO_SRC));
+const oscuroData = unfilterPNG(fs.readFileSync(OSCURO_SRC));
 
 const w = 1024, h = 1024;
 
@@ -174,14 +176,16 @@ function getOuterMask(pixels) {
   return isOuter;
 }
 
-const isOuter = getOuterMask(lightData.pixels);
+const isOuter = getOuterMask(oscuroData.pixels);
 
 // -------------------------------------------------------------
 // 3. GENERAR LOGOS DE APLICACIÓN CON INTERIOR BLANCO SÓLIDO
 // -------------------------------------------------------------
-// En los PNGs proporcionados, la letra F y el detalle de la moneda tienen alpha=0 (máscara).
-// Para darles el interior blanco perfecto:
-// bgRatio = alpha/255, whiteRatio = 1 - bgRatio.
+// Modo Claro = #B4637A
+const CLARO_R = 180, CLARO_G = 99, CLARO_B = 122; // #B4637A
+// Modo Oscuro = #EB6F92
+const OSCURO_R = 235, OSCURO_G = 111, OSCURO_B = 146; // #EB6F92
+
 function buildAppLogo(srcPixels, bgR, bgG, bgB) {
   const out = Buffer.alloc(w * h * 4);
   for (let y = 0; y < h; y++) {
@@ -191,13 +195,11 @@ function buildAppLogo(srcPixels, bgR, bgG, bgB) {
       const a = srcPixels[pIdx + 3];
 
       if (isOuter[idx]) {
-        // Esquina exterior: transparente
         out[pIdx] = bgR;
         out[pIdx + 1] = bgG;
         out[pIdx + 2] = bgB;
         out[pIdx + 3] = a;
       } else {
-        // Interior de la squircle: mezcla suave con blanco sólido
         const bgRatio = a / 255;
         const whiteRatio = 1 - bgRatio;
         out[pIdx] = Math.round(bgR * bgRatio + 255 * whiteRatio);
@@ -210,37 +212,27 @@ function buildAppLogo(srcPixels, bgR, bgG, bgB) {
   return out;
 }
 
-const DARK_R = 180, DARK_G = 99, DARK_B = 122;   // #B4637A
-const LIGHT_R = 235, LIGHT_G = 111, LIGHT_B = 146; // #EB6F92
-
-const appLogoDark1024 = buildAppLogo(darkData.pixels, DARK_R, DARK_G, DARK_B);
-const appLogoLight1024 = buildAppLogo(lightData.pixels, LIGHT_R, LIGHT_G, LIGHT_B);
+const appLogoClaro1024 = buildAppLogo(claroData.pixels, CLARO_R, CLARO_G, CLARO_B);
+const appLogoOscuro1024 = buildAppLogo(oscuroData.pixels, OSCURO_R, OSCURO_G, OSCURO_B);
 
 // -------------------------------------------------------------
 // 4. CONSTRUCCIÓN DE LA F CENTRADA PARA EL NAVEGADOR (SIN MONEDA)
 // -------------------------------------------------------------
-// Requerimiento: "al icono que va a estar en la ventana del navegador
-// quitale el icono del dinero y solo deja la F y centrala"
-
-// a) Máscara limpia de la F
 const fMask = new Float32Array(w * h);
 for (let y = 0; y < h; y++) {
   for (let x = 0; x < w; x++) {
     if (y < 265 || y > 810 || x < 270 || x > 640) continue;
-    // Ignorar la moneda en la parte superior derecha
     if (x > 388 && y >= 385 && y < 469) continue;
     if (x > 450 && y < 450) continue;
 
     const idx = (y * w + x) * 4;
-    const a = lightData.pixels[idx + 3];
-    // En el PNG de entrada, el interior de la F es transparente (a = 0) y el fondo es a = 255
+    const a = oscuroData.pixels[idx + 3];
     const whiteAmount = 1 - (a / 255);
     fMask[y * w + x] = Math.max(0, Math.min(1, whiteAmount));
   }
 }
 
-// b) Limpiar extremo redondeado del brazo central
-// Brazo central: top = 470, bottom = 586, altura = 116, radio = 58
+// Brazo central redondeado limpio
 for (let y = 465; y <= 590; y++) {
   for (let x = 450; x <= 635; x++) {
     let distToCap = 0;
@@ -256,8 +248,7 @@ for (let y = 465; y <= 590; y++) {
   }
 }
 
-// c) Reconstruir brazo superior sin moneda con idéntica curvatura y grosor (116px)
-// Brazo superior: top = 266, bottom = 382, centro Y = 324, radio = 58
+// Brazo superior reconstruido con idéntica curvatura y grosor (116px), sin moneda
 for (let y = 260; y <= 385; y++) {
   for (let x = 388; x <= 635; x++) {
     let distToCap = 0;
@@ -273,7 +264,7 @@ for (let y = 260; y <= 385; y++) {
   }
 }
 
-// d) Calcular centro exacto de la F y desplazar al centro de la squircle (512, 493)
+// Centrar la F en (512, 493)
 let fMinX = w, fMaxX = 0, fMinY = h, fMaxY = 0;
 for (let y = 0; y < h; y++) {
   for (let x = 0; x < w; x++) {
@@ -287,8 +278,8 @@ for (let y = 0; y < h; y++) {
 }
 const fCenterX = (fMinX + fMaxX) / 2;
 const fCenterY = (fMinY + fMaxY) / 2;
-const shiftX = Math.round(512 - fCenterX); // ~ +59
-const shiftY = Math.round(493 - fCenterY); // ~ -42
+const shiftX = Math.round(512 - fCenterX);
+const shiftY = Math.round(493 - fCenterY);
 
 function buildCenteredFavicon(bgR, bgG, bgB) {
   const out = Buffer.alloc(w * h * 4);
@@ -296,7 +287,7 @@ function buildCenteredFavicon(bgR, bgG, bgB) {
     for (let x = 0; x < w; x++) {
       const idx = y * w + x;
       const pIdx = idx * 4;
-      const a = lightData.pixels[pIdx + 3];
+      const a = oscuroData.pixels[pIdx + 3];
 
       if (isOuter[idx]) {
         out[pIdx] = bgR; out[pIdx+1] = bgG; out[pIdx+2] = bgB; out[pIdx+3] = a;
@@ -317,64 +308,71 @@ function buildCenteredFavicon(bgR, bgG, bgB) {
   return out;
 }
 
-const faviconLight1024 = buildCenteredFavicon(LIGHT_R, LIGHT_G, LIGHT_B);
-const faviconDark1024 = buildCenteredFavicon(DARK_R, DARK_G, DARK_B);
+const faviconClaro1024 = buildCenteredFavicon(CLARO_R, CLARO_G, CLARO_B);   // #B4637A
+const faviconOscuro1024 = buildCenteredFavicon(OSCURO_R, OSCURO_G, OSCURO_B); // #EB6F92
 
 // -------------------------------------------------------------
 // 5. CROP ÓPTIMO Y EXPORTACIÓN EN TODOS LOS FORMATOS
 // -------------------------------------------------------------
-// Ajuste de encuadre apretado a la squircle para máxima visibilidad en pestañas
 const cropSize = 856;
 const cropX = Math.round(512 - cropSize / 2); // 84
 const cropY = Math.round(493 - cropSize / 2); // 65
 
-// a) Logos de la Aplicación (con F y moneda intactos, interior blanco puro)
-const logoOscuroPng = encodePNG(222, 222, resizeRGBACrop(appLogoDark1024, w, h, cropX, cropY, cropSize, 222, 222));
-const logoClaroPng = encodePNG(222, 222, resizeRGBACrop(appLogoLight1024, w, h, cropX, cropY, cropSize, 222, 222));
+// a) Logos de la Aplicación (con F y moneda interior blanco)
+// Modo Claro = #B4637A
+const logoClaroPng = encodePNG(222, 222, resizeRGBACrop(appLogoClaro1024, w, h, cropX, cropY, cropSize, 222, 222));
+// Modo Oscuro = #EB6F92
+const logoOscuroPng = encodePNG(222, 222, resizeRGBACrop(appLogoOscuro1024, w, h, cropX, cropY, cropSize, 222, 222));
 
-fs.writeFileSync('src/assets/logo-oscuro-square.png', logoOscuroPng);
-fs.writeFileSync('src/assets/logo-oscuro.png', logoOscuroPng);
 fs.writeFileSync('src/assets/logo-claro-square.png', logoClaroPng);
 fs.writeFileSync('src/assets/logo-claro.png', logoClaroPng);
+fs.writeFileSync('src/assets/logo-oscuro-square.png', logoOscuroPng);
+fs.writeFileSync('src/assets/logo-oscuro.png', logoOscuroPng);
 
 // b) Favicons para Navegador (Solo la F, centrada, interior blanco puro)
-const fav512 = encodePNG(512, 512, resizeRGBACrop(faviconLight1024, w, h, cropX, cropY, cropSize, 512, 512));
-const fav192 = encodePNG(192, 192, resizeRGBACrop(faviconLight1024, w, h, cropX, cropY, cropSize, 192, 192));
-const fav180 = encodePNG(180, 180, resizeRGBACrop(faviconLight1024, w, h, cropX, cropY, cropSize, 180, 180));
-const fav48 = encodePNG(48, 48, resizeRGBACrop(faviconLight1024, w, h, cropX, cropY, cropSize, 48, 48));
-const fav32 = encodePNG(32, 32, resizeRGBACrop(faviconLight1024, w, h, cropX, cropY, cropSize, 32, 32));
-const fav16 = encodePNG(16, 16, resizeRGBACrop(faviconLight1024, w, h, cropX, cropY, cropSize, 16, 16));
+// La app es primordialmente de modo oscuro (#191724), por lo que los estáticos usan el tono oscuro #EB6F92
+const fav512Oscuro = encodePNG(512, 512, resizeRGBACrop(faviconOscuro1024, w, h, cropX, cropY, cropSize, 512, 512));
+const fav192Oscuro = encodePNG(192, 192, resizeRGBACrop(faviconOscuro1024, w, h, cropX, cropY, cropSize, 192, 192));
+const fav180Oscuro = encodePNG(180, 180, resizeRGBACrop(faviconOscuro1024, w, h, cropX, cropY, cropSize, 180, 180));
+const fav48Oscuro = encodePNG(48, 48, resizeRGBACrop(faviconOscuro1024, w, h, cropX, cropY, cropSize, 48, 48));
+const fav32Oscuro = encodePNG(32, 32, resizeRGBACrop(faviconOscuro1024, w, h, cropX, cropY, cropSize, 32, 32));
+const fav16Oscuro = encodePNG(16, 16, resizeRGBACrop(faviconOscuro1024, w, h, cropX, cropY, cropSize, 16, 16));
+
+// Versión clara de 512 para el SVG dinámico
+const fav512Claro = encodePNG(512, 512, resizeRGBACrop(faviconClaro1024, w, h, cropX, cropY, cropSize, 512, 512));
 
 // Favicon Multi-Resolución ICO
 const icoBuf = makeICO([
-  { width: 16, height: 16, buf: fav16 },
-  { width: 32, height: 32, buf: fav32 },
-  { width: 48, height: 48, buf: fav48 }
+  { width: 16, height: 16, buf: fav16Oscuro },
+  { width: 32, height: 32, buf: fav32Oscuro },
+  { width: 48, height: 48, buf: fav48Oscuro }
 ]);
 
 fs.writeFileSync('src/Icons/favicon.ico', icoBuf);
-fs.writeFileSync('src/Icons/favicon-16x16.png', fav16);
-fs.writeFileSync('src/Icons/favicon-32x32.png', fav32);
-fs.writeFileSync('src/Icons/favicon-48x48.png', fav48);
-fs.writeFileSync('src/Icons/apple-touch-icon.png', fav180);
-fs.writeFileSync('src/Icons/android-chrome-192x192.png', fav192);
-fs.writeFileSync('src/Icons/android-chrome-512x512.png', fav512);
+fs.writeFileSync('src/Icons/favicon-16x16.png', fav16Oscuro);
+fs.writeFileSync('src/Icons/favicon-32x32.png', fav32Oscuro);
+fs.writeFileSync('src/Icons/favicon-48x48.png', fav48Oscuro);
+fs.writeFileSync('src/Icons/apple-touch-icon.png', fav180Oscuro);
+fs.writeFileSync('src/Icons/android-chrome-192x192.png', fav192Oscuro);
+fs.writeFileSync('src/Icons/android-chrome-512x512.png', fav512Oscuro);
 
-// Favicon SVG de alta resolución con soporte dinámico de modo oscuro/claro
-const fav512Dark = encodePNG(512, 512, resizeRGBACrop(faviconDark1024, w, h, cropX, cropY, cropSize, 512, 512));
+// Favicon SVG dinámico con soporte exacto de temas:
+// - Modo Claro: #B4637A
+// - Modo Oscuro (default): #EB6F92
 const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
   <style>
-    .light-theme { display: block; }
-    .dark-theme { display: none; }
-    @media (prefers-color-scheme: dark) {
-      .light-theme { display: none; }
-      .dark-theme { display: block; }
+    :root { color-scheme: light dark; }
+    .dark-theme { display: block; }
+    .light-theme { display: none; }
+    @media (prefers-color-scheme: light) {
+      .dark-theme { display: none; }
+      .light-theme { display: block; }
     }
   </style>
-  <image class="light-theme" href="data:image/png;base64,${fav512.toString('base64')}" width="512" height="512"/>
-  <image class="dark-theme" href="data:image/png;base64,${fav512Dark.toString('base64')}" width="512" height="512"/>
+  <image class="dark-theme" href="data:image/png;base64,${fav512Oscuro.toString('base64')}" width="512" height="512"/>
+  <image class="light-theme" href="data:image/png;base64,${fav512Claro.toString('base64')}" width="512" height="512"/>
 </svg>
 `;
 fs.writeFileSync('src/Icons/favicon.svg', svgContent);
 
-console.log('✅ Todos los iconos y favicons fueron generados con éxito!');
+console.log('✅ Todos los iconos y favicons fueron generados con éxito con la paleta corregida: Claro (#B4637A) y Oscuro (#EB6F92)!');
