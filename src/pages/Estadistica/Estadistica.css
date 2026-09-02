@@ -256,14 +256,14 @@ body.estadistica-page .stats-insights .insight-icon i {
 }
 
 /* Colores específicos para flechas de ingresos y gastos - tema oscuro */
-.estadistica-page .chart-title-center i[data-lucide="arrow-up-right"],
-.estadistica-page .chart-title-center svg.lucide-arrow-up-right,
+.estadistica-page .chart-title-center i[data-lucide="arrow-up"],
+.estadistica-page .chart-title-center svg.lucide-arrow-up,
 .estadistica-page .chart-title-center i.fa-arrow-up {
   color: #2D957B; /* Verde para ingresos */
 }
 
-.estadistica-page .chart-title-center i[data-lucide="arrow-down-left"],
-.estadistica-page .chart-title-center svg.lucide-arrow-down-left,
+.estadistica-page .chart-title-center i[data-lucide="arrow-down"],
+.estadistica-page .chart-title-center svg.lucide-arrow-down,
 .estadistica-page .chart-title-center i.fa-arrow-down {
   color: #eb6f92; /* Rojo/rosa para gastos */
 }

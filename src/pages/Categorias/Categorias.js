@@ -2055,11 +2055,11 @@ function renderizarCategorias() {
         <div class="form-group">
           <div class="transaction-type-selector" id="transaction-type-${category.id}">
             <button type="button" class="transaction-type-btn" data-value="income">
-              <i data-lucide="arrow-up-right"></i>
+              <i data-lucide="arrow-up"></i>
               <span>Ingreso</span>
             </button>
             <button type="button" class="transaction-type-btn" data-value="expense">
-              <i data-lucide="arrow-down-left"></i>
+              <i data-lucide="arrow-down"></i>
               <span>Gasto</span>
             </button>
           </div>
@@ -2174,21 +2174,21 @@ function renderizarCategorias() {
         <div class="ie-summary">
           ${category.fixedType === 'income' ? `
             <div class="amount-chip income" title="Ingresos">
-              <i data-lucide="arrow-up-right" aria-hidden="true"></i>
+              <i data-lucide="arrow-up" aria-hidden="true"></i>
               ${formatCurrency(totalIngresos)}
             </div>
           ` : category.fixedType === 'expense' ? `
             <div class="amount-chip expense" title="Total Gastos: ${formatCurrency(totalGastos)}">
-              <i data-lucide="arrow-down-left" aria-hidden="true"></i>
+              <i data-lucide="arrow-down" aria-hidden="true"></i>
               ${formatCurrency(totalGastos)}
             </div>
           ` : `
             <div class="amount-chip income" title="Total Ingresos: ${formatCurrency(totalIngresos)}">
-              <i data-lucide="arrow-up-right" aria-hidden="true"></i>
+              <i data-lucide="arrow-up" aria-hidden="true"></i>
               ${formatCurrency(totalIngresos)}
             </div>
             <div class="amount-chip expense" title="Total Gastos: ${formatCurrency(totalGastos)}">
-              <i data-lucide="arrow-down-left" aria-hidden="true"></i>
+              <i data-lucide="arrow-down" aria-hidden="true"></i>
               ${formatCurrency(totalGastos)}
             </div>
           `}
@@ -2689,7 +2689,7 @@ function editarTransaccion(categoryId, transactionId) {
       typeSelect.dataset.mode = 'fixed';
       typeSelect.innerHTML = `
         <div class="type-chip ${fixed}">
-          <i data-lucide="${fixed === 'income' ? 'arrow-up-right' : 'arrow-down-left'}"></i>
+          <i data-lucide="${fixed === 'income' ? 'arrow-up' : 'arrow-down'}"></i>
           <span>${fixed === 'income' ? 'Ingreso' : 'Gasto'}</span>
         </div>`;
       window.LucideHelper?.refresh(typeSelect);
@@ -2715,11 +2715,11 @@ function editarTransaccion(categoryId, transactionId) {
       if (!typeSelect.querySelector('.transaction-type-btn')) {
         typeSelect.innerHTML = `
           <button type="button" class="transaction-type-btn" data-value="income">
-            <i data-lucide="arrow-up-right"></i>
+            <i data-lucide="arrow-up"></i>
             <span>Ingreso</span>
           </button>
           <button type="button" class="transaction-type-btn" data-value="expense">
-            <i data-lucide="arrow-down-left"></i>
+            <i data-lucide="arrow-down"></i>
             <span>Gasto</span>
           </button>`;
         window.LucideHelper?.refresh(typeSelect);
