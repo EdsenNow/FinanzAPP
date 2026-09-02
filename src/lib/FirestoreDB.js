@@ -24,9 +24,18 @@ class FirestoreDB {
     if (!FirestoreDB._appCheckActivated && firebase.appCheck) {
       FirestoreDB._appCheckActivated = true;
       try {
+        const isLocalhost = typeof window !== 'undefined' && 
+          (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+
+        if (isLocalhost) {
+          try {
+            self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+          } catch {}
+        }
+
         const appCheckEnabled = window.APP_CONFIG?.appCheckEnabled === true;
         const siteKey = window.APP_CONFIG?.recaptchaSiteKey;
-        if (appCheckEnabled && siteKey) {
+        if (appCheckEnabled && siteKey && !isLocalhost) {
           let provider = null;
           if (firebase.appCheck.ReCaptchaEnterpriseProvider) {
             provider = new firebase.appCheck.ReCaptchaEnterpriseProvider(siteKey);

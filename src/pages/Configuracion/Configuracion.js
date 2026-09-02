@@ -1362,10 +1362,18 @@
     if (!container) return;
 
     container.innerHTML = '';
-    if (pictureUrl) {
+    const isSafeUrl = pictureUrl && typeof pictureUrl === 'string' &&
+      (pictureUrl.startsWith('http://') || pictureUrl.startsWith('https://') || pictureUrl.startsWith('data:') || pictureUrl.startsWith('/')) &&
+      !pictureUrl.toLowerCase().startsWith('file:');
+
+    if (isSafeUrl) {
       const img = document.createElement('img');
       img.src = pictureUrl;
       img.alt = name || 'Usuario';
+      img.onerror = () => {
+        container.innerHTML = '';
+        container.textContent = (name || 'Invitado').trim().charAt(0).toUpperCase() || 'I';
+      };
       container.appendChild(img);
       return;
     }
