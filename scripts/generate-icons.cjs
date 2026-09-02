@@ -80,7 +80,6 @@ function unfilterPNG(buf) {
   return { w, h, pixels };
 }
 
-// Area averaging downsampler for crisp icons from a sub-region (crop)
 function resizeRGBACrop(srcPixels, srcW, srcH, cropX, cropY, cropSize, dstW, dstH) {
   const dst = Buffer.alloc(dstW * dstH * 4);
   const xRatio = cropSize / dstW, yRatio = cropSize / dstH;
@@ -145,7 +144,7 @@ function makeICO(pngList) {
 const inputBuf = fs.readFileSync('C:/Users/edsen/.gemini/antigravity-ide/brain/dfe28d2d-61a3-4b03-885b-741859a47b20/.user_uploaded/media_1788363978729.png');
 const { w, h, pixels } = unfilterPNG(inputBuf);
 
-// 2. Flood fill outer corners to separate outer transparent background
+// 2. Flood fill outer corners
 const isOuter = new Uint8Array(w * h);
 const queue = [];
 const corners = [[0, 0], [w-1, 0], [0, h-1], [w-1, h-1]];
@@ -172,9 +171,10 @@ while (head < queue.length) {
   }
 }
 
-// 3. Render full resolution with pure white interior
+// 3. Render 1024x1024 with solid white F + solid white coin badge
 const processedPixels = Buffer.alloc(w * h * 4);
 const PINK_R = 235, PINK_G = 111, PINK_B = 146; // #eb6f92
+const coinCX = 644, coinCY = 333, coinR = 142;
 
 for (let y = 0; y < h; y++) {
   for (let x = 0; x < w; x++) {
@@ -188,25 +188,40 @@ for (let y = 0; y < h; y++) {
       processedPixels[pIdx + 2] = pixels[pIdx + 2];
       processedPixels[pIdx + 3] = a;
     } else {
-      const pinkRatio = a / 255;
-      const whiteRatio = 1 - pinkRatio;
-      processedPixels[pIdx] = Math.round(PINK_R * pinkRatio + 255 * whiteRatio);
-      processedPixels[pIdx + 1] = Math.round(PINK_G * pinkRatio + 255 * whiteRatio);
-      processedPixels[pIdx + 2] = Math.round(PINK_B * pinkRatio + 255 * whiteRatio);
-      processedPixels[pIdx + 3] = 255;
+      const d = Math.hypot(x - coinCX, y - coinCY);
+      if (d <= coinR) {
+        // Solid white coin disc (with smooth antialiasing at radius edge)
+        if (d > coinR - 2) {
+          const edgeRatio = (coinR - d) / 2;
+          processedPixels[pIdx] = Math.round(255 * edgeRatio + PINK_R * (1 - edgeRatio));
+          processedPixels[pIdx + 1] = Math.round(255 * edgeRatio + PINK_G * (1 - edgeRatio));
+          processedPixels[pIdx + 2] = Math.round(255 * edgeRatio + PINK_B * (1 - edgeRatio));
+          processedPixels[pIdx + 3] = 255;
+        } else {
+          processedPixels[pIdx] = 255;
+          processedPixels[pIdx + 1] = 255;
+          processedPixels[pIdx + 2] = 255;
+          processedPixels[pIdx + 3] = 255;
+        }
+      } else {
+        // Main 'F' body
+        const pinkRatio = a / 255;
+        const whiteRatio = 1 - pinkRatio;
+        processedPixels[pIdx] = Math.round(PINK_R * pinkRatio + 255 * whiteRatio);
+        processedPixels[pIdx + 1] = Math.round(PINK_G * pinkRatio + 255 * whiteRatio);
+        processedPixels[pIdx + 2] = Math.round(PINK_B * pinkRatio + 255 * whiteRatio);
+        processedPixels[pIdx + 3] = 255;
+      }
     }
   }
 }
 
-// 4. Crop tightly to the squircle boundaries so the icon is MAXIMIZED edge-to-edge
-// Squircle is at minX: 99, maxX: 925, minY: 68, maxY: 918 (827 x 851, center ~ 512, 493)
+// 4. Crop tightly to squircle boundaries for maximum tab visibility
 const cropSize = 856;
-const cropX = Math.round(512 - cropSize / 2); // 84
-const cropY = Math.round(493 - cropSize / 2); // 65
+const cropX = Math.round(512 - cropSize / 2);
+const cropY = Math.round(493 - cropSize / 2);
 
-console.log(`Cropping square region: x=${cropX}, y=${cropY}, size=${cropSize} to maximize favicon in browser tab`);
-
-// 5. Generate all sizes with edge-to-edge maximized visibility
+// 5. Generate all sizes
 const png512 = encodePNG(512, 512, resizeRGBACrop(processedPixels, 1024, 1024, cropX, cropY, cropSize, 512, 512));
 const png222 = encodePNG(222, 222, resizeRGBACrop(processedPixels, 1024, 1024, cropX, cropY, cropSize, 222, 222));
 const png192 = encodePNG(192, 192, resizeRGBACrop(processedPixels, 1024, 1024, cropX, cropY, cropSize, 192, 192));
@@ -228,7 +243,7 @@ const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512
 </svg>
 `;
 
-// 8. Write files to src/
+// 8. Write all assets
 fs.writeFileSync('src/assets/logo-oscuro-square.png', png222);
 fs.writeFileSync('src/assets/logo-claro-square.png', png222);
 fs.writeFileSync('src/assets/logo-oscuro.png', png222);
@@ -243,4 +258,4 @@ fs.writeFileSync('src/Icons/favicon-16x16.png', png16);
 fs.writeFileSync('src/Icons/favicon.ico', icoBuf);
 fs.writeFileSync('src/Icons/favicon.svg', svgContent);
 
-console.log('All maximized icons generated and written successfully!');
+console.log('All icons generated with solid clean coin badge successfully!');
