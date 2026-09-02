@@ -141,7 +141,14 @@ function makeICO(pngList) {
 }
 
 // 1. Load source image
-const inputBuf = fs.readFileSync('C:/Users/edsen/.gemini/antigravity-ide/brain/dfe28d2d-61a3-4b03-885b-741859a47b20/.user_uploaded/media_1788363978729.png');
+const userUploadedDir = 'C:/Users/edsen/.gemini/antigravity-ide/brain/dfe28d2d-61a3-4b03-885b-741859a47b20/.user_uploaded';
+const mediaCandidates = ['media_1788367733674.png', 'media_1788367690875.png', 'media_1788363978729.png'];
+let mediaPath = null;
+for (const cand of mediaCandidates) {
+  const p = path.join(userUploadedDir, cand);
+  if (fs.existsSync(p)) { mediaPath = p; break; }
+}
+const inputBuf = fs.readFileSync(mediaPath);
 const { w, h, pixels } = unfilterPNG(inputBuf);
 
 // 2. Flood fill outer corners
@@ -171,10 +178,10 @@ while (head < queue.length) {
   }
 }
 
-// 3. Render 1024x1024 with solid white F + solid white coin badge
+// 3. Render 1024x1024 with solid white F + pink coin with white $ symbol
 const processedPixels = Buffer.alloc(w * h * 4);
 const PINK_R = 235, PINK_G = 111, PINK_B = 146; // #eb6f92
-const coinCX = 644, coinCY = 333, coinR = 142;
+const coinCX = 644, coinCY = 333, coinR = 142, innerR = 118;
 
 for (let y = 0; y < h; y++) {
   for (let x = 0; x < w; x++) {
@@ -183,28 +190,49 @@ for (let y = 0; y < h; y++) {
     const a = pixels[pIdx + 3];
 
     if (isOuter[idx]) {
-      processedPixels[pIdx] = pixels[pIdx];
-      processedPixels[pIdx + 1] = pixels[pIdx + 1];
-      processedPixels[pIdx + 2] = pixels[pIdx + 2];
-      processedPixels[pIdx + 3] = a;
+      processedPixels[pIdx] = 0;
+      processedPixels[pIdx + 1] = 0;
+      processedPixels[pIdx + 2] = 0;
+      processedPixels[pIdx + 3] = 0;
     } else {
       const d = Math.hypot(x - coinCX, y - coinCY);
-      if (d <= coinR) {
-        // Solid white coin disc (with smooth antialiasing at radius edge)
-        if (d > coinR - 2) {
-          const edgeRatio = (coinR - d) / 2;
-          processedPixels[pIdx] = Math.round(255 * edgeRatio + PINK_R * (1 - edgeRatio));
-          processedPixels[pIdx + 1] = Math.round(255 * edgeRatio + PINK_G * (1 - edgeRatio));
-          processedPixels[pIdx + 2] = Math.round(255 * edgeRatio + PINK_B * (1 - edgeRatio));
-          processedPixels[pIdx + 3] = 255;
+      const isInsideCoin = (d <= coinR);
+      const isDollar = (d <= innerR && a < 128);
+
+      if (isInsideCoin) {
+        if (d <= coinR - 2) {
+          if (isDollar) {
+            // Símbolo de dinero en blanco sólido con antialiasing
+            const whiteRatio = (255 - a) / 255;
+            const pinkRatio = a / 255;
+            processedPixels[pIdx] = Math.round(255 * whiteRatio + PINK_R * pinkRatio);
+            processedPixels[pIdx + 1] = Math.round(255 * whiteRatio + PINK_G * pinkRatio);
+            processedPixels[pIdx + 2] = Math.round(255 * whiteRatio + PINK_B * pinkRatio);
+            processedPixels[pIdx + 3] = 255;
+          } else {
+            // Fondo y borde de la moneda en color del icono (rosa)
+            processedPixels[pIdx] = PINK_R;
+            processedPixels[pIdx + 1] = PINK_G;
+            processedPixels[pIdx + 2] = PINK_B;
+            processedPixels[pIdx + 3] = 255;
+          }
         } else {
-          processedPixels[pIdx] = 255;
-          processedPixels[pIdx + 1] = 255;
-          processedPixels[pIdx + 2] = 255;
+          // Borde exterior de la moneda con antialiasing suave hacia la F blanca
+          const fUnder = (a < 128);
+          const edgeRatio = (coinR - d) / 2;
+          if (fUnder) {
+            processedPixels[pIdx] = Math.round(PINK_R * edgeRatio + 255 * (1 - edgeRatio));
+            processedPixels[pIdx + 1] = Math.round(PINK_G * edgeRatio + 255 * (1 - edgeRatio));
+            processedPixels[pIdx + 2] = Math.round(PINK_B * edgeRatio + 255 * (1 - edgeRatio));
+          } else {
+            processedPixels[pIdx] = PINK_R;
+            processedPixels[pIdx + 1] = PINK_G;
+            processedPixels[pIdx + 2] = PINK_B;
+          }
           processedPixels[pIdx + 3] = 255;
         }
       } else {
-        // Main 'F' body
+        // Cuerpo de la 'F' en blanco sólido
         const pinkRatio = a / 255;
         const whiteRatio = 1 - pinkRatio;
         processedPixels[pIdx] = Math.round(PINK_R * pinkRatio + 255 * whiteRatio);
