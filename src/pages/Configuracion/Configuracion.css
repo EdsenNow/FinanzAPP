@@ -815,8 +815,10 @@ body .legal-footer-config {
   margin: 0;
 }
 
-.shortcut-view-option i {
-  margin-right: 4px;
+.shortcut-view-option i,
+.shortcut-view-option svg {
+  margin-right: 6px;
+  vertical-align: middle;
 }
 
 /* Tooltip temporal para acciones */

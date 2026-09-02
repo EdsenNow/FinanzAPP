@@ -447,7 +447,17 @@
           if (dd.id === 'shortcutsPreference' && val === 'view') {
             dd.classList.remove('open');
             const panel = document.getElementById('shortcutsList');
-            if (panel) panel.classList.toggle('hidden');
+            if (panel) {
+              const isHidden = panel.classList.toggle('hidden');
+              opt.innerHTML = isHidden
+                ? '<i data-lucide="keyboard" aria-hidden="true"></i> Ver atajos disponibles'
+                : '<i data-lucide="keyboard" aria-hidden="true"></i> Ocultar atajos de teclado';
+              if (window.LucideHelper?.refresh) {
+                window.LucideHelper.refresh(opt);
+              } else if (window.lucide?.createIcons) {
+                window.lucide.createIcons();
+              }
+            }
             return;
           }
 
@@ -562,6 +572,19 @@
     applyTheme(state.settings.theme, true);
     applySettingsToForm();
     updateFormatPreview();
+
+    const panel = document.getElementById('shortcutsList');
+    if (panel) panel.classList.add('hidden');
+    const viewOpt = document.querySelector('#shortcutsPreference .shortcut-view-option');
+    if (viewOpt) {
+      viewOpt.innerHTML = '<i data-lucide="keyboard" aria-hidden="true"></i> Ver atajos disponibles';
+      if (window.LucideHelper?.refresh) {
+        window.LucideHelper.refresh(viewOpt);
+      } else if (window.lucide?.createIcons) {
+        window.lucide.createIcons();
+      }
+    }
+
     window._configMostrarToast('Preferencias restablecidas.', 'success');
   }
 
