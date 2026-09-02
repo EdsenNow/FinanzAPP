@@ -1824,24 +1824,38 @@ body.categorias-page .filter-controls #categoryFilter {
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 25%, transparent);
 }
 .category-type-btn i,
-.transaction-type-btn i {
+.category-type-btn svg,
+.transaction-type-btn i,
+.transaction-type-btn svg {
   font-size: 16px;
-  opacity: 0.8;
+  width: 1.2em;
+  height: 1.2em;
+  stroke-width: 2.5;
+  opacity: 0.95;
   transition: opacity 0.18s ease;
 }
 .category-type-btn.active i,
-.transaction-type-btn.active i {
+.category-type-btn.active svg,
+.transaction-type-btn.active i,
+.transaction-type-btn.active svg {
   opacity: 1;
 }
 .category-type-btn[data-value="income"] i,
-.transaction-type-btn[data-value="income"] i {
+.category-type-btn[data-value="income"] svg,
+.transaction-type-btn[data-value="income"] i,
+.transaction-type-btn[data-value="income"] svg {
   color: var(--success);
 }
 .category-type-btn[data-value="expense"] i,
-.transaction-type-btn[data-value="expense"] i {
+.category-type-btn[data-value="expense"] svg,
+.transaction-type-btn[data-value="expense"] i,
+.transaction-type-btn[data-value="expense"] svg {
   color: var(--danger);
 }
-.category-type-btn[data-value=""] i {
+.category-type-btn[data-value=""] i,
+.category-type-btn[data-value=""] svg,
+.transaction-type-btn[data-value=""] i,
+.transaction-type-btn[data-value=""] svg {
   color: var(--accent);
 }
 .category-type-btn[data-value="income"].active,
@@ -1959,14 +1973,18 @@ body.categorias-page .filter-controls #categoryFilter {
   color: var(--danger);
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--danger) 25%, transparent);
 }
-.transaction-type-btn i {
+.transaction-type-btn i,
+.transaction-type-btn svg {
   font-size: 14px;
+  stroke-width: 2.5;
   transition: opacity 0.18s ease;
 }
-.transaction-type-btn[data-value="income"] i {
+.transaction-type-btn[data-value="income"] i,
+.transaction-type-btn[data-value="income"] svg {
   color: var(--success);
 }
-.transaction-type-btn[data-value="expense"] i {
+.transaction-type-btn[data-value="expense"] i,
+.transaction-type-btn[data-value="expense"] svg {
   color: var(--danger);
 }
 

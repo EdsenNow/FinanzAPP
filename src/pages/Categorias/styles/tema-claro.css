@@ -199,6 +199,34 @@ background: #f5efea;
 border: none;
 }
 
+[data-theme="light"] .category-type-btn i,
+[data-theme="light"] .category-type-btn svg,
+[data-theme="light"] .transaction-type-btn i,
+[data-theme="light"] .transaction-type-btn svg {
+  stroke-width: 2.5;
+}
+
+[data-theme="light"] .category-type-btn[data-value="income"] i,
+[data-theme="light"] .category-type-btn[data-value="income"] svg,
+[data-theme="light"] .transaction-type-btn[data-value="income"] i,
+[data-theme="light"] .transaction-type-btn[data-value="income"] svg {
+  color: var(--success);
+}
+
+[data-theme="light"] .category-type-btn[data-value="expense"] i,
+[data-theme="light"] .category-type-btn[data-value="expense"] svg,
+[data-theme="light"] .transaction-type-btn[data-value="expense"] i,
+[data-theme="light"] .transaction-type-btn[data-value="expense"] svg {
+  color: var(--danger);
+}
+
+[data-theme="light"] .category-type-btn[data-value=""] i,
+[data-theme="light"] .category-type-btn[data-value=""] svg,
+[data-theme="light"] .transaction-type-btn[data-value=""] i,
+[data-theme="light"] .transaction-type-btn[data-value=""] svg {
+  color: var(--accent);
+}
+
 [data-theme="light"] .modal-footer .btn:first-child {
 background: #F5EFEA;
 }
@@ -467,11 +495,10 @@ color: #fffaf3;
 }
 
 [data-theme="light"] .gmail-notif-panel {
-  background: #ffffff;
+  background: #fffaf3;
   color: #575279;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.04);
-}
+  border: 3px solid var(--primary);
+  box-shadow: var(--card-shadow-hover);}
 
 [data-theme="light"] .gmail-notif-header {
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);

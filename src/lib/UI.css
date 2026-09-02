@@ -1139,8 +1139,8 @@ svg.lucide {
   width: 1em;
   height: 1em;
   vertical-align: -0.125em;
-  width: 18px;
-  height: 18px;
+  width: 17px;
+  height: 17px;
 }
 
 .nav-link .lucide,
@@ -1162,6 +1162,40 @@ svg.lucide {
   width: 1.4em;
   height: 1.4em;
   stroke-width: 2.5;
+}
+
+.category-type-btn i,
+.category-type-btn svg,
+.transaction-type-btn i,
+.transaction-type-btn svg {
+  stroke-width: 2.5;
+}
+
+.category-type-btn[data-value="income"] i,
+.category-type-btn[data-value="income"] svg,
+.transaction-type-btn[data-value="income"] i,
+.transaction-type-btn[data-value="income"] svg {
+  color: var(--success, #2D957B);
+}
+
+.category-type-btn[data-value="expense"] i,
+.category-type-btn[data-value="expense"] svg,
+.transaction-type-btn[data-value="expense"] i,
+.transaction-type-btn[data-value="expense"] svg {
+  color: var(--danger, #eb6f92);
+}
+
+.category-type-btn[data-value=""] i,
+.category-type-btn[data-value=""] svg,
+.transaction-type-btn[data-value=""] i,
+.transaction-type-btn[data-value=""] svg {
+  color: var(--accent, #c4a7e7);
+}
+
+.svg.lucide.lucido-sun,
+.svg.lucide.lucido-moon {
+  width: 100px;
+  height: 100px;
 }
 
 .lucide-spin {
