@@ -1157,6 +1157,13 @@ svg.lucide {
   height: 1.4em;
 }
 
+.summary-card .card-title i,
+.summary-card .card-title svg {
+  width: 1.4em;
+  height: 1.4em;
+  stroke-width: 2.5;
+}
+
 .lucide-spin {
   animation: lucide-spin 1s linear infinite !important;
 }

@@ -304,6 +304,13 @@ body.estadistica-page .stats-insights .insight-icon svg {
   text-overflow: clip;
 }
 
+.summary-card .card-title i,
+.summary-card .card-title svg {
+  width: 1.4em;
+  height: 1.4em;
+  stroke-width: 2.5;
+}
+
 .summary-card.income .card-title i,
 .summary-card.income .card-title svg,
 .summary-card.daily-income .card-title i,

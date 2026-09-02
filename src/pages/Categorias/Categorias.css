@@ -638,6 +638,9 @@ body.categorias-page .main-content::-webkit-scrollbar-thumb:hover {
 .summary-card .card-title i,
 .summary-card .card-title svg { 
   color: var(--gray-light);
+  width: 1.4em;
+  height: 1.4em;
+  stroke-width: 2.5;
 }
 .summary-card.income .card-title i,
 .summary-card.income .card-title svg { 

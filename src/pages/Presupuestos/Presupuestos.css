@@ -145,6 +145,13 @@ background: #EB6F92;
 font-size: 26px;
 }
 
+.summary-card .card-title i,
+.summary-card .card-title svg {
+  width: 1.4em;
+  height: 1.4em;
+  stroke-width: 2.5;
+}
+
 .summary-card.income .card-title i,
 .summary-card.income .card-title svg {
   color: var(--success);
