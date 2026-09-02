@@ -1,23 +1,21 @@
 body.estadistica-page .stats-insights .insight-icon.primary { 
   background: linear-gradient(#EB6F92); 
-  color: #fffaf3 !important;
+  color: #fffaf3;
 }
 
 body.estadistica-page .stats-insights .insight-icon.accent { 
   background: linear-gradient(#2D957B); 
-  color: #fffaf3 !important;
+  color: #fffaf3;
 }
 
 body.estadistica-page .stats-insights .insight-icon.success { 
   background: linear-gradient(#c4a7e7); 
-  color: #fffaf3 !important;
+  color: #fffaf3;
 }
 
 body.estadistica-page .stats-insights .insight-icon i,
-body.estadistica-page .stats-insights .insight-icon svg,
-body.estadistica-page .stats-insights .insight-icon .lucide {
-  color: #fffaf3 !important;
-  stroke: #fffaf3 !important;
+body.estadistica-page .stats-insights .insight-icon svg {
+  color: #fffaf3;
 }
 
 .estadistica-page .chart-title-center i[data-lucide="activity"],
@@ -81,44 +79,33 @@ body.estadistica-page .stats-insights .insight-icon .lucide {
 
 [data-theme="dark"] .summary-card.income .card-title i,
 [data-theme="dark"] .summary-card.income .card-title svg,
-[data-theme="dark"] .summary-card.income .card-title .lucide,
 [data-theme="dark"] .summary-card.daily-income .card-title i,
-[data-theme="dark"] .summary-card.daily-income .card-title svg,
-[data-theme="dark"] .summary-card.daily-income .card-title .lucide {
-  color: var(--success) !important;
-  stroke: var(--success) !important;
+[data-theme="dark"] .summary-card.daily-income .card-title svg {
+  color: var(--success);
 }
 
 [data-theme="dark"] .summary-card.expenses .card-title i,
 [data-theme="dark"] .summary-card.expenses .card-title svg,
-[data-theme="dark"] .summary-card.expenses .card-title .lucide,
 [data-theme="dark"] .summary-card.daily-expense .card-title i,
-[data-theme="dark"] .summary-card.daily-expense .card-title svg,
-[data-theme="dark"] .summary-card.daily-expense .card-title .lucide {
-  color: var(--danger, #eb6f92) !important;
-  stroke: var(--danger, #eb6f92) !important;
+[data-theme="dark"] .summary-card.daily-expense .card-title svg {
+  color: var(--danger, #eb6f92);
 }
 
 [data-theme="dark"] .summary-card.balance .card-title i,
 [data-theme="dark"] .summary-card.balance .card-title svg,
-[data-theme="dark"] .summary-card.balance .card-title .lucide,
 [data-theme="dark"] .summary-card.net-daily .card-title i,
-[data-theme="dark"] .summary-card.net-daily .card-title svg,
-[data-theme="dark"] .summary-card.net-daily .card-title .lucide {
-  color: var(--accent, #c4a7e7) !important;
-  stroke: var(--accent, #c4a7e7) !important;
+[data-theme="dark"] .summary-card.net-daily .card-title svg {
+  color: var(--accent, #c4a7e7);
 }
 
 [data-theme="dark"] .summary-card.misc .card-title i,
-[data-theme="dark"] .summary-card.misc .card-title svg,
-[data-theme="dark"] .summary-card.misc .card-title .lucide {
-  color: var(--warning, #f6c177) !important;
-  stroke: var(--warning, #f6c177) !important;
+[data-theme="dark"] .summary-card.misc .card-title svg {
+  color: var(--warning, #f6c177);
 }
 
 [data-theme="dark"] .summary-card.misc .card-value,
 [data-theme="dark"] #txCount {
-  color: var(--warning, #f6c177) !important;
+  color: var(--warning, #f6c177);
 }
 
 [data-theme="dark"] .summary-card.income .card-value {

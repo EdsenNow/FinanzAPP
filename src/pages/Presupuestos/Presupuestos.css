@@ -146,35 +146,27 @@ font-size: 26px;
 }
 
 .summary-card.income .card-title i,
-.summary-card.income .card-title svg,
-.summary-card.income .card-title .lucide {
-  color: var(--success) !important;
-  stroke: var(--success) !important;
+.summary-card.income .card-title svg {
+  color: var(--success);
 }
 
 .summary-card.expenses .card-title i,
-.summary-card.expenses .card-title svg,
-.summary-card.expenses .card-title .lucide {
-  color: var(--danger, #eb6f92) !important;
-  stroke: var(--danger, #eb6f92) !important;
+.summary-card.expenses .card-title svg {
+  color: var(--danger, #eb6f92);
 }
 
 .summary-card.balance .card-title i,
-.summary-card.balance .card-title svg,
-.summary-card.balance .card-title .lucide {
-  color: var(--accent, #c4a7e7) !important;
-  stroke: var(--accent, #c4a7e7) !important;
+.summary-card.balance .card-title svg {
+  color: var(--accent, #c4a7e7);
 }
 
 .summary-card.misc .card-title i,
-.summary-card.misc .card-title svg,
-.summary-card.misc .card-title .lucide {
-  color: var(--warning, #f6c177) !important;
-  stroke: var(--warning, #f6c177) !important;
+.summary-card.misc .card-title svg {
+  color: var(--warning, #f6c177);
 }
 
 .summary-card.misc .card-value {
-  color: var(--warning, #f6c177) !important;
+  color: var(--warning, #f6c177);
 }
 
 .summary-card.income .card-value {

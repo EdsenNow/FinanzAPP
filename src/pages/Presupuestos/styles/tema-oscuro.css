@@ -11,10 +11,8 @@
 }
 
 [data-theme="dark"] .summary-card.income .card-title i,
-[data-theme="dark"] .summary-card.income .card-title svg,
-[data-theme="dark"] .summary-card.income .card-title .lucide {
-	color: var(--success) !important;
-	stroke: var(--success) !important;
+[data-theme="dark"] .summary-card.income .card-title svg {
+	color: var(--success);
 }
 
 [data-theme="dark"] .summary-card.income .card-value {
@@ -22,24 +20,18 @@
 }
 
 [data-theme="dark"] .summary-card.expenses .card-title i,
-[data-theme="dark"] .summary-card.expenses .card-title svg,
-[data-theme="dark"] .summary-card.expenses .card-title .lucide {
-	color: var(--danger, #eb6f92) !important;
-	stroke: var(--danger, #eb6f92) !important;
+[data-theme="dark"] .summary-card.expenses .card-title svg {
+	color: var(--danger, #eb6f92);
 }
 
 [data-theme="dark"] .summary-card.balance .card-title i,
-[data-theme="dark"] .summary-card.balance .card-title svg,
-[data-theme="dark"] .summary-card.balance .card-title .lucide {
-	color: var(--accent, #c4a7e7) !important;
-	stroke: var(--accent, #c4a7e7) !important;
+[data-theme="dark"] .summary-card.balance .card-title svg {
+	color: var(--accent, #c4a7e7);
 }
 
 [data-theme="dark"] .summary-card.misc .card-title i,
-[data-theme="dark"] .summary-card.misc .card-title svg,
-[data-theme="dark"] .summary-card.misc .card-title .lucide {
-	color: var(--warning, #f6c177) !important;
-	stroke: var(--warning, #f6c177) !important;
+[data-theme="dark"] .summary-card.misc .card-title svg {
+	color: var(--warning, #f6c177);
 }
 
 [data-theme="dark"] .summary-card.misc .card-value {

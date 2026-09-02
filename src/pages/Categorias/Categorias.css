@@ -636,27 +636,20 @@ body.categorias-page .main-content::-webkit-scrollbar-thumb:hover {
   letter-spacing: 0.5px;
 }
 .summary-card .card-title i,
-.summary-card .card-title svg,
-.summary-card .card-title .lucide { 
+.summary-card .card-title svg { 
   color: var(--gray-light);
 }
 .summary-card.income .card-title i,
-.summary-card.income .card-title svg,
-.summary-card.income .card-title .lucide { 
-  color: var(--success) !important;
-  stroke: var(--success) !important;
+.summary-card.income .card-title svg { 
+  color: var(--success);
 }
 .summary-card.expenses .card-title i,
-.summary-card.expenses .card-title svg,
-.summary-card.expenses .card-title .lucide { 
-  color: var(--danger, #eb6f92) !important;
-  stroke: var(--danger, #eb6f92) !important;
+.summary-card.expenses .card-title svg { 
+  color: var(--danger, #eb6f92);
 }
 .summary-card.balance .card-title i,
-.summary-card.balance .card-title svg,
-.summary-card.balance .card-title .lucide { 
-  color: var(--accent, #c4a7e7) !important;
-  stroke: var(--accent, #c4a7e7) !important;
+.summary-card.balance .card-title svg { 
+  color: var(--accent, #c4a7e7);
 }
 .summary-card .card-value { 
   font-size: 24px;

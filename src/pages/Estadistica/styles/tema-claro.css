@@ -1,33 +1,28 @@
 [data-theme="light"] body.estadistica-page .stats-insights .insight-icon.primary { 
 background: linear-gradient(#b4637a); 
-color: #FFFAF3 !important;
+color: #FFFAF3;
 }
 
 [data-theme="light"] body.estadistica-page .stats-insights .insight-icon.accent { 
 background: linear-gradient(#2D957B); 
-color: #FFFAF3 !important;
+color: #FFFAF3;
 }
 
 [data-theme="light"] body.estadistica-page .stats-insights .insight-icon.success { 
 background: linear-gradient(#9c6bd7); 
-color: #FFFAF3 !important;
+color: #FFFAF3;
 }
 
 [data-theme="light"] body.estadistica-page .stats-insights .insight-icon i,
-[data-theme="light"] body.estadistica-page .stats-insights .insight-icon svg,
-[data-theme="light"] body.estadistica-page .stats-insights .insight-icon .lucide {
-  color: #FFFAF3 !important;
-  stroke: #FFFAF3 !important;
+[data-theme="light"] body.estadistica-page .stats-insights .insight-icon svg {
+  color: #FFFAF3;
 }
 
 [data-theme="light"] body.estadistica-page .summary-card.income .card-title i,
 [data-theme="light"] body.estadistica-page .summary-card.income .card-title svg,
-[data-theme="light"] body.estadistica-page .summary-card.income .card-title .lucide,
 [data-theme="light"] body.estadistica-page .summary-card.daily-income .card-title i,
-[data-theme="light"] body.estadistica-page .summary-card.daily-income .card-title svg,
-[data-theme="light"] body.estadistica-page .summary-card.daily-income .card-title .lucide {
-  color: var(--success) !important;
-  stroke: var(--success) !important;
+[data-theme="light"] body.estadistica-page .summary-card.daily-income .card-title svg {
+  color: var(--success);
 }
 
 [data-theme="light"] body.estadistica-page .summary-card.income .card-value {
@@ -36,12 +31,9 @@ color: #FFFAF3 !important;
 
 [data-theme="light"] body.estadistica-page .summary-card.expenses .card-title i,
 [data-theme="light"] body.estadistica-page .summary-card.expenses .card-title svg,
-[data-theme="light"] body.estadistica-page .summary-card.expenses .card-title .lucide,
 [data-theme="light"] body.estadistica-page .summary-card.daily-expense .card-title i,
-[data-theme="light"] body.estadistica-page .summary-card.daily-expense .card-title svg,
-[data-theme="light"] body.estadistica-page .summary-card.daily-expense .card-title .lucide {
-  color: #b4637a !important;
-  stroke: #b4637a !important;
+[data-theme="light"] body.estadistica-page .summary-card.daily-expense .card-title svg {
+  color: #b4637a;
 }
 
 [data-theme="light"] body.estadistica-page .summary-card.expenses .card-value {
@@ -50,24 +42,19 @@ color: #FFFAF3 !important;
 
 [data-theme="light"] body.estadistica-page .summary-card.balance .card-title i,
 [data-theme="light"] body.estadistica-page .summary-card.balance .card-title svg,
-[data-theme="light"] body.estadistica-page .summary-card.balance .card-title .lucide,
 [data-theme="light"] body.estadistica-page .summary-card.net-daily .card-title i,
-[data-theme="light"] body.estadistica-page .summary-card.net-daily .card-title svg,
-[data-theme="light"] body.estadistica-page .summary-card.net-daily .card-title .lucide {
-  color: var(--accent) !important;
-  stroke: var(--accent) !important;
+[data-theme="light"] body.estadistica-page .summary-card.net-daily .card-title svg {
+  color: var(--accent);
 }
 
 [data-theme="light"] body.estadistica-page .summary-card.misc .card-title i,
-[data-theme="light"] body.estadistica-page .summary-card.misc .card-title svg,
-[data-theme="light"] body.estadistica-page .summary-card.misc .card-title .lucide {
-  color: var(--warning, #ea9d34) !important;
-  stroke: var(--warning, #ea9d34) !important;
+[data-theme="light"] body.estadistica-page .summary-card.misc .card-title svg {
+  color: var(--warning, #ea9d34);
 }
 
 [data-theme="light"] body.estadistica-page .summary-card.misc .card-value,
 [data-theme="light"] #txCount {
-  color: var(--warning, #ea9d34) !important;
+  color: var(--warning, #ea9d34);
 }
 
 [data-theme="light"] .estadistica-page .chart-title-center i[data-lucide="activity"],
@@ -149,26 +136,6 @@ background: #F5EFEA;
 color: var(--gray);
 font-size: 13px;
 font-weight: 400;
-}
-
-[data-theme="light"] body.estadistica-page .stats-insights .insight-icon.primary { 
-background: linear-gradient(#b4637a); 
-color: #FFFAF3 !important;
-}
-[data-theme="light"] body.estadistica-page .stats-insights .insight-icon.accent { 
-background: linear-gradient(#2D957B); 
-color: #FFFAF3 !important;
-}
-[data-theme="light"] body.estadistica-page .stats-insights .insight-icon.success { 
-background: linear-gradient(#9c6bd7); 
-color: #FFFAF3 !important;
-}
-
-[data-theme="light"] body.estadistica-page .stats-insights .insight-icon i,
-[data-theme="light"] body.estadistica-page .stats-insights .insight-icon svg,
-[data-theme="light"] body.estadistica-page .stats-insights .insight-icon .lucide {
-  color: #FFFAF3 !important;
-  stroke: #FFFAF3 !important;
 }
 
 [data-theme="light"] .logo-icon {
