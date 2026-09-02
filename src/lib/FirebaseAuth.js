@@ -125,9 +125,28 @@ class FirebaseAuth {
             // delay de 1s para que Firebase pueda persistir el token en IndexedDB
             // antes de que el Dashboard intente leerlo.
           } else {
-            // No hay usuario: limpiar datos de sesión
-            localStorage.removeItem('loggedIn');
-            localStorage.removeItem('authUser');
+            // No hay usuario en Firebase:
+            // Si la sesión actual en localStorage es de un usuario invitado (modo invitado),
+            // NO debemos eliminar loggedIn ni authUser, ya que el modo invitado funciona
+            // exclusivamente con datos locales sin cuenta de Firebase.
+            const authUserRaw = localStorage.getItem('authUser');
+            let isGuest = false;
+            try {
+              if (authUserRaw === 'guest') {
+                isGuest = true;
+              } else if (authUserRaw) {
+                const parsed = JSON.parse(authUserRaw);
+                if (parsed && (parsed.provider === 'guest' || parsed.uid === 'guest' || !parsed.uid)) {
+                  isGuest = true;
+                }
+              }
+            } catch (e) {}
+
+            if (!isGuest) {
+              // No hay usuario y no es invitado: limpiar datos de sesión
+              localStorage.removeItem('loggedIn');
+              localStorage.removeItem('authUser');
+            }
           }
 
           // Limpiar el timestamp de logout una vez expirado

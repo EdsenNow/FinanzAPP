@@ -74,8 +74,17 @@
       try { await window.firebaseAuth.init(); } catch (_) {}
     }
 
-    // 2. Si Firebase Auth aún no ha resuelto el usuario, esperar hasta 3.5s
-    if (window.FirestoreDB?.waitForAuth) {
+    // 2. Si Firebase Auth aún no ha resuelto el usuario, esperar hasta 3.5s (omitir si es invitado)
+    const isGuest = (() => {
+      try {
+        const raw = localStorage.getItem('authUser');
+        if (!raw || raw === 'guest') return true;
+        const p = JSON.parse(raw);
+        return p && (p.provider === 'guest' || p.uid === 'guest');
+      } catch { return true; }
+    })();
+
+    if (!isGuest && window.FirestoreDB?.waitForAuth) {
       try {
         await window.FirestoreDB.waitForAuth(3500);
       } catch (_) {}
