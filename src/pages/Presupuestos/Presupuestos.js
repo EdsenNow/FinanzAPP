@@ -108,13 +108,10 @@
     }
   }
 
-  const STORAGE_FILTROS_KEY = 'finanzapp:shared_filters:v1';
+  const STORAGE_FILTROS_KEY = 'finanzapp:filters:presupuestos:v1';
 
   function cargarFiltrosPersistidos() {
     try {
-      if (window.Core?.helpers?.loadSharedFilters) {
-        return window.Core.helpers.loadSharedFilters();
-      }
       const raw = localStorage.getItem(STORAGE_FILTROS_KEY);
       if (!raw) return { year: null, month: null, searchTerm: '', category: null };
       const parsed = JSON.parse(raw);
@@ -133,10 +130,6 @@
 
   function guardarFiltrosPersistidos(novosFiltros) {
     try {
-      if (window.Core?.helpers?.saveSharedFilters) {
-        window.Core.helpers.saveSharedFilters(novosFiltros);
-        return;
-      }
       const current = cargarFiltrosPersistidos();
       localStorage.setItem(STORAGE_FILTROS_KEY, JSON.stringify({
         year: novosFiltros.year !== undefined ? novosFiltros.year : current.year,

@@ -343,17 +343,21 @@ class Helpers {
   }
 
   /**
-   * Clave compartida para persistencia de filtros entre páginas.
+   * Clave para persistencia de filtros independientes por página.
    */
-  static SHARED_FILTERS_KEY = 'finanzapp:shared_filters:v1';
+  static getFilterKey(pageKey = 'default') {
+    return `finanzapp:filters:${pageKey}:v1`;
+  }
 
   /**
-   * Carga los filtros compartidos desde localStorage.
+   * Carga los filtros independientes de una página desde localStorage.
+   * @param {string} [pageKey='default']
    * @returns {{ year: number|null, month: number|null, searchTerm: string, category: string|null }}
    */
-  static loadSharedFilters() {
+  static loadSharedFilters(pageKey = 'default') {
     try {
-      const raw = localStorage.getItem(Helpers.SHARED_FILTERS_KEY);
+      const key = Helpers.getFilterKey(pageKey);
+      const raw = localStorage.getItem(key);
       if (!raw) return { year: null, month: null, searchTerm: '', category: null };
       const parsed = JSON.parse(raw);
       const yr = (parsed.year !== null && parsed.year !== undefined && parsed.year !== '') ? parseInt(parsed.year, 10) : null;
@@ -370,22 +374,27 @@ class Helpers {
   }
 
   /**
-   * Guarda los filtros compartidos en localStorage de manera atómica.
+   * Guarda los filtros de una página en localStorage de manera independiente.
    * @param {Partial<{ year: number|null, month: number|null, searchTerm: string, category: string|null }>} filters
+   * @param {string} [pageKey='default']
    */
-  static saveSharedFilters(filters) {
+  static saveSharedFilters(filters, pageKey = 'default') {
     try {
-      const current = Helpers.loadSharedFilters();
+      const key = Helpers.getFilterKey(pageKey);
+      const current = Helpers.loadSharedFilters(pageKey);
       const updated = {
         year: filters.year !== undefined ? filters.year : current.year,
         month: filters.month !== undefined ? filters.month : current.month,
         searchTerm: filters.searchTerm !== undefined ? filters.searchTerm : current.searchTerm,
         category: filters.category !== undefined ? filters.category : current.category
       };
-      localStorage.setItem(Helpers.SHARED_FILTERS_KEY, JSON.stringify(updated));
+      localStorage.setItem(key, JSON.stringify(updated));
     } catch {}
   }
 }
+
+// Limpiar antigua clave compartida para evitar sincronización residual entre páginas
+try { localStorage.removeItem('finanzapp:shared_filters:v1'); } catch {}
 
 Helpers.applyAppSettings();
 
