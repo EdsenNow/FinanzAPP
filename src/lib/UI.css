@@ -1157,8 +1157,8 @@ svg.lucide {
   height: 1.4em;
 }
 
-.summary-card .card-title i,
-.summary-card .card-title svg {
+.summary-card .card-title > i,
+.summary-card .card-title > svg {
   width: 1.4em;
   height: 1.4em;
   stroke-width: 2.5;
@@ -1206,5 +1206,19 @@ svg.lucide {
 
 .summary-card.misc .card-value {
   color: var(--warning, #f6c177);
+}
+
+/* Iconos para tarjetas de insights (Mejor mes, Gasto dominante, Balance neto) */
+.stats-insights .insight-icon,
+.stats-insights .insight-icon i,
+.stats-insights .insight-icon svg {
+  color: #fffaf3;
+}
+
+.stats-insights .insight-icon i,
+.stats-insights .insight-icon svg {
+  width: 1.15em;
+  height: 1.15em;
+  stroke-width: 2;
 }
 

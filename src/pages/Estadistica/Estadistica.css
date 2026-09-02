@@ -168,20 +168,23 @@ body.estadistica-page .filter-controls .custom-dropdown {
 
 body.estadistica-page .stats-insights .insight-icon.primary { 
   background: linear-gradient(#EB6F92); 
-  color: #1F1D2E;
+  color: #fffaf3;
 }
 body.estadistica-page .stats-insights .insight-icon.accent { 
   background: linear-gradient(#2D957B); 
-  color: #1F1D2E;
+  color: #fffaf3;
 }
 body.estadistica-page .stats-insights .insight-icon.success { 
   background: linear-gradient(#c4a7e7); 
-  color: #1F1D2E;
+  color: #fffaf3;
 }
 
 body.estadistica-page .stats-insights .insight-icon i,
 body.estadistica-page .stats-insights .insight-icon svg {
-  color: inherit;
+  color: #fffaf3;
+  width: 1.15em;
+  height: 1.15em;
+  stroke-width: 2;
 }
 
 
@@ -304,8 +307,8 @@ body.estadistica-page .stats-insights .insight-icon svg {
   text-overflow: clip;
 }
 
-.summary-card .card-title i,
-.summary-card .card-title svg {
+.summary-card .card-title > i,
+.summary-card .card-title > svg {
   width: 1.4em;
   height: 1.4em;
   stroke-width: 2.5;

@@ -635,8 +635,8 @@ body.categorias-page .main-content::-webkit-scrollbar-thumb:hover {
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
-.summary-card .card-title i,
-.summary-card .card-title svg { 
+.summary-card .card-title > i,
+.summary-card .card-title > svg { 
   color: var(--gray-light);
   width: 1.4em;
   height: 1.4em;
