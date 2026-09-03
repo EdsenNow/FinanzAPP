@@ -43,7 +43,7 @@
         const recentLogout = logoutTimestamp && (Date.now() - parseInt(logoutTimestamp, 10)) < LOGOUT_BLOCK_MS;
         const loggedIn = localStorage.getItem('loggedIn');
         if ((loggedIn === 'true' || loggedIn === '1') && !recentLogout) {
-          window.location.replace('/pages/Categorias/Categorias');
+          window.location.replace('/pages/Categorias/Categorias.html');
         }
       } catch (e) {}
     })();
