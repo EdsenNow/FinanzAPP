@@ -467,20 +467,22 @@ function colorWithAlpha(color, alpha = 1) {
   const STORAGE_FILTROS_KEY = 'finanzapp:filters:estadistica:v1';
 
   function cargarFiltrosPersistidos() {
+    const defaultYear = new Date().getFullYear();
+    const defaultMonth = new Date().getMonth();
     try {
       const raw = localStorage.getItem(STORAGE_FILTROS_KEY);
-      if (!raw) return { year: null, month: null, searchTerm: '', category: null };
+      if (!raw) return { year: defaultYear, month: defaultMonth, searchTerm: '', category: null };
       const parsed = JSON.parse(raw);
       const yr = (parsed.year !== null && parsed.year !== undefined && parsed.year !== '') ? parseInt(parsed.year, 10) : null;
       const mo = (parsed.month !== null && parsed.month !== undefined && parsed.month !== '') ? parseInt(parsed.month, 10) : null;
       return {
-        year: (yr !== null && !isNaN(yr)) ? yr : null,
-        month: (mo !== null && !isNaN(mo) && mo >= 0 && mo <= 11) ? mo : null,
+        year: (yr !== null && !isNaN(yr)) ? yr : defaultYear,
+        month: (mo !== null && !isNaN(mo) && mo >= 0 && mo <= 11) ? mo : defaultMonth,
         searchTerm: typeof parsed.searchTerm === 'string' ? parsed.searchTerm : '',
         category: (parsed.category !== null && parsed.category !== undefined && parsed.category !== '') ? String(parsed.category) : null
       };
     } catch {
-      return { year: null, month: null, searchTerm: '', category: null };
+      return { year: defaultYear, month: defaultMonth, searchTerm: '', category: null };
     }
   }
 
@@ -503,18 +505,13 @@ function colorWithAlpha(color, alpha = 1) {
     if (!optionsContainer) return;
     optionsContainer.innerHTML = '';
 
+    const currentYear = new Date().getFullYear();
     const shared = cargarFiltrosPersistidos();
-    const isAllSelected = shared.year === null;
-
-    const all = document.createElement('div');
-    all.className = `custom-dropdown-option ${isAllSelected ? 'selected' : ''}`;
-    all.setAttribute('data-value','');
-    all.textContent = 'Todos los años';
-    optionsContainer.appendChild(all);
+    const activeYear = (shared.year !== null && shared.year !== undefined) ? shared.year : currentYear;
 
     const { start, end } = obtenerRangoAnios();
     for (let y = start; y <= end; y++){
-      const isSelected = shared.year === y;
+      const isSelected = activeYear === y;
       const opt = document.createElement('div');
       opt.className = `custom-dropdown-option ${isSelected ? 'selected' : ''}`;
       opt.setAttribute('data-value', String(y));
@@ -523,13 +520,8 @@ function colorWithAlpha(color, alpha = 1) {
     }
     const selected = yearFilter.querySelector('.custom-dropdown-selected');
     if (selected){
-      if (shared.year !== null) {
-        selected.querySelector('span').textContent = String(shared.year);
-        selected.setAttribute('data-value', String(shared.year));
-      } else {
-        selected.querySelector('span').textContent = 'Todos los años';
-        selected.setAttribute('data-value', '');
-      }
+      selected.querySelector('span').textContent = String(activeYear);
+      selected.setAttribute('data-value', String(activeYear));
     }
   }
 
@@ -1397,27 +1389,25 @@ function colorWithAlpha(color, alpha = 1) {
     const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 
     const mSel = monthDD?.querySelector('.custom-dropdown-selected');
+    const activeMonth = (shared.month !== null && shared.month >= 0 && shared.month <= 11) ? shared.month : new Date().getMonth();
     if (mSel) { 
-      if (shared.month !== null && shared.month >= 0 && shared.month <= 11) {
-        mSel.setAttribute('data-value', String(shared.month));
-        mSel.querySelector('span').textContent = meses[shared.month];
-      } else {
-        mSel.setAttribute('data-value', ''); 
-        mSel.querySelector('span').textContent = 'Todos los meses'; 
-      }
+      mSel.setAttribute('data-value', String(activeMonth));
+      mSel.querySelector('span').textContent = meses[activeMonth];
     }
 
     monthDD?.querySelectorAll('.custom-dropdown-option').forEach(o => {
       const val = o.getAttribute('data-value');
-      const isSelected = (shared.month === null && val === '') || (shared.month !== null && val === String(shared.month));
+      const isSelected = val === String(activeMonth);
       o.classList.toggle('selected', isSelected);
     });
     
     function actualizarIndicadoresFiltrosActivos() {
+      const currentYear = new Date().getFullYear();
+      const currentMonth = new Date().getMonth();
       const yVal = yearDD?.querySelector('.custom-dropdown-selected')?.getAttribute('data-value') || '';
       const mVal = monthDD?.querySelector('.custom-dropdown-selected')?.getAttribute('data-value') || '';
-      const hayAnio = yVal !== '' && yVal !== null;
-      const hayMes = mVal !== '' && mVal !== null;
+      const hayAnio = yVal !== '' && String(yVal) !== String(currentYear);
+      const hayMes = mVal !== '' && Number(mVal) !== currentMonth;
 
       if (yearDD) yearDD.classList.toggle('filter-active', hayAnio);
       if (monthDD) monthDD.classList.toggle('filter-active', hayMes);
@@ -1426,27 +1416,33 @@ function colorWithAlpha(color, alpha = 1) {
 
     if (yearDD) configurarDropdown(yearDD, () => {
       const yVal = yearDD.querySelector('.custom-dropdown-selected')?.getAttribute('data-value');
-      guardarFiltrosPersistidos({ year: yVal !== '' && yVal !== null ? parseInt(yVal, 10) : null });
+      guardarFiltrosPersistidos({ year: yVal !== '' && yVal !== null ? parseInt(yVal, 10) : new Date().getFullYear() });
       actualizarIndicadoresFiltrosActivos();
       renderizarTodo();
     });
     if (monthDD) configurarDropdown(monthDD, () => {
       const mVal = monthDD.querySelector('.custom-dropdown-selected')?.getAttribute('data-value');
-      guardarFiltrosPersistidos({ month: mVal !== '' && mVal !== null ? parseInt(mVal, 10) : null });
+      guardarFiltrosPersistidos({ month: mVal !== '' && mVal !== null ? parseInt(mVal, 10) : new Date().getMonth() });
       actualizarIndicadoresFiltrosActivos();
       renderizarTodo();
     });
 
     const clearBtn = document.getElementById('clearFiltersBtn');
     if (clearBtn) clearBtn.addEventListener('click', () => {
-      guardarFiltrosPersistidos({ year: null, month: null });
+      const currentYear = new Date().getFullYear();
+      const currentMonth = new Date().getMonth();
+      guardarFiltrosPersistidos({ year: currentYear, month: currentMonth });
       const ySel = yearDD?.querySelector('.custom-dropdown-selected');
       const mSel = monthDD?.querySelector('.custom-dropdown-selected');
-      if (ySel) { ySel.setAttribute('data-value',''); ySel.querySelector('span').textContent = 'Todos los años'; }
-      if (mSel) { mSel.setAttribute('data-value',''); mSel.querySelector('span').textContent = 'Todos los meses'; }
+      if (ySel) { ySel.setAttribute('data-value', String(currentYear)); ySel.querySelector('span').textContent = String(currentYear); }
+      if (mSel) { mSel.setAttribute('data-value', String(currentMonth)); mSel.querySelector('span').textContent = meses[currentMonth]; }
 
-      yearDD?.querySelectorAll('.custom-dropdown-option').forEach((o,i)=>{ o.classList.toggle('selected', i===0); });
-      monthDD?.querySelectorAll('.custom-dropdown-option').forEach((o,i)=>{ o.classList.toggle('selected', i===0); });
+      yearDD?.querySelectorAll('.custom-dropdown-option').forEach(o => { 
+        o.classList.toggle('selected', o.getAttribute('data-value') === String(currentYear)); 
+      });
+      monthDD?.querySelectorAll('.custom-dropdown-option').forEach(o => { 
+        o.classList.toggle('selected', o.getAttribute('data-value') === String(currentMonth)); 
+      });
       actualizarIndicadoresFiltrosActivos();
       renderizarTodo();
     });

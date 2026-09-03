@@ -111,20 +111,22 @@
   const STORAGE_FILTROS_KEY = 'finanzapp:filters:presupuestos:v1';
 
   function cargarFiltrosPersistidos() {
+    const defaultYear = new Date().getFullYear();
+    const defaultMonth = new Date().getMonth();
     try {
       const raw = localStorage.getItem(STORAGE_FILTROS_KEY);
-      if (!raw) return { year: null, month: null, searchTerm: '', category: null };
+      if (!raw) return { year: defaultYear, month: defaultMonth, searchTerm: '', category: null };
       const parsed = JSON.parse(raw);
       const yr = (parsed.year !== null && parsed.year !== undefined && parsed.year !== '') ? parseInt(parsed.year, 10) : null;
       const mo = (parsed.month !== null && parsed.month !== undefined && parsed.month !== '') ? parseInt(parsed.month, 10) : null;
       return {
-        year: (yr !== null && !isNaN(yr)) ? yr : null,
-        month: (mo !== null && !isNaN(mo) && mo >= 0 && mo <= 11) ? mo : null,
+        year: (yr !== null && !isNaN(yr)) ? yr : defaultYear,
+        month: (mo !== null && !isNaN(mo) && mo >= 0 && mo <= 11) ? mo : defaultMonth,
         searchTerm: typeof parsed.searchTerm === 'string' ? parsed.searchTerm : '',
         category: (parsed.category !== null && parsed.category !== undefined && parsed.category !== '') ? String(parsed.category) : null
       };
     } catch {
-      return { year: null, month: null, searchTerm: '', category: null };
+      return { year: defaultYear, month: defaultMonth, searchTerm: '', category: null };
     }
   }
 
@@ -142,8 +144,8 @@
 
   const initialShared = cargarFiltrosPersistidos();
   let filtros = {
-    year: initialShared.year ? String(initialShared.year) : null,
-    month: initialShared.month !== null ? initialShared.month : null,
+    year: initialShared.year ? String(initialShared.year) : String(new Date().getFullYear()),
+    month: initialShared.month !== null ? initialShared.month : new Date().getMonth(),
     category: initialShared.category || null
   };
 
@@ -665,12 +667,14 @@
   }
 
   function actualizarIndicadoresFiltrosActivos() {
+    const currentYear = new Date().getFullYear();
+    const currentMonth = new Date().getMonth();
     const yearFilter = elementos.yearFilter || document.getElementById('yearFilter');
     const monthFilter = elementos.monthFilter || document.getElementById('monthFilter');
     const clearBtn = elementos.clearFiltersBtn || document.getElementById('clearFiltersBtn');
     
-    const hayAnio = filtros.year !== null && filtros.year !== '';
-    const hayMes = filtros.month !== null && filtros.month !== '';
+    const hayAnio = filtros.year !== null && String(filtros.year) !== String(currentYear);
+    const hayMes = filtros.month !== null && Number(filtros.month) !== currentMonth;
 
     if (yearFilter) yearFilter.classList.toggle('filter-active', hayAnio);
     if (monthFilter) monthFilter.classList.toggle('filter-active', hayMes);
@@ -678,28 +682,32 @@
   }
 
   function limpiarFiltros() {
-    filtros.year = null;
-    filtros.month = null;
+    const currentYear = new Date().getFullYear();
+    const currentMonth = new Date().getMonth();
+    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+
+    filtros.year = String(currentYear);
+    filtros.month = currentMonth;
     filtros.category = null;
-    guardarFiltrosPersistidos({ year: null, month: null, category: null });
+    guardarFiltrosPersistidos({ year: currentYear, month: currentMonth, category: null });
 
     const yearFilter = elementos.yearFilter || document.getElementById('yearFilter');
     if (yearFilter) {
       const sel = yearFilter.querySelector('.custom-dropdown-selected');
-      if (sel && sel.querySelector('span')) sel.querySelector('span').textContent = 'Todos los años';
-      if (sel) sel.setAttribute('data-value', '');
+      if (sel && sel.querySelector('span')) sel.querySelector('span').textContent = String(currentYear);
+      if (sel) sel.setAttribute('data-value', String(currentYear));
       yearFilter.querySelectorAll('.custom-dropdown-option').forEach(opt => {
-        opt.classList.toggle('selected', opt.getAttribute('data-value') === '');
+        opt.classList.toggle('selected', opt.getAttribute('data-value') === String(currentYear));
       });
     }
 
     const monthFilter = elementos.monthFilter || document.getElementById('monthFilter');
     if (monthFilter) {
       const sel = monthFilter.querySelector('.custom-dropdown-selected');
-      if (sel && sel.querySelector('span')) sel.querySelector('span').textContent = 'Todos los meses';
-      if (sel) sel.setAttribute('data-value', '');
+      if (sel && sel.querySelector('span')) sel.querySelector('span').textContent = meses[currentMonth];
+      if (sel) sel.setAttribute('data-value', String(currentMonth));
       monthFilter.querySelectorAll('.custom-dropdown-option').forEach(opt => {
-        opt.classList.toggle('selected', opt.getAttribute('data-value') === '');
+        opt.classList.toggle('selected', opt.getAttribute('data-value') === String(currentMonth));
       });
     }
 
@@ -718,20 +726,18 @@
     const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
     const monthFilter = elementos.monthFilter || document.getElementById('monthFilter');
     if (monthFilter) {
+      if (filtros.month === null || filtros.month === undefined || filtros.month < 0 || filtros.month > 11) {
+        filtros.month = new Date().getMonth();
+      }
       const monthSelected = monthFilter.querySelector('.custom-dropdown-selected');
       if (monthSelected) {
-        if (filtros.month !== null && filtros.month >= 0 && filtros.month <= 11) {
-          monthSelected.querySelector('span').textContent = meses[filtros.month];
-          monthSelected.setAttribute('data-value', String(filtros.month));
-        } else {
-          monthSelected.querySelector('span').textContent = 'Todos los meses';
-          monthSelected.setAttribute('data-value', '');
-        }
+        monthSelected.querySelector('span').textContent = meses[filtros.month];
+        monthSelected.setAttribute('data-value', String(filtros.month));
       }
       const monthOptions = monthFilter.querySelectorAll('.custom-dropdown-option');
       monthOptions.forEach(opt => {
         const val = opt.getAttribute('data-value');
-        const isSelected = (filtros.month === null && val === '') || (filtros.month !== null && val === String(filtros.month));
+        const isSelected = val === String(filtros.month);
         opt.classList.toggle('selected', isSelected);
       });
     }
@@ -813,16 +819,12 @@
     if (!optionsContainer) return;
     
     optionsContainer.innerHTML = '';
-    
-    const isAllSelected = !filtros.year;
-    const allYearsOption = document.createElement('div');
-    allYearsOption.className = `custom-dropdown-option ${isAllSelected ? 'selected' : ''}`;
-    allYearsOption.setAttribute('data-value', '');
-    allYearsOption.textContent = 'Todos los años';
-    optionsContainer.appendChild(allYearsOption);
+    if (!filtros.year) {
+      filtros.year = String(currentYear);
+    }
     
     for (let year = startYear; year <= currentYear; year++) {
-      const isSelected = filtros.year && String(filtros.year) === String(year);
+      const isSelected = String(filtros.year) === String(year);
       const option = document.createElement('div');
       option.className = `custom-dropdown-option ${isSelected ? 'selected' : ''}`;
       option.setAttribute('data-value', String(year));
@@ -832,13 +834,8 @@
 
     const selected = yearFilter.querySelector('.custom-dropdown-selected');
     if (selected) {
-      if (filtros.year) {
-        selected.querySelector('span').textContent = String(filtros.year);
-        selected.setAttribute('data-value', String(filtros.year));
-      } else {
-        selected.querySelector('span').textContent = 'Todos los años';
-        selected.setAttribute('data-value', '');
-      }
+      selected.querySelector('span').textContent = String(filtros.year);
+      selected.setAttribute('data-value', String(filtros.year));
     }
   }
 

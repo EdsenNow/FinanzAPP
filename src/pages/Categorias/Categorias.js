@@ -260,27 +260,29 @@ function _guardarSort() {
 const STORAGE_FILTROS_KEY = 'finanzapp:filters:categorias:v1';
 
 function cargarFiltrosPersistidos() {
+  const defaultYear = new Date().getFullYear();
+  const defaultMonth = new Date().getMonth();
   try {
     const raw = localStorage.getItem(STORAGE_FILTROS_KEY);
-    if (!raw) return { year: null, month: null, searchTerm: '' };
+    if (!raw) return { year: defaultYear, month: defaultMonth, searchTerm: '' };
     const parsed = JSON.parse(raw);
     const yr = (parsed.year !== null && parsed.year !== undefined && parsed.year !== '') ? parseInt(parsed.year, 10) : null;
     const mo = (parsed.month !== null && parsed.month !== undefined && parsed.month !== '') ? parseInt(parsed.month, 10) : null;
     return {
-      year: (yr !== null && !isNaN(yr)) ? yr : null,
-      month: (mo !== null && !isNaN(mo) && mo >= 0 && mo <= 11) ? mo : null,
+      year: (yr !== null && !isNaN(yr)) ? yr : defaultYear,
+      month: (mo !== null && !isNaN(mo) && mo >= 0 && mo <= 11) ? mo : defaultMonth,
       searchTerm: typeof parsed.searchTerm === 'string' ? parsed.searchTerm : ''
     };
   } catch {
-    return { year: null, month: null, searchTerm: '' };
+    return { year: defaultYear, month: defaultMonth, searchTerm: '' };
   }
 }
 
 function guardarFiltrosPersistidos(filtros) {
   try {
     localStorage.setItem(STORAGE_FILTROS_KEY, JSON.stringify({
-      year: filtros.year !== undefined ? filtros.year : null,
-      month: filtros.month !== undefined ? filtros.month : null,
+      year: filtros.year !== undefined ? filtros.year : new Date().getFullYear(),
+      month: filtros.month !== undefined ? filtros.month : new Date().getMonth(),
       searchTerm: filtros.searchTerm || ''
     }));
   } catch {}
@@ -290,11 +292,13 @@ let filtrosActuales = cargarFiltrosPersistidos();
 
 /** Actualiza los estilos visuales de los controles de filtro según el estado actual de `filtrosActuales`. */
 function actualizarIndicadorFiltros() {
+  const currentYear = new Date().getFullYear();
+  const currentMonth = new Date().getMonth();
   const yearFilter = document.getElementById('yearFilter');
   const monthFilter = document.getElementById('monthFilter');
   const clearBtn = document.getElementById('clearFiltersBtn');
-  const hayAnio = filtrosActuales.year !== null;
-  const hayMes = filtrosActuales.month !== null;
+  const hayAnio = filtrosActuales.year !== null && filtrosActuales.year !== currentYear;
+  const hayMes = filtrosActuales.month !== null && filtrosActuales.month !== currentMonth;
   const hayBusqueda = !!(filtrosActuales.searchTerm && filtrosActuales.searchTerm.trim());
 
   if (yearFilter) yearFilter.classList.toggle('filter-active', hayAnio);
@@ -316,12 +320,9 @@ function generarOpcionesAnio() {
   optionsContainer.innerHTML = '';
 
   const endYear = Math.max(startYear, currentYear);
-  
-  const allYearsOption = document.createElement('div');
-  allYearsOption.className = `custom-dropdown-option ${filtrosActuales.year === null ? 'selected' : ''}`;
-  allYearsOption.setAttribute('data-value', '');
-  allYearsOption.textContent = 'Todos los años';
-  optionsContainer.appendChild(allYearsOption);
+  if (filtrosActuales.year === null || filtrosActuales.year === undefined) {
+    filtrosActuales.year = currentYear;
+  }
 
   for (let year = startYear; year <= endYear; year++) {
     const option = document.createElement('div');
@@ -334,13 +335,8 @@ function generarOpcionesAnio() {
 
   const selectedElement = yearFilter.querySelector('.custom-dropdown-selected');
   if (selectedElement) {
-    if (filtrosActuales.year !== null) {
-      selectedElement.querySelector('span').textContent = String(filtrosActuales.year);
-      selectedElement.setAttribute('data-value', String(filtrosActuales.year));
-    } else {
-      selectedElement.querySelector('span').textContent = 'Todos los años';
-      selectedElement.setAttribute('data-value', '');
-    }
+    selectedElement.querySelector('span').textContent = String(filtrosActuales.year);
+    selectedElement.setAttribute('data-value', String(filtrosActuales.year));
   }
   actualizarIndicadorFiltros();
 }
@@ -1336,8 +1332,8 @@ function exportarAPDF() {
       const mf = document.getElementById('monthFilter')?.querySelector('.custom-dropdown-selected')?.getAttribute('data-value') || '';
       const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
       if (yf || mf !== '') {
-        const anoStr = yf ? `Año ${yf}` : 'Todos los años';
-        const mesStr = mf !== '' ? monthNames[Number(mf)] || `Mes ${Number(mf) + 1}` : 'Todos los meses';
+        const anoStr = yf ? `Año ${yf}` : `Año ${new Date().getFullYear()}`;
+        const mesStr = mf !== '' ? monthNames[Number(mf)] || `Mes ${Number(mf) + 1}` : monthNames[new Date().getMonth()];
         filtroTexto = `${anoStr} • ${mesStr}`;
       }
     } catch {}
@@ -3097,20 +3093,18 @@ function configurarListenersFiltros() {
 
   // Restaurar o establecer filtro de mes
   if (monthFilter) {
+    if (filtrosActuales.month === null || filtrosActuales.month === undefined || filtrosActuales.month < 0 || filtrosActuales.month > 11) {
+      filtrosActuales.month = new Date().getMonth();
+    }
     const monthSelected = monthFilter.querySelector('.custom-dropdown-selected');
     if (monthSelected) {
-      if (filtrosActuales.month !== null && filtrosActuales.month >= 0 && filtrosActuales.month <= 11) {
-        monthSelected.querySelector('span').textContent = meses[filtrosActuales.month];
-        monthSelected.setAttribute('data-value', String(filtrosActuales.month));
-      } else {
-        monthSelected.querySelector('span').textContent = 'Todos los meses';
-        monthSelected.setAttribute('data-value', '');
-      }
+      monthSelected.querySelector('span').textContent = meses[filtrosActuales.month];
+      monthSelected.setAttribute('data-value', String(filtrosActuales.month));
     }
     const monthOptions = monthFilter.querySelectorAll('.custom-dropdown-option');
     monthOptions.forEach(opt => {
       const val = opt.getAttribute('data-value');
-      const isSelected = (filtrosActuales.month === null && val === '') || (filtrosActuales.month !== null && val === String(filtrosActuales.month));
+      const isSelected = val === String(filtrosActuales.month);
       opt.classList.toggle('selected', isSelected);
       opt.setAttribute('aria-selected', isSelected ? 'true' : 'false');
     });
@@ -3118,9 +3112,9 @@ function configurarListenersFiltros() {
 
   const manejarSeleccionOpcion = (tipoFiltro, value, text) => {
     if (tipoFiltro === 'year') {
-      filtrosActuales.year = value === '' ? null : parseInt(value, 10);
+      filtrosActuales.year = value === '' ? new Date().getFullYear() : parseInt(value, 10);
     } else if (tipoFiltro === 'month') {
-      filtrosActuales.month = value === '' ? null : parseInt(value, 10);
+      filtrosActuales.month = value === '' ? new Date().getMonth() : parseInt(value, 10);
     }
     guardarFiltrosPersistidos(filtrosActuales);
     actualizarIndicadorFiltros();
@@ -3817,8 +3811,12 @@ function configurarListenersEventos() {
     clearFiltersBtn.addEventListener('click', () => {
       const hadActiveFilters = filtrosActuales.year !== null || filtrosActuales.month !== null || !!(filtrosActuales.searchTerm && filtrosActuales.searchTerm.trim());
 
-      filtrosActuales.year = null;
-      filtrosActuales.month = null;
+      const currentYear = new Date().getFullYear();
+      const currentMonth = new Date().getMonth();
+      const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+
+      filtrosActuales.year = currentYear;
+      filtrosActuales.month = currentMonth;
       filtrosActuales.searchTerm = '';
       guardarFiltrosPersistidos(filtrosActuales);
 
@@ -3827,13 +3825,13 @@ function configurarListenersEventos() {
         const selected = yearDropdown.querySelector('.custom-dropdown-selected');
         const optionItems = yearDropdown.querySelectorAll('.custom-dropdown-option');
         if (selected) {
-          selected.querySelector('span').textContent = 'Todos los años';
-          selected.setAttribute('data-value', '');
+          selected.querySelector('span').textContent = String(currentYear);
+          selected.setAttribute('data-value', String(currentYear));
         }
         optionItems.forEach(opt => {
-          const isAll = opt.getAttribute('data-value') === '';
-          opt.classList.toggle('selected', isAll);
-          opt.setAttribute('aria-selected', isAll ? 'true' : 'false');
+          const isSelected = opt.getAttribute('data-value') === String(currentYear);
+          opt.classList.toggle('selected', isSelected);
+          opt.setAttribute('aria-selected', isSelected ? 'true' : 'false');
         });
       }
 
@@ -3842,13 +3840,13 @@ function configurarListenersEventos() {
         const monthSelected = monthDropdown.querySelector('.custom-dropdown-selected');
         const monthOptions = monthDropdown.querySelectorAll('.custom-dropdown-option');
         if (monthSelected) {
-          monthSelected.querySelector('span').textContent = 'Todos los meses';
-          monthSelected.setAttribute('data-value', '');
+          monthSelected.querySelector('span').textContent = meses[currentMonth];
+          monthSelected.setAttribute('data-value', String(currentMonth));
         }
         monthOptions.forEach(opt => {
-          const isAll = opt.getAttribute('data-value') === '';
-          opt.classList.toggle('selected', isAll);
-          opt.setAttribute('aria-selected', isAll ? 'true' : 'false');
+          const isSelected = opt.getAttribute('data-value') === String(currentMonth);
+          opt.classList.toggle('selected', isSelected);
+          opt.setAttribute('aria-selected', isSelected ? 'true' : 'false');
         });
       }
 
