@@ -7,23 +7,6 @@ user-select: none;
 -webkit-user-select: none;
 }
 
-body.budgets-page input,
-body.budgets-page textarea,
-body.budgets-page [contenteditable="true"],
-body.budgets-page .selectable-text {
-user-select: text;
--webkit-user-select: text;
-}
-
-body.budgets-page .btn {
-  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.28s ease, background 0.2s ease;
-}
-
-body.budgets-page .btn i {
-  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
-  display: inline-block;
-}
-
 body.budgets-page .btn-primary:hover,
 body.budgets-page #addBudgetBtn:hover,
 body.budgets-page #saveBudgetBtn:hover {
@@ -82,7 +65,10 @@ body.budgets-page .budget-filters .custom-dropdown-selected {
   width: 100%;
 }
 
-.custom-dropdown.filter-active .custom-dropdown-selected {
+.custom-dropdown.filter-active .custom-dropdown-selected,
+.custom-dropdown.filter-active .custom-dropdown-selected span,
+.custom-dropdown.filter-active .custom-dropdown-selected i,
+.custom-dropdown.filter-active .custom-dropdown-selected svg {
   color: var(--primary);
 }
 
@@ -108,6 +94,12 @@ body.budgets-page .budget-filters .custom-dropdown-selected {
   color: var(--primary);
 }
 
+#clearFiltersBtn.filter-active i,
+#clearFiltersBtn.filter-active svg,
+#clearFiltersBtn.btn.btn-secondary.filter-active i {
+  color: var(--primary);
+}
+
 #clearFiltersBtn.btn.btn-secondary:hover {
   background: color-mix(in srgb, var(--primary, #eb6f92) 10%, #1f1d2e);
   color: var(--primary, #eb6f92);
@@ -120,7 +112,7 @@ body.budgets-page .budget-filters .custom-dropdown-selected {
 }
 
 #clearFiltersBtn.btn.btn-secondary i {
-  color: var(--primary);
+  color: #908caa;
   font-size: 13px;
 }
 
@@ -593,33 +585,20 @@ gap: 6px;
 .tag.warning { border-color: rgba(246, 193, 119, 0.6); color: #f6c177; }
 .tag.danger { border-color: rgba(235, 111, 146, 0.6); color: #f2a8c2; }
 
-/* Selector de categoría estilizado para parecer dropdown personalizado */
-#budgetCategory.form-control {
-appearance: none;
--webkit-appearance: none;
--moz-appearance: none;
-background: var(--card-bg);
-border: 1px solid var(--card-border, rgba(255,255,255,0.08));
-color: var(--light);
-padding: 12px 44px 12px 14px;
-border-radius: 12px;
-font-weight: 600;
-cursor: pointer;
-box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-background-repeat: no-repeat;
-background-position: right 14px center;
-background-size: 16px 16px;
-transition: all 0.25s ease;
-scrollbar-width: thin;
-scrollbar-color: #EB6F92 transparent;
-}
-
-.hidden-select {
-position: absolute;
-opacity: 0;
-pointer-events: none;
-height: 0;
-width: 0;
+.hidden-select,
+select.form-control.hidden-select,
+#budgetCategory.form-control.hidden-select,
+#budgetPeriod.form-control.hidden-select {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  height: 0;
+  width: 0;
+  padding: 0;
+  margin: 0;
+  border: none;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
 }
 
 .budget-category-dropdown {
@@ -679,12 +658,30 @@ background: #EB6F92;
 }
 
 .empty-state {
-grid-column: 1 / -1;
-text-align: center;
-padding: 32px 16px;
-background: var(--card-bg);
-border: none;
-border-radius: 12px;
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 48px 16px;
+  background: var(--card-bg);
+  border: none;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.empty-state i,
+.empty-state svg,
+.empty-state .lucide {
+  width: 64px;
+  height: 64px;
+  min-width: 64px;
+  min-height: 64px;
+  font-size: 64px;
+  margin: 0;
+  color: var(--primary);
+  stroke: var(--primary);
 }
 
 .modal .two-columns {
@@ -735,10 +732,10 @@ visibility: visible;
   opacity: 1;
   background: #26233a;
   border: 3px solid var(--primary, #EB6F92);
-  border-radius: 22px;
-  padding: 28px 24px;
-  width: 90%;
-  max-width: 520px;
+  border-radius: 24px;
+  padding: 34px 30px 30px;
+  width: 92%;
+  max-width: 550px;
   box-sizing: border-box;
 }
 
@@ -752,14 +749,15 @@ body.budgets-page .budget-modal .modal-body {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 20px;
   width: 100%;
-  margin-bottom: 16px;
+  margin-bottom: 28px;
 }
 
 body.budgets-page .budget-modal .form-group {
   position: relative;
-  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 body.budgets-page .budget-modal .form-group:first-child {
@@ -780,34 +778,15 @@ body.budgets-page .budget-modal .custom-dropdown.open {
   z-index: 200;
 }
 
-body.budgets-page .budget-modal .custom-dropdown-options {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
-  right: 0;
-  width: 100%;
-  z-index: 99999;
-  margin-top: 0;
-  background: #1F1D2E;
-  border: 2px solid var(--card-border, #393552);
-  border-radius: 12px;
-  padding: 4px;
-  max-height: 190px;
-  overflow-y: auto;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-  scrollbar-width: thin;
-  scrollbar-color: #EB6F92 transparent;
-}
-
 body.budgets-page .budget-modal .custom-dropdown-option {
-  padding: 9px 12px;
+  padding: 10px 14px;
   color: var(--light, #e0def4);
   cursor: pointer;
   transition: background-color 0.15s ease, color 0.15s ease;
-  font-size: 13.5px;
+  font-size: 14px;
   font-weight: 500;
-  border-radius: 8px;
-  margin: 2px 0;
+  border-radius: 6px;
+  margin: 0;
 }
 
 body.budgets-page .budget-modal .custom-dropdown-option:hover {
@@ -821,75 +800,29 @@ body.budgets-page .budget-modal .custom-dropdown-option.selected {
   font-weight: 700;
 }
 
-.budget-modal .modal-header {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  text-align: center;
-  padding-bottom: 6px;
-  margin-bottom: 12px;
-  width: 100%;
-  border-bottom: none;
-}
-
 .budget-modal .modal-header h2 {
-  margin: 0;
-  font-size: 18px;
+  font-size: 22px;
   font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
+  color: var(--light);
   text-align: center;
   width: 100%;
-  justify-content: center;
-  color: var(--light, #e0def4);
   letter-spacing: 0.3px;
-}
-
-.budget-modal .form-group label {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: #e0def4;
-  margin-bottom: 4px;
-  display: block;
-}
-
-.budget-modal .form-control,
-.budget-modal .custom-dropdown-selected {
-  border-radius: 12px;
-  padding: 10px 14px;
-  font-weight: 600;
-  font-size: 13.5px;
-  min-height: 42px;
 }
 
 .budget-modal .form-row {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 12px;
+  gap: 16px;
 }
 
 .budget-modal .modal-footer {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding-top: 0;
+  gap: 14px;
+  padding-top: 10px;
   margin-top: 0;
   width: 100%;
   border-top: none;
-}
-
-.budget-modal .modal-footer .btn {
-  height: 40px;
-  min-height: 40px;
-  padding: 8px 14px;
-  font-size: 13px;
-  font-weight: 600;
-  border-radius: 10px;
-  flex: 1;
-  text-transform: none;
-  margin: 0;
 }
 
 /* Calendario (flatpickr) estilo FinanzApp */
@@ -1103,7 +1036,6 @@ box-shadow: 0 6px 18px rgba(197, 133, 151, 0.35);
     transform: none;
     opacity: 1;
   }
-}
 }
 
 @media (max-width: 960px) {

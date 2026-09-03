@@ -103,7 +103,10 @@ body.estadistica-page .filter-controls .custom-dropdown {
   width: auto;
 }
 
-.custom-dropdown.filter-active .custom-dropdown-selected {
+.custom-dropdown.filter-active .custom-dropdown-selected,
+.custom-dropdown.filter-active .custom-dropdown-selected span,
+.custom-dropdown.filter-active .custom-dropdown-selected i,
+.custom-dropdown.filter-active .custom-dropdown-selected svg {
   color: var(--primary);
 }
 
@@ -129,6 +132,12 @@ body.estadistica-page .filter-controls .custom-dropdown {
   color: var(--primary);
 }
 
+#clearFiltersBtn.filter-active i,
+#clearFiltersBtn.filter-active svg,
+#clearFiltersBtn.btn.btn-secondary.filter-active i {
+  color: var(--primary);
+}
+
 #clearFiltersBtn.btn.btn-secondary:hover {
   background: color-mix(in srgb, var(--primary, #eb6f92) 10%, #1f1d2e);
   color: var(--primary, #eb6f92);
@@ -141,7 +150,7 @@ body.estadistica-page .filter-controls .custom-dropdown {
 }
 
 #clearFiltersBtn.btn.btn-secondary i {
-  color: var(--primary);
+  color: #908caa;
   font-size: 13px;
 }
 
@@ -772,6 +781,30 @@ body.estadistica-page .chart-wrap canvas {
     transform: none;
     opacity: 1;
   }
+}
+
+.empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 48px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.empty-state i,
+.empty-state svg,
+.empty-state .lucide {
+  width: 64px;
+  height: 64px;
+  min-width: 64px;
+  min-height: 64px;
+  font-size: 64px;
+  margin: 0;
+  color: var(--primary);
+  stroke: var(--primary);
 }
 
 /* Desactivar efectos hover/active en dispositivos móviles */

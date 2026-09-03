@@ -111,22 +111,20 @@
   const STORAGE_FILTROS_KEY = 'finanzapp:filters:presupuestos:v1';
 
   function cargarFiltrosPersistidos() {
-    const defaultYear = new Date().getFullYear();
-    const defaultMonth = new Date().getMonth();
     try {
       const raw = localStorage.getItem(STORAGE_FILTROS_KEY);
-      if (!raw) return { year: defaultYear, month: defaultMonth, searchTerm: '', category: null };
+      if (!raw) return { year: null, month: null, searchTerm: '', category: null };
       const parsed = JSON.parse(raw);
       const yr = (parsed.year !== null && parsed.year !== undefined && parsed.year !== '') ? parseInt(parsed.year, 10) : null;
       const mo = (parsed.month !== null && parsed.month !== undefined && parsed.month !== '') ? parseInt(parsed.month, 10) : null;
       return {
-        year: (yr !== null && !isNaN(yr)) ? yr : defaultYear,
-        month: (mo !== null && !isNaN(mo) && mo >= 0 && mo <= 11) ? mo : defaultMonth,
+        year: (yr !== null && !isNaN(yr)) ? yr : null,
+        month: (mo !== null && !isNaN(mo) && mo >= 0 && mo <= 11) ? mo : null,
         searchTerm: typeof parsed.searchTerm === 'string' ? parsed.searchTerm : '',
         category: (parsed.category !== null && parsed.category !== undefined && parsed.category !== '') ? String(parsed.category) : null
       };
     } catch {
-      return { year: defaultYear, month: defaultMonth, searchTerm: '', category: null };
+      return { year: null, month: null, searchTerm: '', category: null };
     }
   }
 
@@ -144,8 +142,8 @@
 
   const initialShared = cargarFiltrosPersistidos();
   let filtros = {
-    year: initialShared.year ? String(initialShared.year) : String(new Date().getFullYear()),
-    month: initialShared.month !== null ? initialShared.month : new Date().getMonth(),
+    year: initialShared.year ? String(initialShared.year) : null,
+    month: initialShared.month !== null ? initialShared.month : null,
     category: initialShared.category || null
   };
 
@@ -619,6 +617,29 @@
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && elementos.budgetModal && !elementos.budgetModal.classList.contains('hidden')) {
         cerrarModal();
+        return;
+      }
+
+      // Atajos de teclado para filtros (Alt + A, Alt + M, Alt + L)
+      if (e.altKey && !e.ctrlKey && !e.metaKey) {
+        const key = (e.key || '').toLowerCase();
+        const code = e.code || '';
+
+        if (key === 'a' || code === 'KeyA') {
+          const dd = document.getElementById('yearFilter');
+          if (dd) { e.preventDefault(); dd.classList.add('open'); dd.querySelector('.custom-dropdown-selected')?.focus?.(); }
+          return;
+        }
+        if (key === 'm' || code === 'KeyM') {
+          const dd = document.getElementById('monthFilter');
+          if (dd) { e.preventDefault(); dd.classList.add('open'); dd.querySelector('.custom-dropdown-selected')?.focus?.(); }
+          return;
+        }
+        if (key === 'l' || code === 'KeyL') {
+          const btn = document.getElementById('clearFiltersBtn');
+          if (btn) { e.preventDefault(); btn.click(); }
+          return;
+        }
       }
     });
   }
@@ -667,14 +688,12 @@
   }
 
   function actualizarIndicadoresFiltrosActivos() {
-    const currentYear = new Date().getFullYear();
-    const currentMonth = new Date().getMonth();
     const yearFilter = elementos.yearFilter || document.getElementById('yearFilter');
     const monthFilter = elementos.monthFilter || document.getElementById('monthFilter');
     const clearBtn = elementos.clearFiltersBtn || document.getElementById('clearFiltersBtn');
     
-    const hayAnio = filtros.year !== null && String(filtros.year) !== String(currentYear);
-    const hayMes = filtros.month !== null && Number(filtros.month) !== currentMonth;
+    const hayAnio = filtros.year !== null && filtros.year !== '';
+    const hayMes = filtros.month !== null && filtros.month !== '';
 
     if (yearFilter) yearFilter.classList.toggle('filter-active', hayAnio);
     if (monthFilter) monthFilter.classList.toggle('filter-active', hayMes);
@@ -682,37 +701,44 @@
   }
 
   function limpiarFiltros() {
-    const currentYear = new Date().getFullYear();
-    const currentMonth = new Date().getMonth();
-    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    const hadActiveFilters = (filtros.year !== null && filtros.year !== '') || (filtros.month !== null && filtros.month !== '') || filtros.category !== null;
 
-    filtros.year = String(currentYear);
-    filtros.month = currentMonth;
+    filtros.year = null;
+    filtros.month = null;
     filtros.category = null;
-    guardarFiltrosPersistidos({ year: currentYear, month: currentMonth, category: null });
+    guardarFiltrosPersistidos({ year: null, month: null, category: null });
 
     const yearFilter = elementos.yearFilter || document.getElementById('yearFilter');
     if (yearFilter) {
       const sel = yearFilter.querySelector('.custom-dropdown-selected');
-      if (sel && sel.querySelector('span')) sel.querySelector('span').textContent = String(currentYear);
-      if (sel) sel.setAttribute('data-value', String(currentYear));
+      if (sel && sel.querySelector('span')) sel.querySelector('span').textContent = 'Todos los años';
+      if (sel) sel.setAttribute('data-value', '');
       yearFilter.querySelectorAll('.custom-dropdown-option').forEach(opt => {
-        opt.classList.toggle('selected', opt.getAttribute('data-value') === String(currentYear));
+        opt.classList.remove('selected');
+        opt.setAttribute('aria-selected', 'false');
       });
     }
 
     const monthFilter = elementos.monthFilter || document.getElementById('monthFilter');
     if (monthFilter) {
       const sel = monthFilter.querySelector('.custom-dropdown-selected');
-      if (sel && sel.querySelector('span')) sel.querySelector('span').textContent = meses[currentMonth];
-      if (sel) sel.setAttribute('data-value', String(currentMonth));
+      if (sel && sel.querySelector('span')) sel.querySelector('span').textContent = 'Todos los meses';
+      if (sel) sel.setAttribute('data-value', '');
       monthFilter.querySelectorAll('.custom-dropdown-option').forEach(opt => {
-        opt.classList.toggle('selected', opt.getAttribute('data-value') === String(currentMonth));
+        opt.classList.remove('selected');
+        opt.setAttribute('aria-selected', 'false');
       });
     }
 
+    paginaActual = 1;
     actualizarIndicadoresFiltrosActivos();
     aplicarFiltros();
+
+    if (hadActiveFilters) {
+      mostrarExito('Filtros limpiados');
+    } else {
+      mostrarInfo('No hay filtros activos');
+    }
   }
 
   function aplicarFiltros() {
@@ -724,86 +750,100 @@
     generarOpcionesAnio();
 
     const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    const yearFilter = elementos.yearFilter || document.getElementById('yearFilter');
     const monthFilter = elementos.monthFilter || document.getElementById('monthFilter');
+
     if (monthFilter) {
-      if (filtros.month === null || filtros.month === undefined || filtros.month < 0 || filtros.month > 11) {
-        filtros.month = new Date().getMonth();
-      }
       const monthSelected = monthFilter.querySelector('.custom-dropdown-selected');
       if (monthSelected) {
-        monthSelected.querySelector('span').textContent = meses[filtros.month];
-        monthSelected.setAttribute('data-value', String(filtros.month));
+        if (filtros.month !== null && filtros.month >= 0 && filtros.month <= 11) {
+          monthSelected.querySelector('span').textContent = meses[filtros.month];
+          monthSelected.setAttribute('data-value', String(filtros.month));
+        } else {
+          monthSelected.querySelector('span').textContent = 'Todos los meses';
+          monthSelected.setAttribute('data-value', '');
+        }
       }
       const monthOptions = monthFilter.querySelectorAll('.custom-dropdown-option');
       monthOptions.forEach(opt => {
         const val = opt.getAttribute('data-value');
-        const isSelected = val === String(filtros.month);
+        const isSelected = filtros.month !== null && val === String(filtros.month);
         opt.classList.toggle('selected', isSelected);
+        opt.setAttribute('aria-selected', isSelected ? 'true' : 'false');
       });
     }
-    
-    document.querySelectorAll('.budget-filters .custom-dropdown').forEach(dropdown => {
-      const selected = dropdown.querySelector('.custom-dropdown-selected');
-      const options = dropdown.querySelector('.custom-dropdown-options');
-      
-      if (!selected || !options) return;
-      
+
+    const configurarUnDropdown = (dropdownEl, tipoFiltro) => {
+      if (!dropdownEl) return;
+      const selected = dropdownEl.querySelector('.custom-dropdown-selected');
+      const options = dropdownEl.querySelectorAll('.custom-dropdown-option');
+      if (!selected) return;
+
+      dropdownEl.setAttribute('role', 'listbox');
+      selected.setAttribute('role', 'button');
+      selected.setAttribute('aria-haspopup', 'listbox');
+      selected.setAttribute('aria-expanded', 'false');
+
+      options.forEach(opt => {
+        opt.setAttribute('role', 'option');
+        opt.setAttribute('aria-selected', opt.classList.contains('selected') ? 'true' : 'false');
+      });
+
       selected.addEventListener('click', (e) => {
         e.stopPropagation();
-        const isOpen = dropdown.classList.contains('open');
-        
-        document.querySelectorAll('.custom-dropdown.open').forEach(d => {
-          d.classList.remove('open');
-        });
-        
-        if (!isOpen) {
-          dropdown.classList.add('open');
+        if (!dropdownEl.classList.contains('open')) {
+          document.querySelectorAll('.custom-dropdown.open').forEach(d => {
+            d.classList.remove('open');
+            d.querySelector('.custom-dropdown-selected')?.setAttribute('aria-expanded', 'false');
+          });
         }
+        const open = dropdownEl.classList.toggle('open');
+        selected.setAttribute('aria-expanded', open ? 'true' : 'false');
       });
-      
-      options.addEventListener('click', (e) => {
-        const optionEl = e.target.closest('.custom-dropdown-option');
-        if (!optionEl) return;
-        e.stopPropagation();
-        
-        const value = optionEl.getAttribute('data-value') || '';
-        const text = optionEl.textContent.trim();
-        
-        if (selected.querySelector('span')) {
+
+      options.forEach(option => {
+        option.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const value = option.getAttribute('data-value') || '';
+          const text = option.textContent.trim();
+
           selected.querySelector('span').textContent = text;
-        }
-        selected.setAttribute('data-value', value);
-        
-        options.querySelectorAll('.custom-dropdown-option').forEach(opt => {
-          opt.classList.remove('selected');
+          selected.setAttribute('data-value', value);
+
+          options.forEach(opt => {
+            opt.classList.remove('selected');
+            opt.setAttribute('aria-selected', 'false');
+          });
+          option.classList.add('selected');
+          option.setAttribute('aria-selected', 'true');
+
+          if (tipoFiltro === 'year') {
+            filtros.year = value !== '' ? String(value) : null;
+            guardarFiltrosPersistidos({ year: filtros.year ? parseInt(filtros.year, 10) : null });
+          } else if (tipoFiltro === 'month') {
+            filtros.month = value !== '' ? parseInt(value, 10) : null;
+            guardarFiltrosPersistidos({ month: filtros.month });
+          }
+
+          paginaActual = 1;
+          actualizarIndicadoresFiltrosActivos();
+          aplicarFiltros();
+          dropdownEl.classList.remove('open');
+          selected.setAttribute('aria-expanded', 'false');
         });
-        optionEl.classList.add('selected');
-        
-        dropdown.classList.remove('open');
-        
-        if (dropdown.id === 'yearFilter') {
-          filtros.year = value ? String(value) : null;
-          guardarFiltrosPersistidos({ year: filtros.year ? parseInt(filtros.year, 10) : null });
-          actualizarIndicadoresFiltrosActivos();
-          aplicarFiltros();
-        } else if (dropdown.id === 'monthFilter') {
-          filtros.month = value !== '' ? parseInt(value, 10) : null;
-          guardarFiltrosPersistidos({ month: filtros.month });
-          actualizarIndicadoresFiltrosActivos();
-          aplicarFiltros();
-        }
       });
-    });
+    };
+
+    if (yearFilter) configurarUnDropdown(yearFilter, 'year');
+    if (monthFilter) configurarUnDropdown(monthFilter, 'month');
 
     actualizarIndicadoresFiltrosActivos();
 
-    document.addEventListener('click', (e) => {
-      // Solo cerrar si el clic fue FUERA de cualquier custom-dropdown
-      if (!e.target.closest('.custom-dropdown')) {
-        document.querySelectorAll('.custom-dropdown.open').forEach(d => {
-          d.classList.remove('open');
-        });
-      }
+    document.addEventListener('click', () => {
+      document.querySelectorAll('.custom-dropdown.open').forEach(d => {
+        d.classList.remove('open');
+        d.querySelector('.custom-dropdown-selected')?.setAttribute('aria-expanded', 'false');
+      });
     });
   }
 
@@ -819,12 +859,9 @@
     if (!optionsContainer) return;
     
     optionsContainer.innerHTML = '';
-    if (!filtros.year) {
-      filtros.year = String(currentYear);
-    }
     
     for (let year = startYear; year <= currentYear; year++) {
-      const isSelected = String(filtros.year) === String(year);
+      const isSelected = filtros.year && String(filtros.year) === String(year);
       const option = document.createElement('div');
       option.className = `custom-dropdown-option ${isSelected ? 'selected' : ''}`;
       option.setAttribute('data-value', String(year));
@@ -834,8 +871,13 @@
 
     const selected = yearFilter.querySelector('.custom-dropdown-selected');
     if (selected) {
-      selected.querySelector('span').textContent = String(filtros.year);
-      selected.setAttribute('data-value', String(filtros.year));
+      if (filtros.year) {
+        selected.querySelector('span').textContent = String(filtros.year);
+        selected.setAttribute('data-value', String(filtros.year));
+      } else {
+        selected.querySelector('span').textContent = 'Todos los años';
+        selected.setAttribute('data-value', '');
+      }
     }
   }
 
@@ -1270,10 +1312,11 @@
     const presupuestosFiltrados = obtenerPresupuestosFiltrados();
     
     if (presupuestosFiltrados.length === 0) {
+      const hayFiltros = (filtros.year !== null && filtros.year !== '') || (filtros.month !== null && filtros.month !== '');
       container.innerHTML = `
         <div class="empty-state">
-          <i data-lucide="receipt"></i>
-          <p>No hay presupuestos creados</p>
+          <i data-lucide="${hayFiltros ? 'filter' : 'receipt'}"></i>
+          <p>${hayFiltros ? 'No se encontraron presupuestos para los filtros seleccionados.' : 'No hay presupuestos creados'}</p>
         </div>
       `;
       window.LucideHelper?.refresh(container);
@@ -1469,10 +1512,11 @@
     const totalItems = filasTabla.length;
 
     if (totalItems === 0) {
+      const hayFiltros = (filtros.year !== null && filtros.year !== '') || (filtros.month !== null && filtros.month !== '') || !!term;
       tbody.innerHTML = `
         <tr>
           <td colspan="7" style="text-align: center; padding: 2rem;">
-            No hay presupuestos para mostrar
+            ${hayFiltros ? 'No se encontraron presupuestos para los filtros seleccionados' : 'No hay presupuestos para mostrar'}
           </td>
         </tr>
       `;
@@ -1583,7 +1627,7 @@
     });
 
     if (categorySelect) {
-      categorySelect.innerHTML = '<option value="">Selecciona una categoría</option>';
+      categorySelect.innerHTML = '<option value="" disabled selected hidden>Selecciona una categoría</option>';
       categoriasPresupuestables.forEach(cat => {
         const option = document.createElement('option');
         option.value = cat.id;
@@ -1602,34 +1646,42 @@
 
     // Poblar las opciones en el propio dropdown (menú único, igual que el de período)
     optionsContainer.innerHTML = '';
-    const allCats = [{ id: '', name: 'Selecciona una categoría' }, ...categoriasPresupuestables];
     const currentVal = selectedCatId || '';
 
-    allCats.forEach(cat => {
-      const opt = document.createElement('div');
-      opt.textContent = cat.name;
-      opt.setAttribute('data-value', String(cat.id));
-      opt.className = 'custom-dropdown-option' + (String(cat.id) === String(currentVal) ? ' selected' : '');
+    if (categoriasPresupuestables.length === 0) {
+      const emptyOpt = document.createElement('div');
+      emptyOpt.className = 'custom-dropdown-option disabled';
+      emptyOpt.style.opacity = '0.6';
+      emptyOpt.style.cursor = 'default';
+      emptyOpt.textContent = 'Sin categorías disponibles';
+      optionsContainer.appendChild(emptyOpt);
+    } else {
+      categoriasPresupuestables.forEach(cat => {
+        const opt = document.createElement('div');
+        opt.textContent = cat.name;
+        opt.setAttribute('data-value', String(cat.id));
+        opt.className = 'custom-dropdown-option' + (String(cat.id) === String(currentVal) ? ' selected' : '');
 
-      opt.onclick = (e) => {
-        e.stopPropagation();
-        e.preventDefault();
+        opt.onclick = (e) => {
+          e.stopPropagation();
+          e.preventDefault();
 
-        const val = String(cat.id);
-        const chosenCat = categoriasPresupuestables.find(c => String(c.id) === val) || null;
+          const val = String(cat.id);
+          const chosenCat = categoriasPresupuestables.find(c => String(c.id) === val) || null;
 
-        selectedEl.setAttribute('data-value', val);
-        const sp = selectedEl.querySelector('span');
-        if (sp) sp.textContent = chosenCat ? chosenCat.name : 'Selecciona una categoría';
-        if (categorySelect) categorySelect.value = val;
+          selectedEl.setAttribute('data-value', val);
+          const sp = selectedEl.querySelector('span');
+          if (sp) sp.textContent = chosenCat ? chosenCat.name : 'Selecciona una categoría';
+          if (categorySelect) categorySelect.value = val;
 
-        optionsContainer.querySelectorAll('.custom-dropdown-option').forEach(o => o.classList.remove('selected'));
-        opt.classList.add('selected');
-        budgetDropdown.classList.remove('open');
-      };
+          optionsContainer.querySelectorAll('.custom-dropdown-option').forEach(o => o.classList.remove('selected'));
+          opt.classList.add('selected');
+          budgetDropdown.classList.remove('open');
+        };
 
-      optionsContainer.appendChild(opt);
-    });
+        optionsContainer.appendChild(opt);
+      });
+    }
 
     // Click en el selector para abrir/cerrar
     selectedEl.onclick = (e) => {
@@ -2195,37 +2247,6 @@
     }
   }
 
-  function aplicarFiltros() {
-    paginaActual = 1;
-    renderizarTodo();
-  }
-
-  function limpiarFiltros() {
-    filtros = {
-      year: null,
-      month: null,
-      category: null
-    };
-    
-    document.querySelectorAll('.custom-dropdown').forEach(dropdown => {
-      const selected = dropdown.querySelector('.custom-dropdown-selected');
-      const options = dropdown.querySelectorAll('.custom-dropdown-option');
-      
-      if (selected && options.length > 0) {
-        const firstOption = options[0];
-        selected.querySelector('span').textContent = firstOption.textContent;
-        selected.setAttribute('data-value', '');
-        
-        options.forEach((opt, i) => {
-          opt.classList.toggle('selected', i === 0);
-        });
-      }
-    });
-    
-    paginaActual = 1;
-    renderizarTodo();
-    mostrarInfo('Filtros limpiados');
-  }
 
   function buscarEnTabla() {
     paginaActual = 1;

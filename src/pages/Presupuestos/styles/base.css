@@ -257,10 +257,17 @@ body.budgets-page .main-content::-webkit-scrollbar-thumb:hover {
 	grid-column: 1 / -1;
 }
 
-.empty-state i {
-	font-size: 108px;
+.empty-state i,
+.empty-state svg,
+.empty-state .lucide {
+	width: 64px;
+	height: 64px;
+	min-width: 64px;
+	min-height: 64px;
+	font-size: 64px;
 	margin: 0;
 	color: var(--primary);
+	stroke: var(--primary);
 }
 
 .empty-state p {

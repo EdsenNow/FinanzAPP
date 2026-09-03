@@ -171,12 +171,18 @@ color: #575279;
   box-shadow: none;
 }
 
+[data-theme="light"] #clearFiltersBtn.btn.btn-secondary i {
+  color: #797593;
+}
+
 [data-theme="light"] #clearFiltersBtn.filter-active {
   border: 3px solid var(--primary);
   color: var(--primary);
 }
 
-[data-theme="light"] #clearFiltersBtn.btn.btn-secondary i {
+[data-theme="light"] #clearFiltersBtn.filter-active i,
+[data-theme="light"] #clearFiltersBtn.filter-active svg,
+[data-theme="light"] #clearFiltersBtn.btn.btn-secondary.filter-active i {
   color: var(--primary);
 }
 
@@ -317,7 +323,10 @@ background: transparent;
   color: #797593;
 }
 
-[data-theme="light"] .custom-dropdown.filter-active .custom-dropdown-selected {
+[data-theme="light"] .custom-dropdown.filter-active .custom-dropdown-selected,
+[data-theme="light"] .custom-dropdown.filter-active .custom-dropdown-selected span,
+[data-theme="light"] .custom-dropdown.filter-active .custom-dropdown-selected i,
+[data-theme="light"] .custom-dropdown.filter-active .custom-dropdown-selected svg {
   color: var(--primary);
 }
 
@@ -587,4 +596,11 @@ color: #fffaf3;
     transform: none;
     box-shadow: none;
   }
+}
+
+[data-theme="light"] .empty-state i,
+[data-theme="light"] .empty-state svg,
+[data-theme="light"] .empty-state .lucide {
+  color: var(--primary, #b4637a);
+  stroke: var(--primary, #b4637a);
 }

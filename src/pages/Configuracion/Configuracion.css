@@ -692,10 +692,6 @@ body .legal-footer-config {
   border-radius: 14px;
 }
 
-.preferences-card .custom-dropdown.open .custom-dropdown-options {
-  display: block;
-}
-
 .preferences-card .custom-dropdown-option {
   padding: 9px 12px;
   border-radius: 8px;

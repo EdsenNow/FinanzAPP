@@ -23,14 +23,6 @@
   --sidebar-bg: #1f1d2e;
 }
 
-[data-theme="dark"] .imap-form .form-control,
-[data-theme="dark"] .config-card .form-control,
-[data-theme="dark"] .custom-dropdown-selected,
-[data-theme="dark"] .custom-dropdown-selected span,
-[data-theme="dark"] .form-control {
-  color: #e0def4;
-}
-
 [data-theme="dark"] .imap-form .form-control::placeholder,
 [data-theme="dark"] .config-card .form-control::placeholder {
   color: #908caa;

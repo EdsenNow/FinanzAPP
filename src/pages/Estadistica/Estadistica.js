@@ -467,22 +467,20 @@ function colorWithAlpha(color, alpha = 1) {
   const STORAGE_FILTROS_KEY = 'finanzapp:filters:estadistica:v1';
 
   function cargarFiltrosPersistidos() {
-    const defaultYear = new Date().getFullYear();
-    const defaultMonth = new Date().getMonth();
     try {
       const raw = localStorage.getItem(STORAGE_FILTROS_KEY);
-      if (!raw) return { year: defaultYear, month: defaultMonth, searchTerm: '', category: null };
+      if (!raw) return { year: null, month: null, searchTerm: '', category: null };
       const parsed = JSON.parse(raw);
       const yr = (parsed.year !== null && parsed.year !== undefined && parsed.year !== '') ? parseInt(parsed.year, 10) : null;
       const mo = (parsed.month !== null && parsed.month !== undefined && parsed.month !== '') ? parseInt(parsed.month, 10) : null;
       return {
-        year: (yr !== null && !isNaN(yr)) ? yr : defaultYear,
-        month: (mo !== null && !isNaN(mo) && mo >= 0 && mo <= 11) ? mo : defaultMonth,
+        year: (yr !== null && !isNaN(yr)) ? yr : null,
+        month: (mo !== null && !isNaN(mo) && mo >= 0 && mo <= 11) ? mo : null,
         searchTerm: typeof parsed.searchTerm === 'string' ? parsed.searchTerm : '',
         category: (parsed.category !== null && parsed.category !== undefined && parsed.category !== '') ? String(parsed.category) : null
       };
     } catch {
-      return { year: defaultYear, month: defaultMonth, searchTerm: '', category: null };
+      return { year: null, month: null, searchTerm: '', category: null };
     }
   }
 
@@ -505,13 +503,11 @@ function colorWithAlpha(color, alpha = 1) {
     if (!optionsContainer) return;
     optionsContainer.innerHTML = '';
 
-    const currentYear = new Date().getFullYear();
     const shared = cargarFiltrosPersistidos();
-    const activeYear = (shared.year !== null && shared.year !== undefined) ? shared.year : currentYear;
 
     const { start, end } = obtenerRangoAnios();
     for (let y = start; y <= end; y++){
-      const isSelected = activeYear === y;
+      const isSelected = shared.year === y;
       const opt = document.createElement('div');
       opt.className = `custom-dropdown-option ${isSelected ? 'selected' : ''}`;
       opt.setAttribute('data-value', String(y));
@@ -520,8 +516,13 @@ function colorWithAlpha(color, alpha = 1) {
     }
     const selected = yearFilter.querySelector('.custom-dropdown-selected');
     if (selected){
-      selected.querySelector('span').textContent = String(activeYear);
-      selected.setAttribute('data-value', String(activeYear));
+      if (shared.year !== null) {
+        selected.querySelector('span').textContent = String(shared.year);
+        selected.setAttribute('data-value', String(shared.year));
+      } else {
+        selected.querySelector('span').textContent = 'Todos los años';
+        selected.setAttribute('data-value', '');
+      }
     }
   }
 
@@ -1343,6 +1344,77 @@ function colorWithAlpha(color, alpha = 1) {
 
   
 
+  let toastContainer = null;
+  function asegurarContenedorToast() {
+    if (!toastContainer) {
+      toastContainer = document.querySelector('.toast-container');
+    }
+    if (!toastContainer) {
+      toastContainer = document.createElement('div');
+      toastContainer.className = 'toast-container';
+      document.body.appendChild(toastContainer);
+    }
+  }
+
+  function ocultarToast(toast, immediate = false) {
+    if (!toast) return;
+    if (toast._timeout) { clearTimeout(toast._timeout); toast._timeout = null; }
+    toast.classList.remove('show');
+    toast.classList.add('hide');
+    const remove = () => { if (toast && toast.parentNode) toast.parentNode.removeChild(toast); };
+    if (immediate) { remove(); return; }
+    setTimeout(remove, 400);
+  }
+
+  function mostrarToast(message, options = {}) {
+    if (window.__appTooltips === false) return null;
+    const { variant = 'warning', duration = 3000 } = options || {};
+    asegurarContenedorToast();
+
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    if (variant) toast.classList.add(`toast-${variant}`);
+
+    const isAssertive = variant === 'error' || variant === 'warning';
+    toast.setAttribute('role', isAssertive ? 'alert' : 'status');
+    toast.setAttribute('aria-live', isAssertive ? 'assertive' : 'polite');
+    toast.setAttribute('aria-atomic', 'true');
+
+    const content = document.createElement('div');
+    content.className = 'toast-content';
+    content.textContent = String(message ?? '');
+
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'toast-close';
+    closeBtn.setAttribute('aria-label', 'Cerrar');
+    closeBtn.innerHTML = '&times;';
+    closeBtn.onclick = () => ocultarToast(toast);
+
+    toast.append(content, closeBtn);
+    toastContainer.appendChild(toast);
+
+    requestAnimationFrame(() => toast.classList.add('show'));
+
+    if (duration && Number.isFinite(duration) && duration > 0) {
+      toast._timeout = setTimeout(() => ocultarToast(toast), duration);
+    }
+
+    while (toastContainer.children.length > 3) {
+      const first = toastContainer.firstElementChild;
+      ocultarToast(first, true);
+    }
+
+    return toast;
+  }
+
+  function mostrarExito(mensaje, options = {}) {
+    return mostrarToast(mensaje, { variant: 'success', duration: 3000, ...(options || {}) });
+  }
+
+  function mostrarInfo(mensaje, options = {}) {
+    return mostrarToast(mensaje, { variant: 'warning', duration: 3000, ...(options || {}) });
+  }
+
   function configurarDropdown(dropdownEl, onChange){
     const selected = dropdownEl.querySelector('.custom-dropdown-selected');
     const options = dropdownEl.querySelectorAll('.custom-dropdown-option');
@@ -1358,7 +1430,10 @@ function colorWithAlpha(color, alpha = 1) {
     selected.addEventListener('click', (e) => {
       e.stopPropagation();
       if (!dropdownEl.classList.contains('open')) {
-        document.querySelectorAll('.custom-dropdown.open').forEach(d => d.classList.remove('open'));
+        document.querySelectorAll('.custom-dropdown.open').forEach(d => {
+          d.classList.remove('open');
+          d.querySelector('.custom-dropdown-selected')?.setAttribute('aria-expanded', 'false');
+        });
       }
       const open = dropdownEl.classList.toggle('open');
       selected.setAttribute('aria-expanded', open ? 'true' : 'false');
@@ -1389,25 +1464,28 @@ function colorWithAlpha(color, alpha = 1) {
     const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 
     const mSel = monthDD?.querySelector('.custom-dropdown-selected');
-    const activeMonth = (shared.month !== null && shared.month >= 0 && shared.month <= 11) ? shared.month : new Date().getMonth();
     if (mSel) { 
-      mSel.setAttribute('data-value', String(activeMonth));
-      mSel.querySelector('span').textContent = meses[activeMonth];
+      if (shared.month !== null && shared.month >= 0 && shared.month <= 11) {
+        mSel.setAttribute('data-value', String(shared.month));
+        mSel.querySelector('span').textContent = meses[shared.month];
+      } else {
+        mSel.setAttribute('data-value', '');
+        mSel.querySelector('span').textContent = 'Todos los meses';
+      }
     }
 
     monthDD?.querySelectorAll('.custom-dropdown-option').forEach(o => {
       const val = o.getAttribute('data-value');
-      const isSelected = val === String(activeMonth);
+      const isSelected = shared.month !== null && val === String(shared.month);
       o.classList.toggle('selected', isSelected);
+      o.setAttribute('aria-selected', isSelected ? 'true' : 'false');
     });
     
     function actualizarIndicadoresFiltrosActivos() {
-      const currentYear = new Date().getFullYear();
-      const currentMonth = new Date().getMonth();
       const yVal = yearDD?.querySelector('.custom-dropdown-selected')?.getAttribute('data-value') || '';
       const mVal = monthDD?.querySelector('.custom-dropdown-selected')?.getAttribute('data-value') || '';
-      const hayAnio = yVal !== '' && String(yVal) !== String(currentYear);
-      const hayMes = mVal !== '' && Number(mVal) !== currentMonth;
+      const hayAnio = yVal !== '' && yVal !== null;
+      const hayMes = mVal !== '' && mVal !== null;
 
       if (yearDD) yearDD.classList.toggle('filter-active', hayAnio);
       if (monthDD) monthDD.classList.toggle('filter-active', hayMes);
@@ -1416,35 +1494,44 @@ function colorWithAlpha(color, alpha = 1) {
 
     if (yearDD) configurarDropdown(yearDD, () => {
       const yVal = yearDD.querySelector('.custom-dropdown-selected')?.getAttribute('data-value');
-      guardarFiltrosPersistidos({ year: yVal !== '' && yVal !== null ? parseInt(yVal, 10) : new Date().getFullYear() });
+      guardarFiltrosPersistidos({ year: yVal !== '' && yVal !== null ? parseInt(yVal, 10) : null });
       actualizarIndicadoresFiltrosActivos();
       renderizarTodo();
     });
     if (monthDD) configurarDropdown(monthDD, () => {
       const mVal = monthDD.querySelector('.custom-dropdown-selected')?.getAttribute('data-value');
-      guardarFiltrosPersistidos({ month: mVal !== '' && mVal !== null ? parseInt(mVal, 10) : new Date().getMonth() });
+      guardarFiltrosPersistidos({ month: mVal !== '' && mVal !== null ? parseInt(mVal, 10) : null });
       actualizarIndicadoresFiltrosActivos();
       renderizarTodo();
     });
 
     const clearBtn = document.getElementById('clearFiltersBtn');
     if (clearBtn) clearBtn.addEventListener('click', () => {
-      const currentYear = new Date().getFullYear();
-      const currentMonth = new Date().getMonth();
-      guardarFiltrosPersistidos({ year: currentYear, month: currentMonth });
+      const currentFilters = cargarFiltrosPersistidos();
+      const hadActiveFilters = (currentFilters.year !== null && currentFilters.year !== undefined) || (currentFilters.month !== null && currentFilters.month !== undefined);
+
+      guardarFiltrosPersistidos({ year: null, month: null });
       const ySel = yearDD?.querySelector('.custom-dropdown-selected');
       const mSel = monthDD?.querySelector('.custom-dropdown-selected');
-      if (ySel) { ySel.setAttribute('data-value', String(currentYear)); ySel.querySelector('span').textContent = String(currentYear); }
-      if (mSel) { mSel.setAttribute('data-value', String(currentMonth)); mSel.querySelector('span').textContent = meses[currentMonth]; }
+      if (ySel) { ySel.setAttribute('data-value', ''); ySel.querySelector('span').textContent = 'Todos los años'; }
+      if (mSel) { mSel.setAttribute('data-value', ''); mSel.querySelector('span').textContent = 'Todos los meses'; }
 
       yearDD?.querySelectorAll('.custom-dropdown-option').forEach(o => { 
-        o.classList.toggle('selected', o.getAttribute('data-value') === String(currentYear)); 
+        o.classList.remove('selected'); 
+        o.setAttribute('aria-selected', 'false');
       });
       monthDD?.querySelectorAll('.custom-dropdown-option').forEach(o => { 
-        o.classList.toggle('selected', o.getAttribute('data-value') === String(currentMonth)); 
+        o.classList.remove('selected'); 
+        o.setAttribute('aria-selected', 'false');
       });
       actualizarIndicadoresFiltrosActivos();
       renderizarTodo();
+
+      if (hadActiveFilters) {
+        mostrarExito('Filtros limpiados');
+      } else {
+        mostrarInfo('No hay filtros activos');
+      }
     });
 
     actualizarIndicadoresFiltrosActivos();
@@ -1459,6 +1546,29 @@ function colorWithAlpha(color, alpha = 1) {
       });
     });
 
+    // Atajos de teclado para filtros (Alt + A, Alt + M, Alt + L)
+    document.addEventListener('keydown', (e) => {
+      if (e.altKey && !e.ctrlKey && !e.metaKey) {
+        const key = (e.key || '').toLowerCase();
+        const code = e.code || '';
+
+        if (key === 'a' || code === 'KeyA') {
+          const dd = document.getElementById('yearFilter');
+          if (dd) { e.preventDefault(); dd.classList.add('open'); dd.querySelector('.custom-dropdown-selected')?.focus?.(); }
+          return;
+        }
+        if (key === 'm' || code === 'KeyM') {
+          const dd = document.getElementById('monthFilter');
+          if (dd) { e.preventDefault(); dd.classList.add('open'); dd.querySelector('.custom-dropdown-selected')?.focus?.(); }
+          return;
+        }
+        if (key === 'l' || code === 'KeyL') {
+          const btn = document.getElementById('clearFiltersBtn');
+          if (btn) { e.preventDefault(); btn.click(); }
+          return;
+        }
+      }
+    });
   }
 
   function obtenerTodasLasTransacciones(){

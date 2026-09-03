@@ -157,8 +157,16 @@ gap: 8px;
 padding: 10px 6px;
 }
 
-.empty-state i {
-font-size: 72px;
+.empty-state i,
+.empty-state svg,
+.empty-state .lucide {
+  width: 56px;
+  height: 56px;
+  min-width: 56px;
+  min-height: 56px;
+  font-size: 56px;
+  color: var(--primary);
+  stroke: var(--primary);
 }
 
 .empty-state p {

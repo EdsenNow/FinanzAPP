@@ -150,27 +150,11 @@
 	color: #b8b8b8;
 }
 
-[data-theme="dark"] .empty-state i {
+[data-theme="dark"] .empty-state i,
+[data-theme="dark"] .empty-state svg,
+[data-theme="dark"] .empty-state .lucide {
 	color: var(--primary);
-}
-
-[data-theme="dark"] .form-control,
-[data-theme="dark"] .search-input {
-	width: 100%;
-    padding: 12px 16px;
-    background: #1F1D2E;
-    border: none;
-    border-radius: 12px;
-    color: #e0def4;
-    font-size: 14px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    font-weight: 500;
-}
-
-[data-theme="dark"] .form-control::placeholder,
-[data-theme="dark"] .search-input::placeholder {
-	color: #908caa;
-	opacity: 1;
+	stroke: var(--primary);
 }
 
 [data-theme="dark"] .form-control:focus,
@@ -191,8 +175,20 @@
 	color: #e0def4;
 }
 
-[data-theme="dark"] .custom-dropdown.filter-active .custom-dropdown-selected {
+[data-theme="dark"] .custom-dropdown.filter-active .custom-dropdown-selected,
+[data-theme="dark"] .custom-dropdown.filter-active .custom-dropdown-selected span,
+[data-theme="dark"] .custom-dropdown.filter-active .custom-dropdown-selected i,
+[data-theme="dark"] .custom-dropdown.filter-active .custom-dropdown-selected svg {
 	color: var(--primary);
+}
+
+[data-theme="dark"] #clearFiltersBtn.btn.btn-secondary {
+	color: #908caa;
+	border: 1px solid transparent;
+}
+
+[data-theme="dark"] #clearFiltersBtn.btn.btn-secondary i {
+	color: #908caa;
 }
 
 [data-theme="dark"] #clearFiltersBtn.filter-active {
@@ -200,7 +196,9 @@
 	color: var(--primary);
 }
 
-[data-theme="dark"] #clearFiltersBtn.btn.btn-secondary i {
+[data-theme="dark"] #clearFiltersBtn.filter-active i,
+[data-theme="dark"] #clearFiltersBtn.filter-active svg,
+[data-theme="dark"] #clearFiltersBtn.btn.btn-secondary.filter-active i {
 	color: var(--primary);
 }
 
@@ -227,11 +225,6 @@
 	color: var(--light);	
 }
 
-[data-theme="dark"] .budget-category-dropdown .custom-dropdown-options {
-	scrollbar-width: thin;
-	scrollbar-color:  transparent;
-}
-
 [data-theme="dark"] .budget-category-dropdown .custom-dropdown-options::-webkit-scrollbar {
 	width: 6px;
 }
@@ -251,7 +244,8 @@
 
 [data-theme="dark"] .budget-category-dropdown .custom-dropdown-option {
 	color: #e0def4;
-	border-radius: 12px;
+	border-radius: 6px;
+	margin: 0;
 }
 
 [data-theme="dark"] .budget-period-dropdown .custom-dropdown-options {
@@ -278,7 +272,8 @@
 
 [data-theme="dark"] .budget-period-dropdown .custom-dropdown-option {
 	color: #e0def4;
-	border-radius: 8px;
+	border-radius: 6px;
+	margin: 0;
 }
 
 [data-theme="dark"] .budget-period-dropdown .custom-dropdown-option:hover {

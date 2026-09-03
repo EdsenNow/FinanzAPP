@@ -355,23 +355,21 @@ class Helpers {
    * @returns {{ year: number|null, month: number|null, searchTerm: string, category: string|null }}
    */
   static loadSharedFilters(pageKey = 'default') {
-    const defaultYear = new Date().getFullYear();
-    const defaultMonth = new Date().getMonth();
     try {
       const key = Helpers.getFilterKey(pageKey);
       const raw = localStorage.getItem(key);
-      if (!raw) return { year: defaultYear, month: defaultMonth, searchTerm: '', category: null };
+      if (!raw) return { year: null, month: null, searchTerm: '', category: null };
       const parsed = JSON.parse(raw);
       const yr = (parsed.year !== null && parsed.year !== undefined && parsed.year !== '') ? parseInt(parsed.year, 10) : null;
       const mo = (parsed.month !== null && parsed.month !== undefined && parsed.month !== '') ? parseInt(parsed.month, 10) : null;
       return {
-        year: (yr !== null && !isNaN(yr)) ? yr : defaultYear,
-        month: (mo !== null && !isNaN(mo) && mo >= 0 && mo <= 11) ? mo : defaultMonth,
+        year: (yr !== null && !isNaN(yr)) ? yr : null,
+        month: (mo !== null && !isNaN(mo) && mo >= 0 && mo <= 11) ? mo : null,
         searchTerm: typeof parsed.searchTerm === 'string' ? parsed.searchTerm : '',
         category: (parsed.category !== null && parsed.category !== undefined && parsed.category !== '') ? String(parsed.category) : null
       };
     } catch {
-      return { year: defaultYear, month: defaultMonth, searchTerm: '', category: null };
+      return { year: null, month: null, searchTerm: '', category: null };
     }
   }
 

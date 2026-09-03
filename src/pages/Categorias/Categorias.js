@@ -239,6 +239,7 @@ const sortFechaCategorias = new Map(); // categoryId -> 'newest' | 'oldest'
 const sortMontoCategorias = new Map(); // categoryId -> 'off' | 'amount-desc' | 'amount-asc'
 const paginaCategorias = new Map(); // categoryId -> número de página actual (0-based)
 const expandedCategoryIds = new Set(); // categorías que el usuario ha expandido manualmente
+const compactExpandedCategoryIds = new Set(); // categorías con transacciones desplegadas en modo compacto
 
 // Restaurar sort guardado
 (function _cargarSort() {
@@ -260,29 +261,27 @@ function _guardarSort() {
 const STORAGE_FILTROS_KEY = 'finanzapp:filters:categorias:v1';
 
 function cargarFiltrosPersistidos() {
-  const defaultYear = new Date().getFullYear();
-  const defaultMonth = new Date().getMonth();
   try {
     const raw = localStorage.getItem(STORAGE_FILTROS_KEY);
-    if (!raw) return { year: defaultYear, month: defaultMonth, searchTerm: '' };
+    if (!raw) return { year: null, month: null, searchTerm: '' };
     const parsed = JSON.parse(raw);
     const yr = (parsed.year !== null && parsed.year !== undefined && parsed.year !== '') ? parseInt(parsed.year, 10) : null;
     const mo = (parsed.month !== null && parsed.month !== undefined && parsed.month !== '') ? parseInt(parsed.month, 10) : null;
     return {
-      year: (yr !== null && !isNaN(yr)) ? yr : defaultYear,
-      month: (mo !== null && !isNaN(mo) && mo >= 0 && mo <= 11) ? mo : defaultMonth,
+      year: (yr !== null && !isNaN(yr)) ? yr : null,
+      month: (mo !== null && !isNaN(mo) && mo >= 0 && mo <= 11) ? mo : null,
       searchTerm: typeof parsed.searchTerm === 'string' ? parsed.searchTerm : ''
     };
   } catch {
-    return { year: defaultYear, month: defaultMonth, searchTerm: '' };
+    return { year: null, month: null, searchTerm: '' };
   }
 }
 
 function guardarFiltrosPersistidos(filtros) {
   try {
     localStorage.setItem(STORAGE_FILTROS_KEY, JSON.stringify({
-      year: filtros.year !== undefined ? filtros.year : new Date().getFullYear(),
-      month: filtros.month !== undefined ? filtros.month : new Date().getMonth(),
+      year: filtros.year !== undefined ? filtros.year : null,
+      month: filtros.month !== undefined ? filtros.month : null,
       searchTerm: filtros.searchTerm || ''
     }));
   } catch {}
@@ -292,13 +291,11 @@ let filtrosActuales = cargarFiltrosPersistidos();
 
 /** Actualiza los estilos visuales de los controles de filtro según el estado actual de `filtrosActuales`. */
 function actualizarIndicadorFiltros() {
-  const currentYear = new Date().getFullYear();
-  const currentMonth = new Date().getMonth();
   const yearFilter = document.getElementById('yearFilter');
   const monthFilter = document.getElementById('monthFilter');
   const clearBtn = document.getElementById('clearFiltersBtn');
-  const hayAnio = filtrosActuales.year !== null && filtrosActuales.year !== currentYear;
-  const hayMes = filtrosActuales.month !== null && filtrosActuales.month !== currentMonth;
+  const hayAnio = filtrosActuales.year !== null;
+  const hayMes = filtrosActuales.month !== null;
   const hayBusqueda = !!(filtrosActuales.searchTerm && filtrosActuales.searchTerm.trim());
 
   if (yearFilter) yearFilter.classList.toggle('filter-active', hayAnio);
@@ -320,9 +317,6 @@ function generarOpcionesAnio() {
   optionsContainer.innerHTML = '';
 
   const endYear = Math.max(startYear, currentYear);
-  if (filtrosActuales.year === null || filtrosActuales.year === undefined) {
-    filtrosActuales.year = currentYear;
-  }
 
   for (let year = startYear; year <= endYear; year++) {
     const option = document.createElement('div');
@@ -335,8 +329,13 @@ function generarOpcionesAnio() {
 
   const selectedElement = yearFilter.querySelector('.custom-dropdown-selected');
   if (selectedElement) {
-    selectedElement.querySelector('span').textContent = String(filtrosActuales.year);
-    selectedElement.setAttribute('data-value', String(filtrosActuales.year));
+    if (filtrosActuales.year !== null) {
+      selectedElement.querySelector('span').textContent = String(filtrosActuales.year);
+      selectedElement.setAttribute('data-value', String(filtrosActuales.year));
+    } else {
+      selectedElement.querySelector('span').textContent = 'Todos los años';
+      selectedElement.setAttribute('data-value', '');
+    }
   }
   actualizarIndicadorFiltros();
 }
@@ -1332,8 +1331,8 @@ function exportarAPDF() {
       const mf = document.getElementById('monthFilter')?.querySelector('.custom-dropdown-selected')?.getAttribute('data-value') || '';
       const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
       if (yf || mf !== '') {
-        const anoStr = yf ? `Año ${yf}` : `Año ${new Date().getFullYear()}`;
-        const mesStr = mf !== '' ? monthNames[Number(mf)] || `Mes ${Number(mf) + 1}` : monthNames[new Date().getMonth()];
+        const anoStr = yf ? `Año ${yf}` : 'Todos los años';
+        const mesStr = mf !== '' ? monthNames[Number(mf)] || `Mes ${Number(mf) + 1}` : 'Todos los meses';
         filtroTexto = `${anoStr} • ${mesStr}`;
       }
     } catch {}
@@ -1769,6 +1768,111 @@ function openDatePicker(inputId) {
 window.openDatePicker = openDatePicker;
 
 /**
+ * Genera el HTML de la lista de transacciones para una tarjeta de categoría.
+ */
+function generarHtmlListaTransacciones(category, transaccionesFiltradas) {
+  const txVisibles = transaccionesFiltradas.filter(t => {
+    if (category.fixedType === 'income') return t.type === 'income';
+    if (category.fixedType === 'expense') return t.type === 'expense';
+    return true;
+  });
+  const sortFecha = sortFechaCategorias.get(category.id) || 'newest';
+  const sortMonto = sortMontoCategorias.get(category.id) || 'off';
+  const txOrdenadas = [...txVisibles].sort((a, b) => {
+    if (sortMonto === 'amount-desc') return b.amount - a.amount;
+    if (sortMonto === 'amount-asc') return a.amount - b.amount;
+    return sortFecha === 'oldest' ? new Date(a.date) - new Date(b.date) : new Date(b.date) - new Date(a.date);
+  });
+  const txPerPage = (typeof window.__appTxPerPage === 'number' && window.__appTxPerPage > 0) ? window.__appTxPerPage : Infinity;
+  const totalPaginas = txPerPage === Infinity ? 1 : Math.max(1, Math.ceil(txOrdenadas.length / txPerPage));
+  const paginaActual = Math.min(paginaCategorias.get(category.id) || 0, totalPaginas - 1);
+  paginaCategorias.set(category.id, paginaActual);
+  const txPagina = txPerPage === Infinity ? txOrdenadas : txOrdenadas.slice(paginaActual * txPerPage, (paginaActual + 1) * txPerPage);
+  const fechaIcon = sortFecha === 'newest' ? 'arrow-down-wide-narrow' : 'arrow-up-narrow-wide';
+  const fechaLabel = sortFecha === 'newest' ? 'Más reciente primero' : 'Más antiguo primero';
+  const montoIcon = sortMonto === 'amount-desc' ? 'arrow-down-1-0' : sortMonto === 'amount-asc' ? 'arrow-up-0-1' : 'circle-dollar-sign';
+  const montoLabel = sortMonto === 'amount-desc' ? 'Mayor monto primero' : sortMonto === 'amount-asc' ? 'Menor monto primero' : 'Ordenar por monto';
+  const montoClass = sortMonto === 'amount-desc' ? ' sort-btn--desc' : sortMonto === 'amount-asc' ? ' sort-btn--asc' : '';
+  const mostrarTooltipFiltrosTx = esVistaEscritorio();
+  const fechaTitleAttr = mostrarTooltipFiltrosTx ? ` title="${fechaLabel}"` : '';
+  const montoTitleAttr = mostrarTooltipFiltrosTx ? ` title="${montoLabel}"` : '';
+
+  return `
+      <div class="transaction-list${txVisibles.length === 0 ? ' is-empty' : ''}">
+        ${txVisibles.length > 0 ? `
+          <div class="transaction-list-header">
+            <span class="transaction-count">${txVisibles.length} ${txVisibles.length === 1 ? 'transacción' : 'transacciones'}${totalPaginas > 1 ? ` · Pág. ${paginaActual + 1}/${totalPaginas}` : ''}</span>
+            <div class="sort-btn-group">
+              <button class="sort-btn btn-icon" data-action="sortFecha" data-category-id="${category.id}"${fechaTitleAttr}>
+                <i data-lucide="${fechaIcon}"></i>
+              </button>
+              <button class="sort-btn btn-icon${montoClass}" data-action="sortMonto" data-category-id="${category.id}"${montoTitleAttr}>
+                <i data-lucide="${montoIcon}"></i>
+              </button>
+            </div>
+          </div>
+        ` : ''}
+        ${txPagina.map(t => `
+          <div class="transaction-item">
+            <div class="transaction-item-header">
+              <div class="transaction-amount ${t.type}" title="${t.type === 'income' ? 'Ingreso: ' : 'Gasto: '}${formatCurrency(t.amount)}">
+                <span class="tx-type-badge ${t.type}" aria-hidden="true">
+                  <i data-lucide="${t.type === 'income' ? 'arrow-up' : 'arrow-down'}"></i>
+                </span>
+                <span>${formatCurrency(t.amount)}</span>
+              </div>
+              <div class="transaction-actions">
+                <button class="btn-icon" data-action="editarTransaccion" data-category-id="${category.id}" data-transaction-id="${t.id}" aria-label="Editar transacción de ${esc(category.name)}"><i data-lucide="pencil"></i></button>
+                <button class="btn-icon" data-action="eliminarTransaccion" data-category-id="${category.id}" data-transaction-id="${t.id}" aria-label="Eliminar transacción de ${esc(category.name)}"><i data-lucide="trash-2"></i></button>
+              </div>
+            </div>
+            <div class="transaction-desc" title="${esc(t.description || 'Sin descripción')}">${esc(t.description || 'Sin descripción')}</div>
+            <div class="transaction-date">${formatDate(t.date)}</div>
+          </div>
+        `).join('')}
+        ${totalPaginas > 1 ? `
+          <div class="tx-pagination">
+            <button class="btn-icon tx-page-btn" data-action="txPrevPage" data-category-id="${category.id}" ${paginaActual === 0 ? 'disabled' : ''} aria-label="Página anterior"><i data-lucide="chevron-left"></i></button>
+            <span class="tx-page-info">${paginaActual + 1} / ${totalPaginas}</span>
+            <button class="btn-icon tx-page-btn" data-action="txNextPage" data-category-id="${category.id}" ${paginaActual >= totalPaginas - 1 ? 'disabled' : ''} aria-label="Página siguiente"><i data-lucide="chevron-right"></i></button>
+          </div>
+        ` : ''}
+      </div>
+  `;
+}
+
+/**
+ * Actualiza la lista de transacciones de una tarjeta existente in-place, sin destruir la tarjeta.
+ */
+function actualizarTransaccionesDeTarjeta(catId) {
+  const category = datosUsuario.categories.find(c => String(c.id) === String(catId));
+  if (!category) {
+    renderizarCategorias();
+    return;
+  }
+  const card = categoriesContainer.querySelector(`.category-card[data-category-id="${catId}"]`);
+  if (!card) {
+    renderizarCategorias();
+    return;
+  }
+  const oldTxList = card.querySelector('.transaction-list');
+  if (!oldTxList) {
+    renderizarCategorias();
+    return;
+  }
+  const categoriasFiltradas = aplicarFiltrosACategorias();
+  const catFiltrada = categoriasFiltradas.find(c => String(c.id) === String(catId));
+  const transacciones = catFiltrada ? catFiltrada.transactions : [];
+
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = generarHtmlListaTransacciones(category, transacciones).trim();
+  const newTxList = tempDiv.firstElementChild;
+
+  oldTxList.replaceWith(newTxList);
+  window.LucideHelper?.refresh(newTxList);
+}
+
+/**
  * Adjunta el manejador de eventos unificado a una tarjeta de categoría.
  * Gestiona acciones de menú, formulario y ordenación mediante delegación de eventos.
  * @param {HTMLElement} tarjeta    - Elemento DOM de la tarjeta.
@@ -1858,13 +1962,14 @@ function configurarListenersCategoria(tarjeta, categoryId) {
     if (action === 'toggleTransactions') {
       const card = target.closest('.category-card');
       if (card) {
+        const catId = card.getAttribute('data-category-id') || categoryId;
         const isCurrentlyExpanded = card.classList.contains('tx-expanded');
         
         // Colapsar todas las demás tarjetas
         document.querySelectorAll('.category-card.tx-expanded').forEach(otherCard => {
           if (otherCard !== card) {
             otherCard.classList.remove('tx-expanded');
-            const otherIcon = otherCard.querySelector('.compact-toggle-btn i');
+            const otherIcon = otherCard.querySelector('.compact-toggle-btn i, .compact-toggle-btn svg');
             if (otherIcon) {
               otherIcon.setAttribute('data-lucide', 'chevron-down');
               window.LucideHelper?.refresh(otherCard.querySelector('.compact-toggle-btn'));
@@ -1872,9 +1977,14 @@ function configurarListenersCategoria(tarjeta, categoryId) {
           }
         });
 
+        compactExpandedCategoryIds.clear();
+
         // Alternar la actual
         card.classList.toggle('tx-expanded', !isCurrentlyExpanded);
-        const icon = target.querySelector('i');
+        if (!isCurrentlyExpanded && catId != null) {
+          compactExpandedCategoryIds.add(String(catId));
+        }
+        const icon = target.querySelector('i, svg');
         if (icon) {
           icon.setAttribute('data-lucide', !isCurrentlyExpanded ? 'chevron-up' : 'chevron-down');
           window.LucideHelper?.refresh(target);
@@ -1912,7 +2022,7 @@ function configurarListenersCategoria(tarjeta, categoryId) {
       const current = sortFechaCategorias.get(catId) || 'newest';
       sortFechaCategorias.set(catId, current === 'newest' ? 'oldest' : 'newest');
       _guardarSort();
-      renderizarCategorias();
+      actualizarTransaccionesDeTarjeta(catId);
       return;
     }
 
@@ -1921,20 +2031,23 @@ function configurarListenersCategoria(tarjeta, categoryId) {
       const next = current === 'off' ? 'amount-desc' : current === 'amount-desc' ? 'amount-asc' : 'off';
       sortMontoCategorias.set(catId, next);
       _guardarSort();
-      renderizarCategorias();
+      actualizarTransaccionesDeTarjeta(catId);
       return;
     }
 
     if (action === 'txPrevPage') {
       const current = paginaCategorias.get(catId) || 0;
-      if (current > 0) { paginaCategorias.set(catId, current - 1); renderizarCategorias(); }
+      if (current > 0) { 
+        paginaCategorias.set(catId, current - 1); 
+        actualizarTransaccionesDeTarjeta(catId); 
+      }
       return;
     }
 
     if (action === 'txNextPage') {
       const current = paginaCategorias.get(catId) || 0;
       paginaCategorias.set(catId, current + 1);
-      renderizarCategorias();
+      actualizarTransaccionesDeTarjeta(catId);
       return;
     }
 
@@ -1985,6 +2098,10 @@ function renderizarCategorias() {
   
 
   actualizarIndicadorFiltros();
+  categoriesContainer.querySelectorAll('.category-card.tx-expanded').forEach(card => {
+    const id = card.getAttribute('data-category-id');
+    if (id != null) compactExpandedCategoryIds.add(String(id));
+  });
   categoriesContainer.innerHTML = '';
   if (datosUsuario.categories.length === 0) {
     categoriesContainer.innerHTML = `
@@ -2089,36 +2206,18 @@ function renderizarCategorias() {
       if (category.fixedType === 'expense') return t.type === 'expense';
       return true;
     });
-    const sortFecha = sortFechaCategorias.get(category.id) || 'newest';
-    const sortMonto = sortMontoCategorias.get(category.id) || 'off';
-    const txOrdenadas = [...txVisibles].sort((a, b) => {
-      if (sortMonto === 'amount-desc') return b.amount - a.amount;
-      if (sortMonto === 'amount-asc') return a.amount - b.amount;
-      return sortFecha === 'oldest' ? new Date(a.date) - new Date(b.date) : new Date(b.date) - new Date(a.date);
-    });
-    const txPerPage = (typeof window.__appTxPerPage === 'number' && window.__appTxPerPage > 0) ? window.__appTxPerPage : Infinity;
-    const totalPaginas = txPerPage === Infinity ? 1 : Math.max(1, Math.ceil(txOrdenadas.length / txPerPage));
-    const paginaActual = Math.min(paginaCategorias.get(category.id) || 0, totalPaginas - 1);
-    paginaCategorias.set(category.id, paginaActual);
-    const txPagina = txPerPage === Infinity ? txOrdenadas : txOrdenadas.slice(paginaActual * txPerPage, (paginaActual + 1) * txPerPage);
-    const fechaIcon = sortFecha === 'newest' ? 'arrow-down-wide-narrow' : 'arrow-up-narrow-wide';
-    const fechaLabel = sortFecha === 'newest' ? 'Más reciente primero' : 'Más antiguo primero';
-    const montoIcon = sortMonto === 'amount-desc' ? 'arrow-down-1-0' : sortMonto === 'amount-asc' ? 'arrow-up-0-1' : 'circle-dollar-sign';
-    const montoLabel = sortMonto === 'amount-desc' ? 'Mayor monto primero' : sortMonto === 'amount-asc' ? 'Menor monto primero' : 'Ordenar por monto';
-    const montoClass = sortMonto === 'amount-desc' ? ' sort-btn--desc' : sortMonto === 'amount-asc' ? ' sort-btn--asc' : '';
-    const mostrarTooltipFiltrosTx = esVistaEscritorio();
-    const fechaTitleAttr = mostrarTooltipFiltrosTx ? ` title="${fechaLabel}"` : '';
-    const montoTitleAttr = mostrarTooltipFiltrosTx ? ` title="${montoLabel}"` : '';
 
-  const tarjeta = document.createElement('div');
-  const isExpanded = expandedCategoryIds.has(category.id);
-  let viewMode = 'compact';
-  try {
-    const rawSettings = JSON.parse(localStorage.getItem('finanzapp:settings:v1') || '{}');
-    if (rawSettings.categoryViewMode === 'extended') viewMode = 'extended';
-  } catch (e) {}
+    const tarjeta = document.createElement('div');
+    const isExpanded = expandedCategoryIds.has(category.id);
+    let viewMode = 'compact';
+    try {
+      const rawSettings = JSON.parse(localStorage.getItem('finanzapp:settings:v1') || '{}');
+      if (rawSettings.categoryViewMode === 'extended') viewMode = 'extended';
+    } catch (e) {}
 
-  tarjeta.className = `category-card fade-in${category.isPinned ? ' pinned' : ''}${viewMode === 'compact' ? ' compact-mode' : (isExpanded ? '' : ' mobile-collapsed')}`;
+    const isCompactTxExpanded = viewMode === 'compact' && compactExpandedCategoryIds.has(String(category.id));
+
+    tarjeta.className = `category-card fade-in${category.isPinned ? ' pinned' : ''}${viewMode === 'compact' ? ' compact-mode' : (isExpanded ? '' : ' mobile-collapsed')}${isCompactTxExpanded ? ' tx-expanded' : ''}`;
   tarjeta.setAttribute('data-category-id', category.id);
   tarjeta.style.animationDelay = `${cardIndex * 45}ms`;
 
@@ -2234,46 +2333,12 @@ function renderizarCategorias() {
       ${viewMode === 'compact' ? `
       <div class="compact-tx-toggle" style="margin-top: 10px; text-align: center;">
         <button class="btn btn-secondary btn-sm compact-toggle-btn" style="width: 100%; padding: 8px; border-radius: 8px; font-weight: 500;" data-action="toggleTransactions" data-category-id="${category.id}">
-          <i data-lucide="chevron-down"></i> Ver transacciones (${txVisibles.length})
+          <i data-lucide="${isCompactTxExpanded ? 'chevron-up' : 'chevron-down'}"></i> Ver transacciones (${txVisibles.length})
         </button>
       </div>
       ` : ''}
 
-      <div class="transaction-list${txVisibles.length === 0 ? ' is-empty' : ''}">
-        ${txVisibles.length > 0 ? `
-          <div class="transaction-list-header">
-            <span class="transaction-count">${txVisibles.length} ${txVisibles.length === 1 ? 'transacción' : 'transacciones'}${totalPaginas > 1 ? ` · Pág. ${paginaActual + 1}/${totalPaginas}` : ''}</span>
-            <div class="sort-btn-group">
-              <button class="sort-btn btn-icon" data-action="sortFecha" data-category-id="${category.id}"${fechaTitleAttr}>
-                <i data-lucide="${fechaIcon}"></i>
-              </button>
-              <button class="sort-btn btn-icon${montoClass}" data-action="sortMonto" data-category-id="${category.id}"${montoTitleAttr}>
-                <i data-lucide="${montoIcon}"></i>
-              </button>
-            </div>
-          </div>
-        ` : ''}
-        ${txPagina.map(t => `
-          <div class="transaction-item">
-            <div class="transaction-item-header">
-              <div class="transaction-amount ${t.type}" title="${t.type === 'income' ? 'Ingreso: ' : 'Gasto: '}${formatCurrency(t.amount)}">${formatCurrency(t.amount)}</div>
-              <div class="transaction-actions">
-                <button class="btn-icon" data-action="editarTransaccion" data-category-id="${category.id}" data-transaction-id="${t.id}" aria-label="Editar transacción de ${esc(category.name)}"><i data-lucide="pencil"></i></button>
-                <button class="btn-icon" data-action="eliminarTransaccion" data-category-id="${category.id}" data-transaction-id="${t.id}" aria-label="Eliminar transacción de ${esc(category.name)}"><i data-lucide="trash-2"></i></button>
-              </div>
-            </div>
-            <div class="transaction-desc" title="${esc(t.description || 'Sin descripción')}">${esc(t.description || 'Sin descripción')}</div>
-            <div class="transaction-date">${formatDate(t.date)}</div>
-          </div>
-        `).join('')}
-        ${totalPaginas > 1 ? `
-          <div class="tx-pagination">
-            <button class="btn-icon tx-page-btn" data-action="txPrevPage" data-category-id="${category.id}" ${paginaActual === 0 ? 'disabled' : ''} aria-label="Página anterior"><i data-lucide="chevron-left"></i></button>
-            <span class="tx-page-info">${paginaActual + 1} / ${totalPaginas}</span>
-            <button class="btn-icon tx-page-btn" data-action="txNextPage" data-category-id="${category.id}" ${paginaActual >= totalPaginas - 1 ? 'disabled' : ''} aria-label="Página siguiente"><i data-lucide="chevron-right"></i></button>
-          </div>
-        ` : ''}
-      </div>
+      ${generarHtmlListaTransacciones(category, transaccionesFiltradas)}
       </div>
     `;
 
@@ -3093,18 +3158,20 @@ function configurarListenersFiltros() {
 
   // Restaurar o establecer filtro de mes
   if (monthFilter) {
-    if (filtrosActuales.month === null || filtrosActuales.month === undefined || filtrosActuales.month < 0 || filtrosActuales.month > 11) {
-      filtrosActuales.month = new Date().getMonth();
-    }
     const monthSelected = monthFilter.querySelector('.custom-dropdown-selected');
     if (monthSelected) {
-      monthSelected.querySelector('span').textContent = meses[filtrosActuales.month];
-      monthSelected.setAttribute('data-value', String(filtrosActuales.month));
+      if (filtrosActuales.month !== null && filtrosActuales.month >= 0 && filtrosActuales.month <= 11) {
+        monthSelected.querySelector('span').textContent = meses[filtrosActuales.month];
+        monthSelected.setAttribute('data-value', String(filtrosActuales.month));
+      } else {
+        monthSelected.querySelector('span').textContent = 'Todos los meses';
+        monthSelected.setAttribute('data-value', '');
+      }
     }
     const monthOptions = monthFilter.querySelectorAll('.custom-dropdown-option');
     monthOptions.forEach(opt => {
       const val = opt.getAttribute('data-value');
-      const isSelected = val === String(filtrosActuales.month);
+      const isSelected = filtrosActuales.month !== null && val === String(filtrosActuales.month);
       opt.classList.toggle('selected', isSelected);
       opt.setAttribute('aria-selected', isSelected ? 'true' : 'false');
     });
@@ -3112,9 +3179,9 @@ function configurarListenersFiltros() {
 
   const manejarSeleccionOpcion = (tipoFiltro, value, text) => {
     if (tipoFiltro === 'year') {
-      filtrosActuales.year = value === '' ? new Date().getFullYear() : parseInt(value, 10);
+      filtrosActuales.year = value === '' ? null : parseInt(value, 10);
     } else if (tipoFiltro === 'month') {
-      filtrosActuales.month = value === '' ? new Date().getMonth() : parseInt(value, 10);
+      filtrosActuales.month = value === '' ? null : parseInt(value, 10);
     }
     guardarFiltrosPersistidos(filtrosActuales);
     actualizarIndicadorFiltros();
@@ -3811,12 +3878,8 @@ function configurarListenersEventos() {
     clearFiltersBtn.addEventListener('click', () => {
       const hadActiveFilters = filtrosActuales.year !== null || filtrosActuales.month !== null || !!(filtrosActuales.searchTerm && filtrosActuales.searchTerm.trim());
 
-      const currentYear = new Date().getFullYear();
-      const currentMonth = new Date().getMonth();
-      const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-
-      filtrosActuales.year = currentYear;
-      filtrosActuales.month = currentMonth;
+      filtrosActuales.year = null;
+      filtrosActuales.month = null;
       filtrosActuales.searchTerm = '';
       guardarFiltrosPersistidos(filtrosActuales);
 
@@ -3825,13 +3888,12 @@ function configurarListenersEventos() {
         const selected = yearDropdown.querySelector('.custom-dropdown-selected');
         const optionItems = yearDropdown.querySelectorAll('.custom-dropdown-option');
         if (selected) {
-          selected.querySelector('span').textContent = String(currentYear);
-          selected.setAttribute('data-value', String(currentYear));
+          selected.querySelector('span').textContent = 'Todos los años';
+          selected.setAttribute('data-value', '');
         }
         optionItems.forEach(opt => {
-          const isSelected = opt.getAttribute('data-value') === String(currentYear);
-          opt.classList.toggle('selected', isSelected);
-          opt.setAttribute('aria-selected', isSelected ? 'true' : 'false');
+          opt.classList.remove('selected');
+          opt.setAttribute('aria-selected', 'false');
         });
       }
 
@@ -3840,13 +3902,12 @@ function configurarListenersEventos() {
         const monthSelected = monthDropdown.querySelector('.custom-dropdown-selected');
         const monthOptions = monthDropdown.querySelectorAll('.custom-dropdown-option');
         if (monthSelected) {
-          monthSelected.querySelector('span').textContent = meses[currentMonth];
-          monthSelected.setAttribute('data-value', String(currentMonth));
+          monthSelected.querySelector('span').textContent = 'Todos los meses';
+          monthSelected.setAttribute('data-value', '');
         }
         monthOptions.forEach(opt => {
-          const isSelected = opt.getAttribute('data-value') === String(currentMonth);
-          opt.classList.toggle('selected', isSelected);
-          opt.setAttribute('aria-selected', isSelected ? 'true' : 'false');
+          opt.classList.remove('selected');
+          opt.setAttribute('aria-selected', 'false');
         });
       }
 

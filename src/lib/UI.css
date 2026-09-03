@@ -1097,21 +1097,20 @@ body::-webkit-scrollbar-corner,
 
 /* ===== Animación Global para Dropdowns (Apertura y Cierre) ===== */
 html body .custom-dropdown .custom-dropdown-options {
-  display: block !important;
-  visibility: hidden;
+  display: block ;
   opacity: 0;
-  transform: translateY(-8px) scale(0.98) !important;
+  transform: translateY(-8px) scale(0.98) ;
   transition: opacity 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), visibility 0.25s !important;
-  pointer-events: none !important;
-  transform-origin: top center !important;
+  pointer-events: none ;
+  transform-origin: top center ;
 }
 
 html body .custom-dropdown.open .custom-dropdown-options {
-  visibility: visible !important;
-  opacity: 1 !important;
-  transform: translateY(0) scale(1) !important;
-  pointer-events: auto !important;
-  animation: none !important;
+  visibility: visible ;
+  opacity: 1 ;
+  transform: translateY(0) scale(1) ;
+  pointer-events: auto ;
+  animation: none t;
 }
 
 /* ===== Desactivación Global de Animaciones en Iconos ===== */
@@ -1120,7 +1119,7 @@ i, svg, .fa, .fas, .far, .fab, .fal, .fad, .bi, .icon,
 .nav-item i, .nav-item svg,
 .category-type-btn i, .transaction-type-btn i,
 .category-menu-item i, .mobile-actions-btn i {
-  animation: none !important;
+  animation: none ;
 }
 
 /* ===== Lucide Icons Standard Styling ===== */
@@ -1257,5 +1256,51 @@ svg.lucide {
   width: 1.15em;
   height: 1.15em;
   stroke-width: 2;
+}
+
+/* ===== Iconos de Estado Vacío (Empty State) ===== */
+.empty-state i,
+.empty-state svg,
+.empty-state .lucide {
+  width: 64px;
+  height: 64px;
+  min-width: 64px;
+  min-height: 64px;
+  font-size: 64px;
+  color: var(--primary, #eb6f92);
+  stroke: var(--primary, #eb6f92);
+  display: inline-block;
+}
+
+/* ===== Badge de Tipo de Transacción (Ingreso / Gasto) ===== */
+.tx-type-badge {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tx-type-badge.income {
+  background: color-mix(in srgb, var(--success, #2a9d8f) 15%, var(--card-bg, transparent));
+  color: var(--success, #2a9d8f);
+  border: 1px solid color-mix(in srgb, var(--success, #2a9d8f) 30%, transparent);
+}
+
+.tx-type-badge.expense {
+  background: color-mix(in srgb, var(--danger, #eb6f92) 15%, var(--card-bg, transparent));
+  color: var(--danger, #eb6f92);
+  border: 1px solid color-mix(in srgb, var(--danger, #eb6f92) 30%, transparent);
+}
+
+.tx-type-badge i,
+.tx-type-badge svg {
+  width: 11px;
+  height: 11px;
+  stroke-width: 2.5;
+  color: inherit;
+  stroke: currentColor;
 }
 
