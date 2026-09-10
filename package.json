@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "build": "node scripts/build.js",
-    "serve": "npm run build && firebase emulators:start",
-    "deploy": "npm run build && firebase deploy",
+    "serve": "npm run build && npx -y firebase-tools emulators:start",
+    "deploy": "npm run build && npx -y firebase-tools deploy",
     "test": "vitest run"
   },
   "devDependencies": {

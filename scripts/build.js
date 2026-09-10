@@ -201,30 +201,6 @@ async function processHtml(filePath) {
     return `<script ${pre}src="${src}?v=${buildVersion}"${post}>`;
   });
 
-  // 5) Inject global cache buster and SW unregister to nuke old stale Service Workers
-  const cacheBusterScript = `
-    <script>
-      (function() {
-        if ('caches' in window) {
-          caches.keys().then(function(names) {
-            for (var i = 0; i < names.length; i++) {
-              caches.delete(names[i]);
-            }
-          });
-        }
-        if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.getRegistrations().then(function(registrations) {
-            for (var i = 0; i < registrations.length; i++) {
-              registrations[i].unregister();
-            }
-          });
-        }
-      })();
-      //# sourceURL=/sw-cleanup.js
-    </script>
-  </body>`;
-  html = html.replace(/<\/body>/i, cacheBusterScript);
-
   await fs.writeFile(filePath, html);
   if (inlineIndex > 0) {
     console.log(`  📄 ${path.relative(ROOT, filePath)} — ${inlineIndex} script(s) inline extraído(s)`);
