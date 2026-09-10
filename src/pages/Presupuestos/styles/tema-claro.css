@@ -50,10 +50,7 @@ letter-spacing: 0.5px;
 }
 
 [data-theme="light"] .card-change {
-background: #F5EFEA;
-color: var(--gray);
-font-size: 13px;
-font-weight: 400;
+background: #f2e9e1;
 }
 
 [data-theme="light"] .summary-card .card-title i { 
@@ -90,15 +87,15 @@ color: var(--warning);
 }
 
 [data-theme="light"] .sidebar {
-background: #FAF4ED;
+background: #f2e9e1;
 }
 
 [data-theme="light"] body.budgets-page {
-  background: #FAF4ED;
+  background: #f2e9e1;
 }
 
 [data-theme="light"] .main-content {
-  background: #FAF4ED;
+  background: #f2e9e1;
   scrollbar-color: #b4637a transparent;
 }
 
@@ -138,10 +135,6 @@ border: 2px solid #f2e9e1;
 overflow: visible;
 }
 
-[data-theme="light"] .card {
-border: 3px solid #f2e9e1;
-}
-
 [data-theme="light"] .budget-card {
 background: var(--card-bg);
 border: 3px solid #f2e9e1;
@@ -155,8 +148,6 @@ border: none;
 
 [data-theme="light"] #clearFiltersBtn.btn.btn-secondary {
   background: #fffaf3;
-  border: 3px solid #f2e9e1;
-  color: #797593;
 }
 
 [data-theme="light"] #clearFiltersBtn.btn.btn-secondary:hover {
@@ -208,13 +199,13 @@ border: none;
 
 [data-theme="light"] .filter-group {
   background: #fffaf3;
-  border: 3px solid #f2e9e1;
+  box-shadow: 0 0 0 2px transparent;
+  transition: box-shadow 0.25s ease, background 0.25s ease;
 }
 
 [data-theme="light"] .filter-group:has(.custom-dropdown.open),
 [data-theme="light"] .filter-group:focus-within {
-  border: 3px solid var(--primary, #b4637a);
-  box-shadow: none;
+  box-shadow: 0 0 0 2px var(--primary, #b4637a);
 }
 
 [data-theme="light"] .filter-group label {
@@ -224,8 +215,7 @@ border: none;
 [data-theme="light"] .form-control,
 [data-theme="light"] .search-input {
   background: #f5efea;
-  color: var(--gray);
-  border: none;
+  color: var(--gray-light);
 }
 
 [data-theme="light"] .form-control:focus,
@@ -253,10 +243,8 @@ border: none;
 }
 
 [data-theme="light"] .budget-modal .custom-dropdown .custom-dropdown-selected {
-background: #f5efea;
-color: var(--gray);
-border: none;
-box-shadow: none;
+background: #f2e9e1;
+color: var(--gray-light);
 padding: 12px 16px;
 }
 
@@ -386,10 +374,8 @@ border: 3px solid #b4637a;
 }
 
 [data-theme="light"] .modal-footer .btn:first-child {
-background: #F5EFEA;
+background: #f2e9e1;
 color: var(--light);
-border: none;
-box-shadow: none;
 }
 
 [data-theme="light"] .modal-footer .btn:first-child:hover {
@@ -458,10 +444,8 @@ color: var(--light);
 [data-theme="light"] #budgetModal select.form-control,
 [data-theme="light"] #budgetModal input.form-control,
 [data-theme="light"] #budgetModal textarea.form-control {
-background: #f5efea;
-color: var(--gray);
-border: none;
-box-shadow: none;
+background: #f2e9e1;
+color: var(--gray-light);
 }
 
 [data-theme="light"] body #budgetModal select.form-control option,
@@ -668,10 +652,10 @@ border: none;
 
 [data-theme="light"] .btn-sync-desde-hoy {
   border-color: rgba(234, 157, 52, 0.4);
+  background: #f2e9e1;
 }
 
 [data-theme="light"] .btn-sync-desde-hoy:hover {
-  background: rgba(234, 157, 52, 0.08);
   border-color: #ea9d34;
   box-shadow: 0 8px 24px rgba(234, 157, 52, 0.2);
 }
@@ -683,10 +667,11 @@ border: none;
 
 [data-theme="light"] .btn-sync-con-historial {
   border-color: rgba(40, 105, 131, 0.4);
+  background: #f2e9e1;
 }
 
 [data-theme="light"] .btn-sync-con-historial:hover {
-  background: rgba(40, 105, 131, 0.08);
+    background: rgba(40, 105, 131, 0.08);
   border-color: #286983;
   box-shadow: 0 8px 24px rgba(40, 105, 131, 0.2);
 }
@@ -705,7 +690,7 @@ border: none;
 }
 
 [data-theme="light"] body.budgets-page .sync-drawer-cancel-btn {
-  background: #f5efea;
+  background: #f2e9e1;
   color: #575279;
   border: none;
   box-shadow: none;
@@ -909,18 +894,12 @@ box-shadow: none;
 
 [data-theme="light"] .budget-card .period-chip {
   background: #f5efea;
-  border: 1px solid #e5ded6;
   color: #797593;
-}
-
-[data-theme="light"] .budget-card:hover .period-chip {
-  color: #575279;
-  border-color: #dcd3c8;
+  border: none;
 }
 
 [data-theme="light"] .budget-stats {
   background: #f5efea;
-  border-color: #f2e9e1;
 }
 
 [data-theme="light"] .budget-hero-stat {
@@ -957,7 +936,7 @@ box-shadow: none;
 }
 
 [data-theme="light"] .progress-bar {
-  background: #e5ded6;
+  background: #f5efea;
 }
 
 [data-theme="light"] .progress-percentage {

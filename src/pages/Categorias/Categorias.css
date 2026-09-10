@@ -618,6 +618,13 @@ body.categorias-page .main-content::-webkit-scrollbar-thumb:hover {
 #addCategoryBtn {
   margin-left: 0;
 }
+
+#addCategoryBtn svg,
+#addCategoryTitle svg {
+  width: 20px;
+  height: 20px;
+  stroke-width: 2.8;
+}
 .gmail-bell-btn {
   margin-left: auto;
 }
@@ -694,7 +701,8 @@ body.categorias-page .main-content::-webkit-scrollbar-thumb:hover {
   text-transform: uppercase;
   letter-spacing: 0.3px;
 }
-.btn i {
+.btn i,
+.btn svg {
   transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
   display: inline-block;
 }
@@ -711,7 +719,8 @@ body.categorias-page .main-content::-webkit-scrollbar-thumb:hover {
   background: var(--primary);
   box-shadow: 0 10px 26px rgba(235, 111, 146, 0.48);
 }
-.btn-primary:hover i {
+.btn-primary:hover i,
+.btn-primary:hover svg {
   transform: translateX(4px);
 }
 .btn-primary:active {
@@ -893,6 +902,8 @@ body.categorias-page .main-content::-webkit-scrollbar-thumb:hover {
   opacity: 1;
   visibility: visible;
   transform: translateY(0);
+  border: 2px solid var(--primary);
+  box-shadow: 0 20px 40px -8px rgba(0, 0, 0, 0.2), 0 0 18px rgba(235, 111, 146, 0.35), 0 2px 12px rgba(235, 111, 146, 0.15);
 }
 .category-menu-item {
   display: flex;
@@ -1740,17 +1751,7 @@ body.categorias-page .filter-controls #categoryFilter {
     margin-bottom: 20px;
   }
 }
-.filter-controls .filter-group + .filter-group::before {
-  position: absolute;
-  left: -10px;
-  top: 50%;
-  width: 4px;
-  height: 4px;
-  background: rgba(255,255,255,0.12);
-  border-radius: 50%;
-  transform: translateY(-50%);
-  
-}
+
 .custom-dropdown {
   min-width: 200px;
 }
@@ -2457,7 +2458,7 @@ div.amount-chip.expense {
 .gmail-notif-empty {
   padding: 28px 16px;
   text-align: center;
-  color: #6e6a86;
+  color: #6e6a86 !important;
   font-size: 0.82rem;
 }
 

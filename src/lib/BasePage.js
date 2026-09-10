@@ -88,25 +88,30 @@ class BasePage {
 
   /**
    * Sincroniza correos bancarios en segundo plano cuando el usuario tiene IMAP configurado.
-   * Evita saturar con un intervalo mínimo de 5 minutos entre chequeos.
+   * Evita saturar con un intervalo mínimo de 10 minutos entre chequeos automáticos.
    * @private
    */
   async _triggerBackgroundImapSync() {
     try {
-      if (window.SyncAPI && typeof window.SyncAPI.syncImapOnDemand === 'function') {
-        const authUser = localStorage.getItem('authUser');
-        if (!authUser) return;
-        const lastCheckKey = 'finanzapp:last_bg_sync';
-        const lastCheck = parseInt(localStorage.getItem(lastCheckKey) || '0', 10);
-        if (Date.now() - lastCheck < 60 * 1000) return;
-        localStorage.setItem(lastCheckKey, Date.now().toString());
+      if (!window.SyncAPI || typeof window.SyncAPI.syncImapOnDemand !== 'function') return;
+      const rawUser = localStorage.getItem('authUser');
+      if (!rawUser || rawUser === 'guest') return;
+      try {
+        const u = JSON.parse(rawUser);
+        if (u.provider === 'guest' || u.uid === 'guest') return;
+      } catch { return; }
 
-        window.SyncAPI.syncImapOnDemand().then(result => {
-          if (result && result.count > 0) {
-            window.dispatchEvent(new CustomEvent('finanzapp:gmail:notifications-updated'));
-          }
-        }).catch(() => { /* silencioso en segundo plano */ });
-      }
+      const lastCheckKey = 'finanzapp:last_bg_sync';
+      const lastCheck = parseInt(localStorage.getItem(lastCheckKey) || '0', 10);
+      const MIN_INTERVAL_MS = 10 * 60 * 1000; // 10 minutos entre chequeos en segundo plano
+      if (Date.now() - lastCheck < MIN_INTERVAL_MS) return;
+      localStorage.setItem(lastCheckKey, Date.now().toString());
+
+      window.SyncAPI.syncImapOnDemand().then(result => {
+        if (result && result.count > 0) {
+          window.dispatchEvent(new CustomEvent('finanzapp:gmail:notifications-updated'));
+        }
+      }).catch(() => { /* silencioso en segundo plano */ });
     } catch {}
   }
 

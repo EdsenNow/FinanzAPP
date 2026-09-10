@@ -254,17 +254,19 @@
 
     saveBtn.addEventListener('click', async () => {
       const email = document.getElementById('imapEmail').value.trim();
-      const password = document.getElementById('imapPassword').value.replace(/\s+/g, '').trim();
+      const passEl = document.getElementById('imapPassword');
+      const password = passEl.value.replace(/\s+/g, '').trim();
       const senders = document.getElementById('imapSenders').value.split(',').map(s => s.trim()).filter(Boolean);
+      const isAlreadyConfigured = passEl.getAttribute('data-is-configured') === 'true';
 
-      if (!email || !password || senders.length === 0) {
+      if (!email || senders.length === 0 || (!password && !isAlreadyConfigured)) {
         if (typeof window._configMostrarToast === 'function') {
-          window._configMostrarToast('Por favor completa todos los campos.', 'error');
+          window._configMostrarToast('Por favor completa todos los campos requeridos.', 'error');
         }
         return;
       }
 
-      if (password.length !== 16) {
+      if (password && password.length !== 16) {
         if (typeof window._configMostrarToast === 'function') {
           window._configMostrarToast(`La Contraseña de App de Google debe tener exactamente 16 letras (sin espacios). La que ingresaste tiene ${password.length} caracteres.`, 'error');
         }
@@ -278,15 +280,22 @@
       try {
         if (window.FirestoreDB) {
           await window.FirestoreDB.saveImapSettings({ email, appPassword: password, targetSenders: senders });
+          passEl.value = '';
+          passEl.placeholder = '•••••••••••••••• (Configurada)';
+          passEl.setAttribute('data-is-configured', 'true');
+          passEl.removeAttribute('required');
+
           if (syncBtn) syncBtn.style.display = 'inline-flex';
           if (typeof window._configMostrarToast === 'function') {
             window._configMostrarToast('Credenciales guardadas correctamente.', 'success');
+            window._configMostrarToast('Credenciales resguardadas y cifradas de forma segura.', 'success');
           }
         }
       } catch (e) {
         console.error('Error al guardar IMAP', e);
         if (typeof window._configMostrarToast === 'function') {
           window._configMostrarToast('Error al guardar. Verifica tu conexión.', 'error');
+          window._configMostrarToast(e.message || 'Error al guardar. Verifica tu conexión.', 'error');
         }
       } finally {
         saveBtn.disabled = false;
@@ -367,19 +376,36 @@
       if (window.FirestoreDB.ensureFirebaseInitialized) {
         window.FirestoreDB.ensureFirebaseInitialized();
       }
+
+      // Limpiar datos sensibles en localStorage si quedaron de versiones anteriores
+      try {
+        const authUser = localStorage.getItem('authUser');
+        if (authUser && authUser !== 'guest') {
+          const u = JSON.parse(authUser);
+          if (u.uid) localStorage.removeItem(`finanzapp:imap_settings:${u.uid}`);
+        }
+      } catch {}
+
       const settings = await window.FirestoreDB.getImapSettings();
       const emailEl = document.getElementById('imapEmail');
       const passEl = document.getElementById('imapPassword');
       const sendersEl = document.getElementById('imapSenders');
       const syncBtn = document.getElementById('syncImapBtn');
 
-      if (settings) {
+      if (settings && (settings.configured || settings.email || settings.appPassword)) {
         if (emailEl && settings.email) emailEl.value = settings.email;
         if (passEl && settings.appPassword) passEl.value = settings.appPassword;
+        if (passEl) {
+          passEl.value = '';
+          passEl.placeholder = '•••••••••••••••• (Configurada)';
+          passEl.setAttribute('data-is-configured', 'true');
+          passEl.removeAttribute('required');
+        }
         if (sendersEl && settings.targetSenders) {
           sendersEl.value = Array.isArray(settings.targetSenders) ? settings.targetSenders.join(', ') : settings.targetSenders;
         }
         if (syncBtn && settings.appPassword) syncBtn.style.display = 'inline-flex';
+        if (syncBtn) syncBtn.style.display = 'inline-flex';
       } else {
         const profile = getProfile();
         if (emailEl && !emailEl.value && profile.email) {

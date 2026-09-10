@@ -493,7 +493,7 @@ html body .custom-alert::before { display: none; }
 #todayBtn,
 .date-picker-modal .modal-footer .btn-primary {
   background: var(--primary, #eb6f92);
-  color: var(--light, #faf4ed);
+  color:#faf4ed;
   border: none;
 }
 
@@ -507,11 +507,9 @@ html body .custom-alert::before { display: none; }
 }
 
 .date-picker-calendar {
-  background: rgba(235, 111, 146, 0.1);
-  backdrop-filter: blur(15px);
-  border-radius: 12px;
+  background: #1f1d2e;
+  border-radius: 22px;
   padding: 20px;
-  border: 1px solid rgba(235, 111, 146, 0.2);
 }
 
 .calendar-weekdays {
@@ -825,7 +823,7 @@ box-shadow: 0 0 0 2px color-mix(in srgb, var(--danger) 25%, transparent);
 }
 
 [data-theme="light"] .confirm-drawer-cancel {
-  background: #F5EFEA;
+  background: #f2e9e1;
   color: #575279;
   border: none;
   box-shadow: none;
@@ -851,7 +849,7 @@ box-shadow: 0 0 0 2px color-mix(in srgb, var(--danger) 25%, transparent);
 
 /* Light Theme DatePicker */
 [data-theme="light"] .date-picker-input {
-  background: #f5efea;
+  background: #f2e9e1;
   color: var(--gray, #575279);
   border: none;
 }
@@ -862,7 +860,7 @@ box-shadow: 0 0 0 2px color-mix(in srgb, var(--danger) 25%, transparent);
 }
 
 [data-theme="light"] .date-nav-btn {
-  background: #F5EFEA;
+  background: #f2e9e1;
   color: var(--light, #575279);
 }
 
@@ -903,18 +901,12 @@ box-shadow: 0 0 0 2px color-mix(in srgb, var(--danger) 25%, transparent);
 }
 
 [data-theme="light"] #datePickerModal .date-picker-calendar {
-  background: #f5efea;
-  border: 1px solid rgba(180, 99, 122, 0.2);
+  background: #f2e9e1;
+  border: none;
 }
 
-[data-theme="light"] #todayBtn {
-  background: var(--primary, #b4637a);
-  color: #ffffff;
-}
 
 [data-theme="light"] #todayBtn:hover {
-  background: var(--primary, #b4637a);
-  color: #ffffff;
   box-shadow: var(--btn-shadow-hover);
   filter: brightness(1.08);
 }

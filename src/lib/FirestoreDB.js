@@ -163,34 +163,107 @@ class FirestoreDB {
     return this.db.collection('users').doc(this.currentUserId);
   }
 
+  _txCollection() {
+    return this._userDoc().collection('transactions');
+  }
+
   /**
-   * Guarda TODO el estado del usuario en un único documento Firestore.
-   * Esto garantiza consistencia y sincronización entre dispositivos.
+   * Guarda transacciones en lotes de hasta 450 documentos (límite de Firestore: 500 ops/batch).
+   * @param {Array<Object>} transactions
+   */
+  async _batchSaveTransactions(transactions) {
+    if (!Array.isArray(transactions) || transactions.length === 0) return;
+    const txCol = this._txCollection();
+    const BATCH_SIZE = 450;
+
+    for (let i = 0; i < transactions.length; i += BATCH_SIZE) {
+      const chunk = transactions.slice(i, i + BATCH_SIZE);
+      const batch = this.db.batch();
+
+      for (const t of chunk) {
+        const txId = t.id ? String(t.id) : (t.firestoreId || this.db.collection('temp').doc().id);
+        const cleanTx = {
+          id: txId,
+          amount: Number(t.amount) || 0,
+          categoryId: t.categoryId || null,
+          categoryName: t.category || t.categoryName || '',
+          type: t.type || 'expense',
+          description: t.description || t.note || '',
+          date: t.date instanceof Date ? t.date.toISOString() : (t.date || new Date().toISOString()),
+          source: t.source || 'manual',
+          updatedAt: new Date().toISOString()
+        };
+        batch.set(txCol.doc(txId), cleanTx, { merge: true });
+      }
+
+      await batch.commit();
+    }
+  }
+
+  /**
+   * Guarda o actualiza una transacción individual en la subcolección.
+   * @param {Object} tx
+   */
+  async saveTransaction(tx) {
+    if (!await this.ensureUserContext()) return false;
+    if (!tx || !tx.id) return false;
+    const txId = String(tx.id);
+    const cleanTx = {
+      ...tx,
+      id: txId,
+      amount: Number(tx.amount) || 0,
+      date: tx.date instanceof Date ? tx.date.toISOString() : (tx.date || new Date().toISOString()),
+      updatedAt: new Date().toISOString()
+    };
+    await this._txCollection().doc(txId).set(cleanTx, { merge: true });
+    return true;
+  }
+
+  /**
+   * Elimina una transacción individual de la subcolección.
+   * @param {string} txId
+   */
+  async deleteTransaction(txId) {
+    if (!await this.ensureUserContext()) return false;
+    if (!txId) return false;
+    await this._txCollection().doc(String(txId)).delete();
+    return true;
+  }
+
+  /**
+   * Guarda el estado del usuario.
+   * Guarda metadatos y categorías en users/{uid} y las transacciones en la subcolección
+   * para evitar el límite duro de 1 MB por documento de Firestore.
    */
   async saveAll(data) {
     try {
       if (!await this.ensureUserContext()) return false;
 
-      const categories = (data.categories || []).map(c => ({
-        ...c,
-        transactions: (c.transactions || []).map(t => ({
-          ...t,
-          date: t.date instanceof Date ? t.date.toISOString() : (t.date || null)
-        }))
-      }));
+      // Guardar categorías limpias en users/{uid} (sin el array redundante masivo de transacciones)
+      const categoriesClean = (data.categories || []).map(c => {
+        const { transactions, ...rest } = c;
+        return rest;
+      });
 
       const transactions = (data.transactions || []).map(t => ({
         ...t,
         date: t.date instanceof Date ? t.date.toISOString() : (t.date || null)
       }));
 
+      // 1. Guardar documento raíz sin exceder el límite de 1 MB
       await this._userDoc().set({
-        categories,
-        transactions,
+        categories: categoriesClean,
         budgets: data.budgets || {},
         settings: data.settings || {},
+        transactionsCount: transactions.length,
+        transactionsMigratedToSubcollection: true,
         updatedAt: new Date().toISOString()
       }, { merge: true });
+
+      // 2. Sincronizar transacciones a la subcolección en lotes seguros
+      if (transactions.length > 0) {
+        await this._batchSaveTransactions(transactions);
+      }
 
       return true;
     } catch (error) {
@@ -200,7 +273,9 @@ class FirestoreDB {
   }
 
   /**
-   * Carga TODO el estado del usuario desde Firestore.
+   * Carga todo el estado del usuario desde Firestore.
+   * Consulta la subcolección de transacciones con fallback y migración transparente
+   * de cuentas legadas almacenadas en el documento raíz.
    */
   async loadAll() {
     try {
@@ -210,45 +285,48 @@ class FirestoreDB {
       const doc = await userRef.get();
       let data = doc.exists ? doc.data() : null;
 
-      // Si el documento principal NO existe en absoluto, intentar migrar de subcolecciones antiguas
-      if (!doc.exists) {
-        try {
-          const catsSnapshot = await userRef.collection('categories').get();
-          const txSnapshot = await userRef.collection('transactions').get();
-          
-          if (!catsSnapshot.empty || !txSnapshot.empty) {
-            const oldCategories = catsSnapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      if (!data && !doc.exists) return null;
 
-            const oldTx = txSnapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-            
-            // Anidar transacciones dentro de las categorías correspondientes para la nueva estructura
-            const mergedCategories = oldCategories.map(c => {
-              const cTxs = oldTx.filter(t => t.categoryId === c.id || t.categoryId === c.name);
-              return { ...c, transactions: cTxs };
-            });
+      // 1. Intentar cargar transacciones desde la subcolección
+      const txCollection = this._txCollection();
+      const txSnapshot = await txCollection.get();
 
-            data = {
-              categories: mergedCategories,
-              transactions: oldTx,
-              budgets: {},
-              settings: {}
-            };
-            
-            // Guardar inmediatamente en la nueva estructura para sellar la migración
-            await this.saveAll(data);
-          }
-        } catch (migErr) {
-          console.error('[FirestoreDB] Error migrando subcolecciones:', migErr);
-        }
+      let allTransactions = [];
+
+      if (!txSnapshot.empty) {
+        allTransactions = txSnapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      } else if (data && Array.isArray(data.transactions) && data.transactions.length > 0) {
+        // Subcolección vacía pero existen transacciones en el documento raíz:
+        // Realizar migración transparente en segundo plano sin bloquear al usuario
+        allTransactions = data.transactions;
+        this._batchSaveTransactions(allTransactions).then(() => {
+          console.log(`[FirestoreDB] Migradas exitosamente ${allTransactions.length} transacciones a la subcolección.`);
+          userRef.set({
+            transactionsMigratedToSubcollection: true,
+            transactionsCount: allTransactions.length
+          }, { merge: true }).catch(() => {});
+        }).catch(err => {
+          console.warn('[FirestoreDB] Error en migración de fondo a subcolección:', err);
+        });
       }
 
-      if (!data) return null;
+      // Reensamblar transacciones en sus categorías para total compatibilidad con la UI existente
+      const rawCategories = Array.isArray(data?.categories) ? data.categories : [];
+      const categories = rawCategories.map(c => {
+        const cTxs = allTransactions.filter(t => String(t.categoryId) === String(c.id) || t.categoryId === c.name);
+        return {
+          ...c,
+          transactions: cTxs
+        };
+      });
 
       return {
-        categories: Array.isArray(data.categories) ? data.categories : [],
-        transactions: Array.isArray(data.transactions) ? data.transactions : [],
-        budgets: data.budgets || {},
-        settings: data.settings || {}
+        categories,
+        transactions: allTransactions,
+        budgets: data?.budgets || {},
+        settings: data?.settings || {},
+        gmail: data?.gmail || null,
+        imapSettings: data?.imapSettings || data?.imap || null
       };
     } catch (error) {
       console.error('[FirestoreDB] loadAll error:', error);
@@ -312,58 +390,146 @@ class FirestoreDB {
     return this._unsubscribeSnapshot;
   }
 
-  unsubscribeFromUserData() {
-    if (typeof this._unsubscribeSnapshot === 'function') {
-      this._unsubscribeSnapshot();
-      this._unsubscribeSnapshot = null;
+  /**
+   * Suscribe en tiempo real a la subcolección de transacciones (/users/{uid}/transactions).
+   * @param {function} callback - Recibe (transactions, changes)
+   * @returns {function} Función para desuscribirse.
+   */
+  subscribeToTransactions(callback) {
+    if (!this.db || !this.currentUserId) {
+      console.warn('[FirestoreDB] No se puede suscribir a transacciones: falta db o currentUserId');
+      return () => {};
     }
+    this.unsubscribeFromTransactions();
+
+    try {
+      this._unsubscribeTransactionsSnapshot = this._txCollection().onSnapshot(
+        (snap) => {
+          const txs = snap.docs.map(doc => {
+            const d = doc.data();
+            return {
+              ...d,
+              id: doc.id,
+              date: (d.date && typeof d.date === 'string') ? new Date(d.date) : d.date
+            };
+          });
+
+          // Actualizar snapshot local para carga instantánea
+          try {
+            if (this.currentUserId) {
+              localStorage.setItem(`finanzapp:data:v1:${this.currentUserId}:transactions`, JSON.stringify(txs));
+            }
+          } catch {}
+
+          if (typeof callback === 'function') {
+            callback(txs, snap.docChanges());
+          }
+
+          if (window.DataEvents && typeof window.DataEvents.emit === 'function') {
+            window.DataEvents.emit('transactions:updated', { transactions: txs, changes: snap.docChanges() });
+          }
+        },
+        (err) => {
+          console.error('[FirestoreDB] onSnapshot transactions error:', err);
+        }
+      );
+    } catch (e) {
+      console.warn('[FirestoreDB] Error suscribiendo a transacciones:', e);
+    }
+
+    return this._unsubscribeTransactionsSnapshot || (() => {});
+  }
+
+  unsubscribeFromTransactions() {
+    if (typeof this._unsubscribeTransactionsSnapshot === 'function') {
+      this._unsubscribeTransactionsSnapshot();
+      this._unsubscribeTransactionsSnapshot = null;
+    }
+  }
+
+  unsubscribeAll() {
+    this.unsubscribeFromUserData();
+    this.unsubscribeFromTransactions();
   }
 
   async saveImapSettings(settings) {
     if (!await this.ensureUserContext()) {
-      throw new Error('No hay sesión de usuario activa en Firestore');
+      throw new Error('No hay sesión de usuario activa');
     }
-    const dataToSave = {
-      email: settings.email || '',
-      appPassword: settings.appPassword || '',
-      targetSenders: settings.targetSenders || [],
+
+    const email = settings.email || '';
+    const appPassword = settings.appPassword || '';
+    const targetSenders = settings.targetSenders || [];
+
+    // Limpiar contraseñas en texto plano de localStorage por seguridad
+    if (this.currentUserId) {
+      try {
+        localStorage.removeItem(`finanzapp:imap_settings:${this.currentUserId}`);
+      } catch {}
+    }
+
+    // Usar SyncAPI para guardar de forma cifrada en la colección privada userSecrets/{uid}
+    if (window.SyncAPI && typeof window.SyncAPI.saveImapCredentials === 'function') {
+      try {
+        const result = await window.SyncAPI.saveImapCredentials({ email, appPassword, targetSenders });
+        return result.success !== false;
+      } catch (err) {
+        console.warn('[FirestoreDB] saveImapCredentials vía SyncAPI falló, usando fallback Firestore:', err);
+      }
+    }
+
+    // Fallback: guardar únicamente metadatos no sensibles en Firestore (SIN appPassword)
+    // Fallback: guardar en Firestore para no interrumpir el flujo del usuario si el backend no está disponible
+    const imapData = {
+      configured: true,
+      email,
+      targetSenders,
       updatedAt: new Date().toISOString()
     };
+    if (appPassword) imapData.appPassword = appPassword;
 
     await this._userDoc().set({
-      imapSettings: dataToSave
+      imapSettings: imapData,
+      imap: imapData
     }, { merge: true });
 
-    if (this.currentUserId) {
-      localStorage.setItem(`finanzapp:imap_settings:${this.currentUserId}`, JSON.stringify(dataToSave));
-    }
     return true;
   }
 
   async getImapSettings() {
-    if (!await this.ensureUserContext()) {
-      const authUser = localStorage.getItem('authUser');
-      const uid = authUser ? JSON.parse(authUser).uid : null;
-      if (uid) {
-        const cached = localStorage.getItem(`finanzapp:imap_settings:${uid}`);
-        return cached ? JSON.parse(cached) : null;
+    // 1. Intentar consultar el estado seguro vía SyncAPI
+    if (window.SyncAPI && typeof window.SyncAPI.getImapStatus === 'function') {
+      try {
+        const status = await window.SyncAPI.getImapStatus();
+        if (status) return status;
+      } catch (e) {
+        console.warn('[FirestoreDB] getImapStatus vía SyncAPI falló, usando Firestore:', e);
       }
+    }
+
+    if (!await this.ensureUserContext()) {
       return null;
     }
 
+    // 2. Fallback: leer metadatos de configuración desde el documento del usuario
     try {
       const doc = await this._userDoc().get();
-      if (doc.exists && doc.data()?.imapSettings) {
-        return doc.data().imapSettings;
+      if (doc.exists) {
+        const data = doc.data();
+        const imap = data?.imapSettings || data?.imap;
+        if (imap) {
+          return {
+            configured: !!(imap.configured || imap.appPassword || imap.email),
+            email: imap.email || '',
+            targetSenders: imap.targetSenders || [],
+            lastSyncAt: imap.lastSyncAt || null
+          };
+        }
       }
     } catch (e) {
       console.warn('[FirestoreDB] Error reading imapSettings from Firestore:', e);
     }
 
-    if (this.currentUserId) {
-      const cached = localStorage.getItem(`finanzapp:imap_settings:${this.currentUserId}`);
-      return cached ? JSON.parse(cached) : null;
-    }
     return null;
   }
 

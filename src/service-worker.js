@@ -1,99 +1,117 @@
-const CACHE_VERSION = 'v20260819_v3';
-const STATIC_CACHE = `finanzapp-static-${CACHE_VERSION}`;
-const SHELL_CACHE = `finanzapp-shell-${CACHE_VERSION}`;
+/**
+ * FinanzApp Modern Service Worker
+ * --------------------------------
+ * Estrategia de caché balanceada y resiliente:
+ *  - Network-First para navegación HTML (garantiza siempre la última versión online, offline fallback).
+ *  - Stale-While-Revalidate para recursos estáticos locales (CSS, JS, iconos, fuentes).
+ *  - Network-Only bypass para Firebase Auth, Firestore y APIs bancarias.
+ */
 
-const SHELL_ASSETS = [
+const CACHE_NAME = 'finanzapp-cache-v2.1.0';
+
+const PRECACHE_ASSETS = [
   '/',
   '/index.html',
-  '/pages/Login/Login.html',
-  '/__config.js',
-  '/lib/fonts.css'
+  '/manifest.json',
+  '/Icons/android-chrome-192x192.png',
+  '/Icons/android-chrome-512x512.png',
+  '/Icons/favicon.ico',
+  '/css/theme.css',
+  '/css/shared.css'
 ];
 
-const STATIC_EXTENSIONS = /\.(css|js|woff2?|png|jpg|jpeg|gif|svg|ico|webmanifest|json)$/;
-
-// Precache del shell durante install
 self.addEventListener('install', (event) => {
+  self.skipWaiting();
   event.waitUntil(
-    caches.open(SHELL_CACHE)
-      .then(cache => cache.addAll(SHELL_ASSETS))
-      .then(() => self.skipWaiting())
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(PRECACHE_ASSETS).catch((err) => {
+        console.warn('[SW] Fallo precaché inicial de algunos recursos (no crítico):', err);
+      });
+    })
   );
 });
 
-// Limpiar caches antiguas y tomar control de clientes
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(
-        keys
-          .filter(key => key !== STATIC_CACHE && key !== SHELL_CACHE)
-          .map(key => caches.delete(key))
-      )
-    ).then(() => self.clients.claim())
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((name) => {
+          if (name !== CACHE_NAME) {
+            console.log('[SW] Eliminando caché obsoleta:', name);
+            return caches.delete(name);
+          }
+        })
+      );
+    }).then(() => self.clients.claim())
   );
 });
 
-function isApiRequest(url) {
-  return (
-    url.startsWith('https://firestore.googleapis.com') ||
-    url.startsWith('https://identitytoolkit.googleapis.com') ||
-    url.includes('cloudfunctions.net') ||
-    url.includes('googleapis.com')
-  );
-}
-
-function isThirdPartyAuthScript(url) {
-  return (
-    url.startsWith('https://www.google.com/recaptcha') ||
-    url.startsWith('https://apis.google.com/js/') ||
-    url.startsWith('https://accounts.google.com/gsi/')
-  );
-}
-
-function isChromeExtension(url) {
-  return url.startsWith('chrome-extension://') || url.startsWith('moz-extension://');
-}
-
-// Network-first para todos los recursos para garantizar que los cambios se desplieguen inmediatamente.
 self.addEventListener('fetch', (event) => {
-  if (event.request.method !== 'GET') return;
-  const url = new URL(event.request.url);
+  const { request } = event;
+  const url = new URL(request.url);
 
-  if (isApiRequest(url.href)) return;
-  if (isThirdPartyAuthScript(url.href)) return;
-  if (isChromeExtension(url.href)) return;
+  // 1. Ignorar peticiones que no sean GET
+  if (request.method !== 'GET') return;
 
-  // HTML: network-first, fallback a cache
-  if (event.request.mode === 'navigate' || event.request.destination === 'document') {
+  // 2. Network-Only Bypass: Firebase, Google APIs, extensiones y backend sincronizador
+  if (
+    url.protocol.startsWith('chrome-extension') ||
+    url.hostname.includes('firestore.googleapis.com') ||
+    url.hostname.includes('identitytoolkit.googleapis.com') ||
+    url.hostname.includes('accounts.google.com') ||
+    url.hostname.includes('apis.google.com') ||
+    url.hostname.includes('cloudfunctions.net') ||
+    url.pathname.includes('/syncImap') ||
+    url.pathname.includes('/__config.js')
+  ) {
+    return;
+  }
+
+  // 3. Peticiones de navegación (HTML): Network-First con fallback a caché
+  if (request.mode === 'navigate' || request.destination === 'document') {
     event.respondWith(
-      fetch(event.request)
-        .then(response => {
-          const clone = response.clone();
-          caches.open(SHELL_CACHE).then(cache => cache.put(event.request, clone));
-          return response;
+      fetch(request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const copy = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+          }
+          return networkResponse;
         })
-        .catch(() =>
-          caches.match(event.request).then(response =>
-            response || caches.match('/index.html')
-          )
-        )
+        .catch(async () => {
+          const cached = await caches.match(request);
+          if (cached) return cached;
+          const fallback = await caches.match('/index.html');
+          return fallback || Response.error();
+        })
     );
     return;
   }
 
-  // CSS/JS/Fonts/Imágenes: network-first, fallback a cache
-  if (STATIC_EXTENSIONS.test(url.pathname)) {
+  // 4. Recursos estáticos locales: Stale-While-Revalidate
+  const isStaticAsset =
+    url.origin === self.location.origin &&
+    (/\.(css|js|png|jpg|jpeg|svg|ico|woff2?|webp)$/i.test(url.pathname) ||
+      url.pathname.startsWith('/Icons/') ||
+      url.pathname.startsWith('/css/') ||
+      url.pathname.startsWith('/lib/'));
+
+  if (isStaticAsset) {
     event.respondWith(
-      fetch(event.request)
-        .then(response => {
-          if (response && response.status === 200) {
-            const clone = response.clone();
-            caches.open(STATIC_CACHE).then(cache => cache.put(event.request, clone));
-          }
-          return response;
-        })
-        .catch(() => caches.match(event.request))
+      caches.open(CACHE_NAME).then(async (cache) => {
+        const cachedResponse = await cache.match(request);
+        const fetchPromise = fetch(request)
+          .then((networkResponse) => {
+            if (networkResponse && networkResponse.status === 200) {
+              cache.put(request, networkResponse.clone());
+            }
+            return networkResponse;
+          })
+          .catch(() => cachedResponse);
+
+        return cachedResponse || fetchPromise;
+      })
     );
+    return;
   }
 });

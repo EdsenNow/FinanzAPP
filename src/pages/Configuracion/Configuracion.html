@@ -59,6 +59,7 @@
   <script src="/lib/Helpers.js?v=1788099417852"></script>
   <script src="/lib/DataStore.js?v=1788099417852"></script>
   <script src="/lib/BasePage.js?v=1788099417852"></script>
+  <script src="/lib/sidebarRenderer.js"></script>
 
   <!-- DOMPurify: sanitización automática de innerHTML contra XSS -->
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3.4.14/dist/purify.min.js" crossorigin="anonymous"></script>
@@ -575,22 +576,12 @@
 
     <script>
       (function() {
-        if ('caches' in window) {
-          caches.keys().then(function(names) {
-            for (var i = 0; i < names.length; i++) {
-              caches.delete(names[i]);
-            }
-          });
-        }
         if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.getRegistrations().then(function(registrations) {
-            for (var i = 0; i < registrations.length; i++) {
-              registrations[i].unregister();
-            }
+          window.addEventListener('load', function() {
+            navigator.serviceWorker.register('/service-worker.js').catch(function() {});
           });
         }
       })();
-      //# sourceURL=/sw-cleanup.js
     </script>
   </body>
 </html>

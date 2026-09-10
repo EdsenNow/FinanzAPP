@@ -57,7 +57,7 @@
 [data-theme="light"] body.config-page .main-content,
 [data-theme="light"] .config-page .main-content,
 [data-theme="light"] .main-content {
-  background: var(--config-page-bg);
+  background: #f2e9e1;
   scrollbar-color: #b4637a transparent;
 }
 
@@ -75,7 +75,7 @@
 
 /* ---------- Sidebar ---------- */
 [data-theme="light"] .sidebar {
-  background: #faf4ed;
+  background: #f2e9e1;
 }
 
 [data-theme="light"] .user-email {
@@ -170,8 +170,7 @@
 }
 
 [data-theme="light"] .preview-row {
-  background: #f5efea;
-  border-color: #e5ded6;
+  background: #f2e9e1;
 }
 
 [data-theme="light"] .preview-row .preview-label {
@@ -262,7 +261,7 @@
 
 /* ---------- Data card stats ---------- */
 [data-theme="light"] .data-stat-item {
-  background: #f5efea;
+  background: #f2e9e1;
 }
 
 [data-theme="light"] .stat-number {
@@ -331,7 +330,7 @@
 }
 
 [data-theme="light"] .preferences-card .custom-dropdown-selected {
-    background: #f5efea;
+    background: #f2e9e1;
     color: var(--gray);
     border: none;
     box-shadow: none;
@@ -448,6 +447,7 @@
 [data-theme="light"] .imap-form .form-control::placeholder {
   color: #797593;
   opacity: 1;
+  background: #f2e9e1;
 }
 
 [data-theme="light"] .imap-form .setting-label-col small {

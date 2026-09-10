@@ -343,10 +343,10 @@
     }
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(function(registrations) {
-        for (let registration of registrations) {
-          registration.unregister();
-        }
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('/service-worker.js').catch(function (err) {
+          console.warn('[SW] No se pudo registrar el service worker:', err);
+        });
       });
     }
 

@@ -10,11 +10,34 @@ service cloud.firestore {
     function isOwner(userId) {
       return isAuthenticated() && request.auth.uid == userId;
     }
+
+    // Validador de esquema y límites para transacciones
+    function isValidTransaction() {
+      let data = request.resource.data;
+      return data.amount is number
+        && data.amount >= 0
+        && data.amount <= 1000000000
+        && (!('description' in data) || (data.description is string && data.description.size() <= 200))
+        && (!('type' in data) || data.type in ['expense', 'income']);
+    }
     
-    // Reglas para la colección de usuarios y todas sus subcolecciones
+    // Colección privada para secretos y credenciales (IMAP, tokens, etc.)
+    // Acceso DENEGADO para cualquier cliente; solo accesible vía Firebase Admin SDK (Cloud Functions)
+    match /userSecrets/{userId} {
+      allow read, write: if false;
+    }
+
+    // Reglas para la colección de usuarios
     match /users/{userId} {
       allow read, write: if isOwner(userId);
+
+      // Subcolección de transacciones con validación estricta de tipos y límites
+      match /transactions/{txId} {
+        allow read, delete: if isOwner(userId);
+        allow create, update: if isOwner(userId) && isValidTransaction();
+      }
       
+      // Otras subcolecciones o documentos anidados del usuario
       match /{allChildren=**} {
         allow read, write: if isOwner(userId);
       }

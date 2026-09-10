@@ -9,34 +9,11 @@ const admin = require('firebase-admin');
 const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
+const crypto = require('crypto');
 
 admin.initializeApp();
 
-const KMS_KEY_NAME = process.env.KMS_KEY_NAME || null;
-
-async function encryptKms(plaintext) {
-  if (!plaintext) return null;
-  if (!KMS_KEY_NAME) {
-    console.warn('[KMS] KMS_KEY_NAME not set, storing plaintext (not secure)');
-    return plaintext;
-  }
-  // Cargar @google-cloud/kms dinámicamente solo cuando esté configurado
-  const {KeyManagementServiceClient} = require('@google-cloud/kms');
-  const kmsClient = new KeyManagementServiceClient();
-  const [result] = await kmsClient.encrypt({ name: KMS_KEY_NAME, plaintext: Buffer.from(plaintext) });
-  return result.ciphertext.toString('base64');
-}
-
-async function decryptKms(ciphertextBase64) {
-  if (!ciphertextBase64) return null;
-  if (!KMS_KEY_NAME) {
-    return ciphertextBase64;
-  }
-  const {KeyManagementServiceClient} = require('@google-cloud/kms');
-  const kmsClient = new KeyManagementServiceClient();
-  const [result] = await kmsClient.decrypt({ name: KMS_KEY_NAME, ciphertext: Buffer.from(ciphertextBase64, 'base64') });
-  return result.plaintext.toString();
-}
+const { encryptSecret, decryptSecret, encryptKms, decryptKms } = require('./src/cryptoHelper');
 
 const app = express();
 const ADMIN_UIDS = new Set(
@@ -53,8 +30,10 @@ const ALLOWED_ORIGINS = new Set(
 );
 const API_RATE_LIMIT_WINDOW_MS = Number(process.env.API_RATE_LIMIT_WINDOW_MS || 60 * 1000);
 const API_RATE_LIMIT_MAX = Number(process.env.API_RATE_LIMIT_MAX || 120);
-const RATE_LIMITED_PATHS = new Set(['/exchangeCode', '/refreshAccessToken', '/gmail/startWatch', '/gmail/stopWatch', '/admin/reprocess']);
-const APPCHECK_PROTECTED_PATHS = new Set(['/exchangeCode', '/refreshAccessToken', '/gmail/startWatch', '/gmail/stopWatch']);
+const SYNC_IMAP_RATE_LIMIT_WINDOW_MS = Number(process.env.SYNC_IMAP_RATE_LIMIT_WINDOW_MS || (10 * 60 * 1000)); // 10 minutos
+const SYNC_IMAP_RATE_LIMIT_MAX = Number(process.env.SYNC_IMAP_RATE_LIMIT_MAX || 10); // Máximo 10 peticiones cada 10 min
+const RATE_LIMITED_PATHS = new Set(['/exchangeCode', '/refreshAccessToken', '/gmail/startWatch', '/gmail/stopWatch', '/admin/reprocess', '/syncImap', '/saveImapCredentials']);
+const APPCHECK_PROTECTED_PATHS = new Set(['/exchangeCode', '/refreshAccessToken', '/gmail/startWatch', '/gmail/stopWatch', '/syncImap', '/saveImapCredentials']);
 const ENFORCE_APPCHECK = String(process.env.ENFORCE_APPCHECK || 'false').toLowerCase() === 'true';
 
 const rateLimitBuckets = new Map();
@@ -159,8 +138,16 @@ app.use((req, res, next) => {
   if (!RATE_LIMITED_PATHS.has(req.path)) return next();
   const ip = getRequestIp(req);
   const key = `${req.path}:${ip}`;
-  if (!consumeRateLimit(key)) {
-    return res.status(429).json({ error: 'too_many_requests' });
+  const isImapSync = req.path === '/syncImap';
+  const maxHits = isImapSync ? SYNC_IMAP_RATE_LIMIT_MAX : API_RATE_LIMIT_MAX;
+  const windowMs = isImapSync ? SYNC_IMAP_RATE_LIMIT_WINDOW_MS : API_RATE_LIMIT_WINDOW_MS;
+  if (!consumeRateLimit(key, maxHits, windowMs)) {
+    return res.status(429).json({ 
+      error: 'too_many_requests',
+      message: isImapSync 
+        ? 'Límite de sincronizaciones IMAP alcanzado (máx. 10 cada 10 minutos). Por favor espera un momento.' 
+        : 'Demasiadas solicitudes. Por favor, inténtalo más tarde.'
+    });
   }
   return next();
 });
@@ -184,371 +171,22 @@ app.use(async (req, res, next) => {
 
 app.use(express.json({ limit: '100kb' }));
 
-const CLIENT_ID = process.env.GMAIL_CLIENT_ID || '';
-const CLIENT_SECRET = process.env.GMAIL_CLIENT_SECRET || '';
-const REDIRECT_URI = process.env.GMAIL_REDIRECT_URI || process.env.REDIRECT_URI || 'postmessage';
+const {
+  GMAIL_RUNTIME_SECRETS,
+  GMAIL_PUBSUB_TOPIC,
+  GMAIL_PUBSUB_SHORT,
+  GMAIL_WATCH_RENEW_MARGIN_MS,
+  GMAIL_WATCH_RENEW_SCHEDULE,
+  isInvalidGrantError,
+  refreshAccessTokenWithRefreshToken
+} = require('./src/gmailHelper');
+const createGmailRoutes = require('./src/routes/gmailRoutes');
+const createImapRoutes = require('./src/routes/imapRoutes');
 
-const GMAIL_RUNTIME_SECRETS = ['GMAIL_CLIENT_SECRET'];
-// Pub/Sub topic to receive Gmail push notifications (full path and short name)
-const GMAIL_PUBSUB_TOPIC = process.env.GMAIL_PUBSUB_TOPIC || `projects/${process.env.GCLOUD_PROJECT}/topics/gmail-notifications`;
-const GMAIL_PUBSUB_SHORT = process.env.GMAIL_PUBSUB_SHORT || 'gmail-notifications';
-// Renovar watches antes de expirar (margen en ms). Por defecto: 5 minutos.
-const GMAIL_WATCH_RENEW_MARGIN_MS = Number(process.env.GMAIL_WATCH_RENEW_MARGIN_MS || (5 * 60 * 1000)); // 5 minutos por defecto
-// Programación para la tarea de renovación. Puede configurarse con env var.
-const GMAIL_WATCH_RENEW_SCHEDULE = process.env.GMAIL_WATCH_RENEW_SCHEDULE || 'every 5 minutes';
+app.use('/', createGmailRoutes(verifyUserRequest));
+app.use('/', createImapRoutes(verifyUserRequest));
 
-function isInvalidGrantError(err) {
-  const d = err && err.response && err.response.data ? err.response.data : null;
-  const code = d && typeof d === 'object' ? d.error : (typeof d === 'string' ? d : null);
-  const desc = d && typeof d === 'object' ? (d.error_description || '') : (typeof d === 'string' ? d : '');
-  return code === 'invalid_grant' || (typeof desc === 'string' && /expired|revoked|invalid_grant/i.test(desc));
-}
 
-async function clearUserGmailTokens(uid) {
-  try {
-    await admin.firestore().collection('users').doc(uid).set({
-      gmail: {
-        encrypted_refresh_token: admin.firestore.FieldValue.delete(),
-        refresh_token: admin.firestore.FieldValue.delete(),
-        tokens: admin.firestore.FieldValue.delete()
-      }
-    }, { merge: true });
-    console.log('[gmail] cleared refresh token for', uid);
-  } catch (e) {
-    console.warn('[gmail] failed clearing refresh token for', uid, e);
-  }
-}
-
-app.post('/exchangeCode', async (req, res) => {
-  const { code, uid } = req.body || {};
-  if (!code || !uid) return res.status(400).json({ error: 'missing code or uid' });
-
-  try {
-    const caller = await verifyUserRequest(req, uid);
-    if (!caller) return res.status(403).json({ error: 'unauthorized' });
-
-    const redirectUri = req.body.redirect_uri || REDIRECT_URI || 'postmessage';
-    const params = new URLSearchParams();
-    params.append('code', code);
-    params.append('client_id', CLIENT_ID);
-    params.append('client_secret', CLIENT_SECRET);
-    params.append('redirect_uri', redirectUri);
-    params.append('grant_type', 'authorization_code');
-
-    let tokenResp;
-    try {
-      tokenResp = await axios.post('https://oauth2.googleapis.com/token', params.toString(), {
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-      });
-    } catch (e1) {
-      if (redirectUri !== 'postmessage') {
-        params.set('redirect_uri', 'postmessage');
-        tokenResp = await axios.post('https://oauth2.googleapis.com/token', params.toString(), {
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-        });
-      } else {
-        throw e1;
-      }
-    }
-
-    const tokens = tokenResp.data;
-
-    const gmailDoc = {
-      tokens: tokens,
-      updatedAt: admin.firestore.FieldValue.serverTimestamp()
-    };
-
-    if (tokens.refresh_token) {
-      gmailDoc.refresh_token = tokens.refresh_token;
-      gmailDoc.encrypted_refresh_token = await encryptKms(tokens.refresh_token);
-    }
-
-    await admin.firestore().collection('users').doc(uid).set({
-      gmail: gmailDoc
-    }, { merge: true });
-
-    res.json({
-      success: true,
-      access_token: tokens.access_token,
-      expires_in: tokens.expires_in || 3600
-    });
-
-  } catch (err) {
-    const errData = err?.response?.data;
-    console.error('exchangeCode error', errData || err.message);
-    
-    let errMsg = errData?.error_description || errData?.error || err.message;
-    if (typeof errMsg === 'object') {
-      errMsg = JSON.stringify(errMsg);
-    }
-    
-    if (errMsg.includes('invalid_client') || errMsg.includes('invalid_grant') || errMsg.includes('unauthorized_client') || errMsg.includes('deleted_client')) {
-      errMsg = 'Las credenciales de Google OAuth de tu proyecto Firebase (Client ID o Client Secret) no son válidas, están cruzadas, fueron eliminadas o están mal configuradas. Por favor, asegúrate de que coincidan con la consola de Google Cloud.';
-    }
-    
-    res.status(500).json({ error: errMsg });
-  }
-});
-
-// Permitir que Google redirija directamente con GET (útil para pruebas manuales
-// o cuando se incluye el `state` con el `uid`). Responderá con una página simple.
-app.get('/exchangeCode', async (req, res) => {
-  const code = req.query.code;
-  // uid puede venir como query param `uid` o en `state`
-  const uid = req.query.uid || req.query.state;
-  if (!code || !uid) {
-    res.status(400).type('text/plain').send('Missing code or uid (provide uid as query param or as state)');
-    return;
-  }
-
-  try {
-    const caller = await verifyUserRequest(req, uid);
-    if (!caller) {
-      res.status(403).type('text/plain').send('Unauthorized');
-      return;
-    }
-
-    const params = new URLSearchParams();
-    params.append('code', code);
-    params.append('client_id', CLIENT_ID);
-    params.append('client_secret', CLIENT_SECRET);
-    params.append('redirect_uri', REDIRECT_URI);
-    params.append('grant_type', 'authorization_code');
-
-    const tokenResp = await axios.post('https://oauth2.googleapis.com/token', params.toString(), {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-    });
-
-    const tokens = tokenResp.data;
-
-    // No sobrescribir el refresh_token guardado con null si Google no devuelve
-    // uno nuevo (solo lo emite cuando hay consentimiento explícito).
-    const gmailDoc = {
-      tokens: tokens,
-      updatedAt: admin.firestore.FieldValue.serverTimestamp()
-    };
-    if (tokens.refresh_token) {
-      gmailDoc.refresh_token = tokens.refresh_token;
-      gmailDoc.encrypted_refresh_token = await encryptKms(tokens.refresh_token);
-    }
-
-    await admin.firestore().collection('users').doc(uid).set({
-      gmail: gmailDoc
-    }, { merge: true });
-
-    // Responder una página simple para el navegador
-    res.status(200).type('text/html').send(`
-      <html>
-        <head><meta charset="utf-8"><title>Autorización completada</title></head>
-        <body>
-          <h2>Autorización completada</h2>
-          <p>El código fue intercambiado y el refresh_token guardado para el usuario <strong>${uid}</strong>.</p>
-          <p>Puedes cerrar esta pestaña y volver a la aplicación.</p>
-        </body>
-      </html>
-    `);
-  } catch (err) {
-    console.error('exchangeCode (GET) error', err?.response?.data || err.message);
-    const payload = err?.response?.data || { message: err?.message };
-    res.status(500).type('application/json').send(JSON.stringify(payload, null, 2));
-  }
-});
-
-app.get('/refreshAccessToken', async (req, res) => {
-  const uid = req.query.uid;
-  if (!uid) return res.status(400).json({ error: 'missing uid' });
-
-  try {
-    const caller = await verifyUserRequest(req, uid);
-    if (!caller) return res.status(403).json({ error: 'unauthorized' });
-
-    const doc = await admin.firestore().collection('users').doc(uid).get();
-    const data = doc.data();
-    let refresh_token = null;
-    try {
-      const encrypted = data?.gmail?.encrypted_refresh_token;
-      refresh_token = encrypted ? await decryptKms(encrypted) : data?.gmail?.refresh_token;
-    } catch (kmsErr) {
-      console.warn('[refreshAccessToken] KMS decrypt error:', kmsErr?.message);
-      refresh_token = data?.gmail?.refresh_token || null;
-    }
-
-    if (!refresh_token) return res.status(200).json({ error: 'no refresh token', code: 'not_found' });
-
-    const params = new URLSearchParams();
-    params.append('client_id', CLIENT_ID);
-    params.append('client_secret', CLIENT_SECRET);
-    params.append('grant_type', 'refresh_token');
-    params.append('refresh_token', refresh_token);
-
-    const tokenResp = await axios.post('https://oauth2.googleapis.com/token', params.toString(), {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-    });
-
-    const tokens = tokenResp.data;
-
-    // Guardar último access token metadata (opcional)
-    await admin.firestore().collection('users').doc(uid).set({
-      gmail: {
-        lastAccess: tokens,
-        updatedAt: admin.firestore.FieldValue.serverTimestamp()
-      }
-    }, { merge: true });
-
-    res.json({ access_token: tokens.access_token, expires_in: tokens.expires_in, scope: tokens.scope });
-  } catch (err) {
-    const errData = err?.response?.data;
-    const isInvalid = err?.code === 'invalid_grant' || errData?.error === 'invalid_grant' || err?.response?.status === 400 || err?.response?.status === 401;
-    if (isInvalid) {
-      try {
-        await admin.firestore().collection('users').doc(uid).set({
-          gmail: {
-            encrypted_refresh_token: admin.firestore.FieldValue.delete(),
-            refresh_token: admin.firestore.FieldValue.delete()
-          }
-        }, { merge: true });
-      } catch (e) {
-        console.warn('[refreshAccessToken] failed clearing tokens for', uid, e);
-      }
-      return res.status(401).json({ error: 'invalid_grant', message: 'refresh_token_revoked' });
-    }
-    console.error('refreshAccessToken error', errData || err.message);
-    res.status(500).json({ error: errData || err.message });
-  }
-});
-
-// Endpoint para iniciar un watch (configurar Gmail push -> Pub/Sub)
-app.post('/gmail/startWatch', async (req, res) => {
-  const uid = (req.body && req.body.uid) || req.query.uid;
-  if (!uid) return res.status(400).json({ error: 'missing uid' });
-  try {
-    const caller = await verifyUserRequest(req, uid);
-    if (!caller) return res.status(403).json({ error: 'unauthorized' });
-
-    const doc = await admin.firestore().collection('users').doc(uid).get();
-    const data = doc.exists ? doc.data() : null;
-    const encrypted = data?.gmail?.encrypted_refresh_token;
-    const refresh_token = encrypted ? await decryptKms(encrypted) : data?.gmail?.refresh_token;
-    if (!refresh_token) return res.status(200).json({ error: 'no refresh token', code: 'not_found' });
-
-    const tokenData = await refreshAccessTokenWithRefreshToken(refresh_token);
-    const access_token = tokenData.access_token;
-
-    // Obtener email y historyId inicial
-    const profileResp = await axios.get('https://gmail.googleapis.com/gmail/v1/users/me/profile', { headers: { Authorization: `Bearer ${access_token}` } });
-    const emailAddress = profileResp.data?.emailAddress || null;
-    const historyId = profileResp.data?.historyId || null;
-
-    // Registrar watch apuntando al topic Pub/Sub
-    const watchBody = { topicName: GMAIL_PUBSUB_TOPIC, labelIds: ['INBOX'] };
-    const watchResp = await axios.post('https://gmail.googleapis.com/gmail/v1/users/me/watch', watchBody, { headers: { Authorization: `Bearer ${access_token}` } });
-
-    // Convertir expiration a número (ms desde epoch) y guardar metadata en Firestore
-    const watchExpirationValue = watchResp.data && watchResp.data.expiration ? Number(watchResp.data.expiration) : null;
-    await admin.firestore().collection('users').doc(uid).set({
-      gmail: {
-        watchedEmail: emailAddress,
-        watchTopic: GMAIL_PUBSUB_TOPIC,
-        watchExpiration: watchExpirationValue,
-        lastHistoryId: historyId
-      }
-    }, { merge: true });
-
-    if (emailAddress) {
-      await admin.firestore().collection('gmailWatchers').doc(emailAddress).set({ uid, topicName: GMAIL_PUBSUB_TOPIC, lastHistoryId: historyId, watchExpiration: watchExpirationValue, updatedAt: admin.firestore.FieldValue.serverTimestamp() });
-    }
-
-    res.json({ success: true, emailAddress, watch: watchResp.data || null });
-  } catch (err) {
-    console.error('/gmail/startWatch error', err?.response?.data || err.message || err);
-    if (err && (err.code === 'invalid_grant' || isInvalidGrantError(err))) {
-      try {
-        await admin.firestore().collection('users').doc(uid).set({ gmail: { encrypted_refresh_token: admin.firestore.FieldValue.delete(), refresh_token: admin.firestore.FieldValue.delete() } }, { merge: true });
-      } catch (e) {
-        console.warn('[startWatch] failed clearing tokens for', uid, e);
-      }
-      return res.status(401).json({ error: 'invalid_grant', message: 'refresh_token_revoked' });
-    }
-    res.status(500).json({ error: err?.response?.data || err.message || String(err) });
-  }
-});
-
-// Endpoint para detener el watch en Gmail (opcional)
-app.post('/gmail/stopWatch', async (req, res) => {
-  const uid = (req.body && req.body.uid) || req.query.uid;
-  if (!uid) return res.status(400).json({ error: 'missing uid' });
-  try {
-    const caller = await verifyUserRequest(req, uid);
-    if (!caller) return res.status(403).json({ error: 'unauthorized' });
-
-    const doc = await admin.firestore().collection('users').doc(uid).get();
-    const data = doc.exists ? doc.data() : null;
-    const emailAddress = data?.gmail?.watchedEmail || null;
-    const encrypted = data?.gmail?.encrypted_refresh_token;
-    const refresh_token = encrypted ? await decryptKms(encrypted) : data?.gmail?.refresh_token;
-
-    if (refresh_token) {
-      const tokenData = await refreshAccessTokenWithRefreshToken(refresh_token);
-      const access_token = tokenData.access_token;
-      // Llamar el endpoint stop de Gmail
-      await axios.post('https://gmail.googleapis.com/gmail/v1/users/me/stop', null, { headers: { Authorization: `Bearer ${access_token}` } });
-    }
-
-    // Limpiar metadata
-    await admin.firestore().collection('users').doc(uid).set({ gmail: { watchedEmail: admin.firestore.FieldValue.delete(), watchTopic: admin.firestore.FieldValue.delete(), watchExpiration: admin.firestore.FieldValue.delete() } }, { merge: true });
-    if (emailAddress) await admin.firestore().collection('gmailWatchers').doc(emailAddress).delete();
-
-    res.json({ success: true, stopped: true });
-  } catch (err) {
-    console.error('/gmail/stopWatch error', err?.response?.data || err.message || err);
-    if (err && (err.code === 'invalid_grant' || isInvalidGrantError(err))) {
-      try {
-        await admin.firestore().collection('users').doc(uid).set({ gmail: { encrypted_refresh_token: admin.firestore.FieldValue.delete(), refresh_token: admin.firestore.FieldValue.delete() } }, { merge: true });
-      } catch (e) {
-        console.warn('[stopWatch] failed clearing tokens for', uid, e);
-      }
-      return res.status(401).json({ error: 'invalid_grant', message: 'refresh_token_revoked' });
-    }
-    res.status(500).json({ error: err?.response?.data || err.message || String(err) });
-  }
-});
-
-const { syncImapTransactions } = require('./src/imapSync');
-
-app.post('/syncImap', async (req, res) => {
-  const uid = (req.body && req.body.uid) || req.query.uid;
-  if (!uid) return res.status(400).json({ error: 'missing uid' });
-
-  try {
-    const caller = await verifyUserRequest(req, uid);
-    if (!caller) return res.status(403).json({ error: 'unauthorized' });
-
-    const doc = await admin.firestore().collection('users').doc(uid).get();
-    const data = doc.exists ? doc.data() : null;
-    const imapSettings = data?.imapSettings || data?.imap || {};
-    
-    if (!imapSettings.email || !imapSettings.appPassword) {
-      return res.status(400).json({ error: 'Faltan credenciales IMAP (correo o contraseña de aplicación).' });
-    }
-    
-    const targetSenders = imapSettings.targetSenders || [];
-    if (!targetSenders.length) {
-      return res.status(400).json({ error: 'No se han configurado remitentes (bancos) a escanear.' });
-    }
-
-    const result = await syncImapTransactions(
-      imapSettings.email,
-      imapSettings.appPassword,
-      targetSenders,
-      uid
-    );
-
-    res.json(result);
-  } catch (err) {
-    console.error('/syncImap error', err);
-    res.status(500).json({ error: err.message || 'Error interno al sincronizar IMAP' });
-  }
-});
 
 const REGION = process.env.FUNCTIONS_REGION || 'us-central1';
 
@@ -574,7 +212,7 @@ function regioned(runWithOptions = null) {
   return fallback;
 }
 
-exports.api = regioned({ secrets: GMAIL_RUNTIME_SECRETS }).https.onRequest(app);
+exports.api = regioned({ secrets: GMAIL_RUNTIME_SECRETS, maxInstances: 10 }).https.onRequest(app);
 
 // --------------------
 // Server-side Gmail poller
@@ -1277,24 +915,6 @@ function conversionAmountText(amount, currency) {
   return `${sym}${amount}`;
 }
 
-function refreshAccessTokenWithRefreshToken(refresh_token) {
-  const params = new URLSearchParams();
-  params.append('client_id', CLIENT_ID);
-  params.append('client_secret', CLIENT_SECRET);
-  params.append('grant_type', 'refresh_token');
-  params.append('refresh_token', refresh_token);
-  return axios.post('https://oauth2.googleapis.com/token', params.toString(), {
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-  }).then(r => r.data).catch(err => {
-    if (isInvalidGrantError(err)) {
-      const e = new Error('invalid_grant');
-      e.code = 'invalid_grant';
-      e.original = err;
-      throw e;
-    }
-    throw err;
-  });
-}
 
 // Legacy scheduled poller removed: Gmail push (Pub/Sub) + `gmailPubSubHandler` now handle inbox changes.
 // The previous scheduled Cloud Function `gmailPoller` (every 5 minutes) has been intentionally removed.
@@ -1454,7 +1074,7 @@ async function gmailPubSubHandlerImpl(message) {
   }
 }
 
-exports.gmailPubSubHandler = regioned({ secrets: GMAIL_RUNTIME_SECRETS }).pubsub.topic(GMAIL_PUBSUB_SHORT).onPublish(gmailPubSubHandlerImpl);
+exports.gmailPubSubHandler = regioned({ secrets: GMAIL_RUNTIME_SECRETS, maxInstances: 10 }).pubsub.topic(GMAIL_PUBSUB_SHORT).onPublish(gmailPubSubHandlerImpl);
 
 // Scheduled function: renovar watches próximos a expirar
 async function gmailWatchRenewImpl(context) {
@@ -1515,7 +1135,7 @@ async function gmailWatchRenewImpl(context) {
   return null;
 }
 
-exports.gmailWatchRenew = regioned({ secrets: GMAIL_RUNTIME_SECRETS }).pubsub.schedule(GMAIL_WATCH_RENEW_SCHEDULE).onRun(gmailWatchRenewImpl);
+exports.gmailWatchRenew = regioned({ secrets: GMAIL_RUNTIME_SECRETS, maxInstances: 2 }).pubsub.schedule(GMAIL_WATCH_RENEW_SCHEDULE).onRun(gmailWatchRenewImpl);
 
 
 // ---- Admin reprocess endpoint (queues job) ----
@@ -1676,7 +1296,7 @@ async function reprocessJobOnCreateImpl(snap, ctx) {
 }
 
 if (typeof functionsV1.region === 'function') {
-  exports.reprocessJobOnCreate = functionsV1.region(REGION).runWith({ memory: '1GB', timeoutSeconds: 540 }).firestore.document('reprocessJobs/{jobId}').onCreate(reprocessJobOnCreateImpl);
+  exports.reprocessJobOnCreate = functionsV1.region(REGION).runWith({ memory: '1GB', timeoutSeconds: 540, maxInstances: 5 }).firestore.document('reprocessJobs/{jobId}').onCreate(reprocessJobOnCreateImpl);
 } else {
-  exports.reprocessJobOnCreate = functionsV1.runWith({ memory: '1GB', timeoutSeconds: 540 }).firestore.document('reprocessJobs/{jobId}').onCreate(reprocessJobOnCreateImpl);
+  exports.reprocessJobOnCreate = functionsV1.runWith({ memory: '1GB', timeoutSeconds: 540, maxInstances: 5 }).firestore.document('reprocessJobs/{jobId}').onCreate(reprocessJobOnCreateImpl);
 }

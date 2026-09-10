@@ -1371,6 +1371,25 @@ background: transparent;
 color: #e0def4;
 }
 
+[data-theme="light"] .mobile-actions-subpanel.is-month::-webkit-scrollbar,
+[data-theme="light"] .mobile-actions-subpanel::-webkit-scrollbar {
+  width: 4px;
+}
+[data-theme="light"] .mobile-actions-subpanel.is-month::-webkit-scrollbar-track,
+[data-theme="light"] .mobile-actions-subpanel::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 10px;
+}
+[data-theme="light"] .mobile-actions-subpanel.is-month::-webkit-scrollbar-thumb,
+[data-theme="light"] .mobile-actions-subpanel::-webkit-scrollbar-thumb {
+  background: rgba(180, 99, 122, 0.75);
+  border-radius: 10px;
+}
+[data-theme="light"] .mobile-actions-subpanel.is-month,
+[data-theme="light"] .mobile-actions-subpanel {
+  scrollbar-color: rgba(180, 99, 122, 0.7) transparent;
+}
+
 [data-theme="dark"] .mobile-actions-subpanel.is-month,
 [data-theme="dark"] .mobile-actions-subpanel {
 scrollbar-color: #eb6f92 transparent;
@@ -1487,4 +1506,24 @@ border: 3px solid #f2e9e1;
 @keyframes slideDownFade {
   0% { opacity: 0; transform: translateY(-8px); }
   100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Desactivar efectos hover/active en dispositivos móviles */
+@media (hover: none) and (pointer: coarse), (max-width: 768px) {
+  [data-theme="light"] body.estadistica-page .summary-card:hover,
+  [data-theme="light"] body.estadistica-page .btn-primary:hover,
+  [data-theme="light"] body.estadistica-page .btn-danger:hover,
+  [data-theme="light"] body.estadistica-page .modal-footer .btn:first-child:hover,
+  [data-theme="light"] body.estadistica-page .date-picker-modal .modal-footer .btn-primary:hover,
+  [data-theme="light"] body.estadistica-page #todayBtn:hover,
+  [data-theme="dark"] body.estadistica-page .summary-card:hover,
+  [data-theme="dark"] body.estadistica-page .btn-primary:hover,
+  [data-theme="dark"] body.estadistica-page .btn-danger:hover,
+  [data-theme="dark"] body.estadistica-page .modal-footer .btn:first-child:hover,
+  [data-theme="dark"] body.estadistica-page .date-picker-modal .modal-footer .btn-primary:hover,
+  [data-theme="dark"] body.estadistica-page #todayBtn:hover {
+    transform: none !important;
+    box-shadow: none !important;
+    border-color: transparent !important;
+  }
 }

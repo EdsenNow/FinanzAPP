@@ -2133,8 +2133,8 @@
         return;
       }
       
-      if (endDate <= startDate) {
-        mostrarAdvertencia('La fecha de fin debe ser posterior a la fecha de inicio');
+      if (endDate < startDate) {
+        mostrarAdvertencia('La fecha de fin no puede ser anterior a la fecha de inicio');
         return;
       }
     } else {
@@ -2773,8 +2773,21 @@
       today.setHours(23, 59, 59, 999);
 
       // Si es fecha de inicio ('start'), máximo el día de hoy (no futura)
-      // Si es fecha de fin ('end'), se permite seleccionar cualquier fecha futura
-      const isDisabled = (currentDatePicker === 'start' && date > today);
+      let isDisabled = (currentDatePicker === 'start' && date > today);
+      
+      // Si es fecha de fin ('end'), no puede ser menor a la fecha de inicio
+      if (currentDatePicker === 'end') {
+        const startInput = document.getElementById('budgetStartDate');
+        if (startInput && startInput.value) {
+          const startDateParsed = parseFechaInput(startInput.value);
+          if (startDateParsed) {
+            startDateParsed.setHours(0, 0, 0, 0);
+            if (date < startDateParsed) {
+              isDisabled = true;
+            }
+          }
+        }
+      }
 
       if (isDisabled) {
         dayElement.classList.add('disabled');

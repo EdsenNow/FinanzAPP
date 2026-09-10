@@ -31,7 +31,14 @@ gap: 12px;
 }
 
 #addBudgetBtn {
-display: none;
+  display: none;
+}
+
+#addBudgetBtn svg,
+#budgetModalTitle svg {
+  width: 20px;
+  height: 20px;
+  stroke-width: 2.8;
 }
 
 @media (min-width: 900px) {
@@ -589,16 +596,7 @@ gap: 6px;
 select.form-control.hidden-select,
 #budgetCategory.form-control.hidden-select,
 #budgetPeriod.form-control.hidden-select {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-  height: 0;
-  width: 0;
-  padding: 0;
-  margin: 0;
-  border: none;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
+  display: none;
 }
 
 .budget-category-dropdown {

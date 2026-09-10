@@ -83,9 +83,7 @@
     window.jsPDF = window.jspdf ? window.jspdf.jsPDF : null;
   </script>
 
-  <script src="/pages/Categorias/modules/GestorTablas.js?v=1788099418340"></script>
-  <script src="/pages/Categorias/modules/ProcesadorDatos.js?v=1788099418340"></script>
-  <script src="/pages/Categorias/modules/RenderizadorUI.js?v=1788099418340"></script>
+  <script src="/lib/sidebarRenderer.js"></script>
 
   <!-- Gmail API Integration -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -280,7 +278,7 @@
             <button class="btn btn-secondary" id="clearAllCategoriesBtn" aria-label="Eliminar todas las categorías">
               <i data-lucide="trash-2"></i> Eliminar categorías
             </button>
-            <input type="file" id="importFileInput" accept="application/json" class="hidden" aria-hidden="true">
+            <input type="file" id="importFileInput" accept=".json,application/json,.csv,text/csv" class="hidden" aria-hidden="true">
             <button class="btn btn-secondary gmail-bell-btn" id="gmailBellBtn" type="button" onclick="window.toggleGmailNotifPanel?.()" aria-label="Notificaciones bancarias">
               <i data-lucide="bell"></i>
               <span class="gmail-badge hidden" id="gmailBadge">0</span>
@@ -1109,29 +1107,23 @@
       </div>
     </div>
   </div>
-
   <script src="/lib/SyncAPI.js?v=2026090101"></script>
+  <script src="/lib/MerchantCategorizer.js"></script>
+  <script src="/lib/BankStatementImporter.js"></script>
+  <script src="/pages/Categorias/CategoriasExport.js?v=2026090101"></script>
+  <script src="/pages/Categorias/CategoriasFilters.js"></script>
+  <script src="/pages/Categorias/CategoriasModals.js"></script>
   <script src="/pages/Categorias/Categorias.js?v=1788099418340"></script>
   <script src="/lib/GmailAPI.js?v=1788099418340"></script>
 
     <script>
       (function() {
-        if ('caches' in window) {
-          caches.keys().then(function(names) {
-            for (var i = 0; i < names.length; i++) {
-              caches.delete(names[i]);
-            }
-          });
-        }
         if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.getRegistrations().then(function(registrations) {
-            for (var i = 0; i < registrations.length; i++) {
-              registrations[i].unregister();
-            }
+          window.addEventListener('load', function() {
+            navigator.serviceWorker.register('/service-worker.js').catch(function() {});
           });
         }
       })();
-      //# sourceURL=/sw-cleanup.js
     </script>
   </body>
 </html>

@@ -883,9 +883,7 @@ function colorWithAlpha(color, alpha = 1) {
         family: 'Inter, sans-serif',
         size: 12
       },
-      displayColors: true,
-      usePointStyle: true,
-      pointStyle: 'circle'
+      displayColors: false
     };
 
     const legendMarginPlugin = {

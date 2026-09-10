@@ -1,0 +1,35 @@
+name: CI - Integración Continua
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Clonar repositorio
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Configurar Node.js (v20)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: 📦 Instalar dependencias raíz
+        run: npm ci
+
+      - name: 🔍 Verificar sintaxis JavaScript (node -c)
+        run: |
+          find src functions tests -name "*.js" -not -path "*/node_modules/*" -exec node -c {} +
+
+      - name: 🧪 Ejecutar pruebas unitarias (Vitest)
+        run: npm test
+
+      - name: 🏗️ Validar compilación de producción (scripts/build.js)
+        run: node scripts/build.js
+
