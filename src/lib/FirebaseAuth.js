@@ -5,19 +5,22 @@ class FirebaseAuth {
   constructor() {
     this.auth = null;
     this.initialized = false;
-    this.LOGOUT_BLOCK_MS = 60000; // bloquear re-login durante 60s tras logout
+    this.LOGOUT_BLOCK_MS = 1500; // margen mínimo de 1.5s para evitar rebotes de logout sin bloquear al usuario
     this._signingOut = false;
+    this._initPromise = null;
   }
 
   // Inicializar Firebase
   async init() {
     if (this.initialized) return true;
+    if (this._initPromise) return this._initPromise;
 
-    try {
-      // Verificar que Firebase esté cargado
-      if (!window.firebase) {
-        return false;
-      }
+    this._initPromise = (async () => {
+      try {
+        // Verificar que Firebase esté cargado
+        if (!window.firebase) {
+          return false;
+        }
 
       // Always use the custom domain as authDomain so the Firebase auth iframe
       // is loaded from the same origin as the app (byfinanzapp.com), preventing
@@ -174,6 +177,7 @@ class FirebaseAuth {
         const redirectResult = await this.auth.getRedirectResult();
         if (redirectResult && redirectResult.user) {
           localStorage.removeItem('logoutTimestamp');
+          try { sessionStorage.removeItem('finanzapp:logged_out'); } catch (e) {}
           this.saveUserSession(redirectResult.user);
           console.log('[FirebaseAuth] Sesión restaurada desde redirect:', redirectResult.user.email);
           window.location.replace('/pages/Categorias/Categorias.html');
@@ -181,13 +185,24 @@ class FirebaseAuth {
         }
       } catch (err) {
         console.error('[FirebaseAuth] Error al procesar redirect result:', err?.code, err?.message || err);
+        if (err && err.code && err.code !== 'auth/null-user') {
+          setTimeout(() => {
+            const msg = this.handleAuthError(err).message;
+            if (window.UI?.showAlert) {
+              window.UI.showAlert('Error de autenticación', msg, { variant: 'error' });
+            }
+          }, 300);
+        }
       }
 
       return true;
     } catch (error) {
       return false;
     }
-  }
+  })();
+
+  return this._initPromise;
+}
 
   // Guardar sesión del usuario
   saveUserSession(user) {
@@ -296,6 +311,7 @@ class FirebaseAuth {
       }
 
       localStorage.removeItem('logoutTimestamp');
+      try { sessionStorage.removeItem('finanzapp:logged_out'); } catch (e) {}
 
       const provider = new firebase.auth.GoogleAuthProvider();
       provider.addScope('email');

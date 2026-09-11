@@ -505,7 +505,7 @@
   }
 
   (async () => {
-    const LOGOUT_BLOCK_MS = 60000;
+    const LOGOUT_BLOCK_MS = 1500;
     const logoutTimestamp = localStorage.getItem('logoutTimestamp');
     const recentLogout = logoutTimestamp && (Date.now() - parseInt(logoutTimestamp)) < LOGOUT_BLOCK_MS;
 
