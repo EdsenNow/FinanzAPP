@@ -126,7 +126,7 @@ class FirebaseAuth {
             this.saveUserSession(user);
 
             // Si estamos en la página de Login, redirigir automáticamente a Categorias
-            if (typeof window !== 'undefined' && window.location && window.location.pathname.includes('/Login')) {
+            if (typeof window !== 'undefined' && window.location && window.location.pathname.toLowerCase().includes('/login')) {
               console.log('[FirebaseAuth] Usuario autenticado detectado en Login, redirigiendo...');
               setTimeout(() => {
                 window.location.replace('/pages/Categorias/Categorias.html');
@@ -304,6 +304,30 @@ class FirebaseAuth {
     }
   }
 
+  // Iniciar sesión con ID token de Google Identity Services (GIS)
+  async loginWithGoogleIdToken(idToken) {
+    try {
+      if (!this.initialized) await this.init();
+      if (!this.auth) throw new Error('Firebase Auth no está inicializado');
+
+      localStorage.removeItem('logoutTimestamp');
+      try { sessionStorage.removeItem('finanzapp:logged_out'); } catch (e) {}
+
+      const credential = firebase.auth.GoogleAuthProvider.credential(idToken);
+      const userCredential = await this.auth.signInWithCredential(credential);
+      this.saveUserSession(userCredential.user);
+
+      return {
+        success: true,
+        user: userCredential.user,
+        message: 'Inicio de sesión exitoso con Google'
+      };
+    } catch (error) {
+      console.error('[FirebaseAuth] Error en signInWithCredential:', error);
+      return this.handleAuthError(error);
+    }
+  }
+
   // Iniciar sesión con Google directa y rápida
   async loginWithGoogle() {
     try {
@@ -325,26 +349,7 @@ class FirebaseAuth {
         prompt: 'select_account'
       });
 
-      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent || '') || 
-                       (typeof window !== 'undefined' && (window.innerWidth <= 768 || ('ontouchstart' in window && navigator.maxTouchPoints > 0)));
-
-      // En dispositivos móviles, signInWithRedirect es el método recomendado y robusto
-      // para evitar que navegadores móviles (Chrome/Safari) bloqueen el popup o fallen con auth/internal-error.
-      if (isMobile) {
-        try {
-          await this.auth.signInWithRedirect(provider);
-          return {
-            success: true,
-            redirect: true,
-            message: 'Redirigiendo a Google...'
-          };
-        } catch (redirectError) {
-          console.error('[FirebaseAuth] Error en signInWithRedirect móvil:', redirectError);
-          return this.handleAuthError(redirectError);
-        }
-      }
-
-      // En escritorio: intentar primero con popup para una experiencia fluida
+      // Intentar primero con popup para una experiencia fluida sin perder el contexto de la página
       try {
         const userCredential = await this.auth.signInWithPopup(provider);
         localStorage.removeItem('logoutTimestamp');
@@ -357,7 +362,7 @@ class FirebaseAuth {
       } catch (popupError) {
         console.warn('[FirebaseAuth] signInWithPopup falló (' + popupError?.code + '). Intentando fallback con signInWithRedirect:', popupError?.message);
 
-        // Si el popup fue bloqueado, cerrado o dio error interno en el navegador
+        // Si el popup fue bloqueado, dio error de opener/interno o fue cancelado por el navegador móvil
         if (
           popupError?.code === 'auth/popup-blocked' ||
           popupError?.code === 'auth/internal-error' ||

@@ -121,79 +121,181 @@
     });
   }
 
+  // --- Integración de Google Identity Services (GIS) ---
+  const gsiButtonContainer = document.getElementById('gsiButtonContainer');
+  const originalGoogleBtnContent = googleSignInBtn ? googleSignInBtn.innerHTML : '';
+
+  function showGoogleLoading(isLoading) {
+    if (isLoading) {
+      if (googleSignInBtn) {
+        googleSignInBtn.disabled = true;
+        googleSignInBtn.style.display = 'flex';
+        googleSignInBtn.innerHTML = '<i data-lucide="loader-2" class="lucide-spin"></i> Iniciando sesión con Google...';
+        window.LucideHelper?.refresh(googleSignInBtn);
+      }
+      if (gsiButtonContainer) gsiButtonContainer.style.display = 'none';
+    } else {
+      if (googleSignInBtn) {
+        googleSignInBtn.disabled = false;
+        googleSignInBtn.innerHTML = originalGoogleBtnContent;
+        window.LucideHelper?.refresh(googleSignInBtn);
+      }
+      if (window.google?.accounts?.id && gsiButtonContainer) {
+        if (googleSignInBtn) googleSignInBtn.style.display = 'none';
+        gsiButtonContainer.style.display = 'flex';
+      } else if (googleSignInBtn) {
+        googleSignInBtn.style.display = 'flex';
+      }
+    }
+  }
+
+  async function handleGoogleCredential(credential) {
+    if (!credential) return;
+    showGoogleLoading(true);
+
+    try {
+      const result = await window.firebaseAuth.loginWithGoogleIdToken(credential);
+      if (result && result.success) {
+        asegurarConfiguracionPorDefecto();
+
+        try {
+          if (result.user && window.firebaseAuth && window.firebaseAuth.saveUserSession) {
+            window.firebaseAuth.saveUserSession(result.user);
+          }
+        } catch (e) {}
+
+        (async () => {
+          try {
+            if (window.FirestoreDB && result.user) {
+              await window.FirestoreDB.init();
+              window.FirestoreDB.setCurrentUser(result.user.uid);
+              const userData = await window.FirestoreDB.loadAllUserData();
+              if ((!userData || (!userData.transactions || userData.transactions.length === 0)) 
+                  && localStorage.getItem('transactions')) {
+                await window.FirestoreDB.migrateFromLocalStorage();
+              }
+            }
+          } catch (firestoreError) {
+            console.warn('Firestore sync after GIS login failed:', firestoreError);
+          }
+        })();
+
+        setTimeout(() => {
+          window.location.replace('/pages/Categorias/Categorias.html');
+        }, 300);
+        return;
+      }
+
+      showGoogleLoading(false);
+      const isCancelled = result?.cancelled || 
+                          result?.error === 'auth/popup-closed-by-user' || 
+                          result?.error === 'auth/cancelled-popup-request' ||
+                          String(result?.rawError || '').includes('closed-by-user');
+
+      if (!result || !result.success) {
+        if (!isCancelled) {
+          showAlert('Error al iniciar sesión', result?.message || 'No se pudo iniciar sesión con Google.', { variant: 'error' });
+        }
+      }
+    } catch (err) {
+      showGoogleLoading(false);
+      console.error('[Login] Error procesando credencial de Google:', err);
+      showAlert('Error', 'Ocurrió un error al procesar el inicio de sesión con Google.', { variant: 'error' });
+    }
+  }
+
+  function initGoogleIdentityServices(retries = 0) {
+    if (!window.google?.accounts?.id) {
+      if (retries < 25) {
+        setTimeout(() => initGoogleIdentityServices(retries + 1), 150);
+      } else {
+        console.warn('[Login] Google Identity Services no cargó, manteniendo botón fallback');
+        if (googleSignInBtn) googleSignInBtn.style.display = 'flex';
+        if (gsiButtonContainer) gsiButtonContainer.style.display = 'none';
+      }
+      return;
+    }
+
+    const clientId = window.APP_CONFIG?.googleClientId || "569331846575-djonqen9ib9jrek93o0hpjem189ppjsm.apps.googleusercontent.com";
+
+    try {
+      window.google.accounts.id.initialize({
+        client_id: clientId,
+        callback: (response) => {
+          if (response && response.credential) {
+            handleGoogleCredential(response.credential);
+          }
+        },
+        auto_select: false,
+        cancel_on_tap_outside: true,
+        itp_support: true
+      });
+
+      if (gsiButtonContainer) {
+        const renderGsiButton = () => {
+          const wrapper = document.getElementById('googleBtnWrapper');
+          const containerWidth = Math.min(400, Math.max(240, (wrapper ? wrapper.clientWidth : gsiButtonContainer.clientWidth) || 340));
+          window.google.accounts.id.renderButton(gsiButtonContainer, {
+            type: 'standard',
+            theme: 'outline',
+            size: 'large',
+            text: 'continue_with',
+            shape: 'rectangular',
+            logo_alignment: 'left',
+            width: containerWidth
+          });
+        };
+
+        renderGsiButton();
+        if (googleSignInBtn) googleSignInBtn.style.display = 'none';
+        gsiButtonContainer.style.display = 'flex';
+
+        window.addEventListener('resize', () => {
+          if (gsiButtonContainer.style.display !== 'none') {
+            renderGsiButton();
+          }
+        });
+      }
+
+      // One Tap prompt en dispositivos compatibles si no hubo logout reciente
+      const logoutTimestamp = localStorage.getItem('logoutTimestamp');
+      const recentLogout = logoutTimestamp && (Date.now() - parseInt(logoutTimestamp)) < 1500;
+      if (!recentLogout) {
+        window.google.accounts.id.prompt();
+      }
+    } catch (initErr) {
+      console.error('[Login] Error inicializando GIS:', initErr);
+      if (googleSignInBtn) googleSignInBtn.style.display = 'flex';
+      if (gsiButtonContainer) gsiButtonContainer.style.display = 'none';
+    }
+  }
+
+  // Iniciar GIS tan pronto cargue el script
+  initGoogleIdentityServices();
+
+  // Fallback para click manual si GIS no cargó o para dispositivos sin soporte GIS
   if (googleSignInBtn) {
     googleSignInBtn.addEventListener('click', async () => {
+      if (window.google?.accounts?.id) {
+        window.google.accounts.id.prompt();
+        return;
+      }
+
       googleSignInBtn.disabled = true;
-      const originalContent = googleSignInBtn.innerHTML;
       googleSignInBtn.innerHTML = '<i data-lucide="loader-2" class="lucide-spin"></i> Iniciando sesión...';
       window.LucideHelper?.refresh(googleSignInBtn);
 
-      let isCompleted = false;
-
-      const restoreButton = () => {
-        if (isCompleted) return;
-        isCompleted = true;
-        googleSignInBtn.disabled = false;
-        googleSignInBtn.innerHTML = originalContent;
-        window.removeEventListener('focus', checkQuickCancel);
-        document.removeEventListener('visibilitychange', checkQuickCancel);
-      };
-
-      // Si el usuario cierra el popup de Google, la ventana principal recupera el foco casi de inmediato
-      const checkQuickCancel = () => {
-        setTimeout(() => {
-          if (!isCompleted) {
-            const isAuth = localStorage.getItem('loggedIn') === '1' || localStorage.getItem('loggedIn') === 'true';
-            const currentUser = (window.firebase?.apps?.length && typeof window.firebase.auth === 'function')
-              ? window.firebase.auth().currentUser
-              : null;
-            if (!isAuth && !currentUser) {
-              restoreButton();
-            }
-          }
-        }, 350);
-      };
-
-      window.addEventListener('focus', checkQuickCancel);
-      document.addEventListener('visibilitychange', checkQuickCancel);
-
       try {
         const result = await window.firebaseAuth.loginWithGoogle();
-
-        if (result && result.redirect) {
-          isCompleted = true;
-          window.removeEventListener('focus', checkQuickCancel);
-          document.removeEventListener('visibilitychange', checkQuickCancel);
-          return;
-        }
+        if (result && result.redirect) return;
 
         if (result && result.success) {
-          isCompleted = true;
-          window.removeEventListener('focus', checkQuickCancel);
-          document.removeEventListener('visibilitychange', checkQuickCancel);
           asegurarConfiguracionPorDefecto();
-
           try {
             if (result.user && window.firebaseAuth && window.firebaseAuth.saveUserSession) {
               window.firebaseAuth.saveUserSession(result.user);
             }
           } catch (e) {}
-
-          (async () => {
-            try {
-              if (window.FirestoreDB && result.user) {
-                await window.FirestoreDB.init();
-                window.FirestoreDB.setCurrentUser(result.user.uid);
-                const userData = await window.FirestoreDB.loadAllUserData();
-                if ((!userData || (!userData.transactions || userData.transactions.length === 0)) 
-                    && localStorage.getItem('transactions')) {
-                  await window.FirestoreDB.migrateFromLocalStorage();
-                }
-              }
-            } catch (firestoreError) {
-              console.warn('Firestore sync after login failed:', firestoreError);
-            }
-          })();
 
           setTimeout(() => {
             window.location.replace('../Categorias/Categorias.html');
@@ -212,16 +314,13 @@
             showAlert('Error al iniciar sesión', result?.message || 'No se pudo iniciar sesión con Google.', { variant: 'error' });
           }
         }
-        restoreButton();
       } catch (error) {
-        const isCancelled = error?.code === 'auth/popup-closed-by-user' || 
-                            error?.code === 'auth/cancelled-popup-request' ||
-                            String(error?.message || '').includes('closed-by-user');
-        if (!isCancelled) {
-          console.error('Error inesperado en login con Google:', error);
-          showAlert('Error', 'Ocurrió un error inesperado al conectar con Google.', { variant: 'error' });
-        }
-        restoreButton();
+        console.error('Error en fallback Google:', error);
+        showAlert('Error', 'Ocurrió un error inesperado al conectar con Google.', { variant: 'error' });
+      } finally {
+        googleSignInBtn.disabled = false;
+        googleSignInBtn.innerHTML = originalGoogleBtnContent;
+        window.LucideHelper?.refresh(googleSignInBtn);
       }
     });
   }
