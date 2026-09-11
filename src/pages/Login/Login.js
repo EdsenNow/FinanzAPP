@@ -174,7 +174,9 @@
         const result = await window.firebaseAuth.loginWithGoogle();
 
         if (result && result.redirect) {
-          // Redirección en curso hacia Google OAuth
+          isCompleted = true;
+          window.removeEventListener('focus', checkQuickCancel);
+          document.removeEventListener('visibilitychange', checkQuickCancel);
           return;
         }
 
