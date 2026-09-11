@@ -122,7 +122,6 @@
   }
 
   // --- Integración de Google Identity Services (GIS) ---
-  const gsiButtonContainer = document.getElementById('gsiButtonContainer');
   const originalGoogleBtnContent = googleSignInBtn ? googleSignInBtn.innerHTML : '';
   let googleTokenClient = null;
 
@@ -133,14 +132,12 @@
         googleSignInBtn.innerHTML = '<i data-lucide="loader-2" class="lucide-spin"></i> Iniciando sesión con Google...';
         window.LucideHelper?.refresh(googleSignInBtn);
       }
-      if (gsiButtonContainer) gsiButtonContainer.style.pointerEvents = 'none';
     } else {
       if (googleSignInBtn) {
         googleSignInBtn.disabled = false;
         googleSignInBtn.innerHTML = originalGoogleBtnContent;
         window.LucideHelper?.refresh(googleSignInBtn);
       }
-      if (gsiButtonContainer) gsiButtonContainer.style.pointerEvents = 'auto';
     }
   }
 
@@ -226,7 +223,7 @@
   }
 
   function initGoogleIdentityServices(retries = 0) {
-    if (!window.google?.accounts?.id) {
+    if (!window.google?.accounts) {
       if (retries < 25) {
         setTimeout(() => initGoogleIdentityServices(retries + 1), 150);
       }
@@ -236,33 +233,29 @@
     const clientId = window.APP_CONFIG?.googleClientId || "569331846575-djonqen9ib9jrek93o0hpjem189ppjsm.apps.googleusercontent.com";
 
     try {
-      // 1. Inicializar Sign In With Google (ID Token / One Tap)
-      window.google.accounts.id.initialize({
-        client_id: clientId,
-        callback: (response) => {
-          if (response && response.credential) {
-            handleGoogleCredential(response.credential);
-          }
-        },
-        auto_select: false,
-        cancel_on_tap_outside: true,
-        itp_support: true
-      });
-
-      // 2. Renderizar botón oficial de Google dentro del overlay invisible
-      if (gsiButtonContainer) {
-        window.google.accounts.id.renderButton(gsiButtonContainer, {
-          type: 'standard',
-          theme: 'outline',
-          size: 'large',
-          text: 'continue_with',
-          shape: 'rectangular',
-          width: 380
+      // 1. Google One Tap prompt (ID Token)
+      if (window.google.accounts.id) {
+        window.google.accounts.id.initialize({
+          client_id: clientId,
+          callback: (response) => {
+            if (response && response.credential) {
+              handleGoogleCredential(response.credential);
+            }
+          },
+          auto_select: false,
+          cancel_on_tap_outside: true,
+          itp_support: true
         });
+
+        const logoutTimestamp = localStorage.getItem('logoutTimestamp');
+        const recentLogout = logoutTimestamp && (Date.now() - parseInt(logoutTimestamp)) < 1500;
+        if (!recentLogout) {
+          window.google.accounts.id.prompt();
+        }
       }
 
-      // 3. Inicializar OAuth2 TokenClient para clicks manuales en el botón personalizado
-      if (window.google?.accounts?.oauth2) {
+      // 2. OAuth2 TokenClient para el botón personalizado
+      if (window.google.accounts.oauth2) {
         googleTokenClient = window.google.accounts.oauth2.initTokenClient({
           client_id: clientId,
           scope: 'email profile openid',
@@ -272,13 +265,6 @@
             }
           }
         });
-      }
-
-      // 4. One Tap prompt en dispositivos compatibles si no hubo logout reciente
-      const logoutTimestamp = localStorage.getItem('logoutTimestamp');
-      const recentLogout = logoutTimestamp && (Date.now() - parseInt(logoutTimestamp)) < 1500;
-      if (!recentLogout) {
-        window.google.accounts.id.prompt();
       }
     } catch (initErr) {
       console.error('[Login] Error inicializando GIS:', initErr);
