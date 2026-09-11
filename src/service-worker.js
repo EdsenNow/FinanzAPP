@@ -7,7 +7,7 @@
  *  - Network-Only bypass para Firebase Auth, Firestore y APIs bancarias.
  */
 
-const CACHE_NAME = 'finanzapp-cache-v2.2.0';
+const CACHE_NAME = 'finanzapp-cache-v2.3.0';
 
 const PRECACHE_ASSETS = [
   '/',
@@ -57,6 +57,8 @@ self.addEventListener('fetch', (event) => {
   if (
     url.protocol.startsWith('chrome-extension') ||
     url.pathname.startsWith('/__/auth') ||
+    url.pathname.includes('/pages/Login') ||
+    url.pathname.includes('FirebaseAuth') ||
     url.hostname.includes('firestore.googleapis.com') ||
     url.hostname.includes('identitytoolkit.googleapis.com') ||
     url.hostname.includes('accounts.google.com') ||

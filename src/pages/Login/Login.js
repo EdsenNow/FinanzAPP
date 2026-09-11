@@ -20,19 +20,6 @@
   const emailRegisterButton = document.getElementById('registerButton');
   const sendRecoveryEmailButton = document.getElementById('sendRecoveryEmailButton');
   const googleSignInBtn = document.getElementById('googleSignInBtn');
-  
-  window.addEventListener('load', async () => {
-    const initialized = await window.firebaseAuth.init();
-    
-    if (initialized) {
-    } else {
-      if (googleSignInBtn) {
-        googleSignInBtn.disabled = true;
-        googleSignInBtn.innerHTML = '<i data-lucide="alert-triangle"></i> Firebase no disponible';
-        window.LucideHelper?.refresh(googleSignInBtn);
-      }
-    }
-  });
 
   function showScreen(screen) {
     [loginScreen, emailLoginScreen, emailRegisterScreen, forgotPasswordScreen].forEach(s => {
@@ -506,45 +493,35 @@
 
   (async () => {
     const LOGOUT_BLOCK_MS = 1500;
-    const logoutTimestamp = localStorage.getItem('logoutTimestamp');
-    const recentLogout = logoutTimestamp && (Date.now() - parseInt(logoutTimestamp)) < LOGOUT_BLOCK_MS;
 
     try {
       const initialized = await window.firebaseAuth.init();
-      if (initialized && window.firebaseAuth.auth) {
-        const user = await new Promise(resolve => {
-          let resolved = false;
-          const unsub = window.firebaseAuth.auth.onAuthStateChanged(u => {
-            if (!resolved) {
-              resolved = true;
-              try { unsub(); } catch (e) {}
-              resolve(u);
-            }
-          });
-          setTimeout(() => {
-            if (!resolved) {
-              resolved = true;
-              try { unsub(); } catch (e) {}
-              resolve(window.firebaseAuth.getCurrentUser());
-            }
-          }, 1500);
-        });
-
-        if (user && !recentLogout) {
-          try { window.firebaseAuth?.saveUserSession(user); } catch (e) {}
-          window.location.replace('/pages/Categorias/Categorias.html');
-        }
-      } else {
-        const isLoggedIn = localStorage.getItem('loggedIn');
-        if (isLoggedIn === '1' && !recentLogout) {
-          window.location.replace('/pages/Categorias/Categorias.html');
-        }
+      if (!initialized && googleSignInBtn) {
+        googleSignInBtn.disabled = true;
+        googleSignInBtn.innerHTML = '<i data-lucide="alert-triangle"></i> Firebase no disponible';
+        window.LucideHelper?.refresh(googleSignInBtn);
       }
-    } catch (err) {
+
+      if (initialized && window.firebaseAuth?.auth) {
+        window.firebaseAuth.auth.onAuthStateChanged((user) => {
+          const logoutTimestamp = localStorage.getItem('logoutTimestamp');
+          const recentLogout = logoutTimestamp && (Date.now() - parseInt(logoutTimestamp)) < LOGOUT_BLOCK_MS;
+
+          if (user && !recentLogout) {
+            try { window.firebaseAuth?.saveUserSession(user); } catch (e) {}
+            window.location.replace('/pages/Categorias/Categorias.html');
+          }
+        });
+      }
+
+      const logoutTimestamp = localStorage.getItem('logoutTimestamp');
+      const recentLogout = logoutTimestamp && (Date.now() - parseInt(logoutTimestamp)) < LOGOUT_BLOCK_MS;
       const isLoggedIn = localStorage.getItem('loggedIn');
       if (isLoggedIn === '1' && !recentLogout) {
         window.location.replace('/pages/Categorias/Categorias.html');
       }
+    } catch (err) {
+      console.warn('[Login] Error en chequeo inicial de autenticación:', err);
     }
   })();
 

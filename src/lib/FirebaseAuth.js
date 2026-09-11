@@ -124,9 +124,14 @@ class FirebaseAuth {
             }
             // Usuario válido y no hay logout reciente: guardar sesión
             this.saveUserSession(user);
-            // NOTA: NO redirigir aquí. Login.js se encarga de la redirección con un
-            // delay de 1s para que Firebase pueda persistir el token en IndexedDB
-            // antes de que el Dashboard intente leerlo.
+
+            // Si estamos en la página de Login, redirigir automáticamente a Categorias
+            if (typeof window !== 'undefined' && window.location && window.location.pathname.includes('/Login')) {
+              console.log('[FirebaseAuth] Usuario autenticado detectado en Login, redirigiendo...');
+              setTimeout(() => {
+                window.location.replace('/pages/Categorias/Categorias.html');
+              }, 200);
+            }
           } else {
             // No hay usuario en Firebase:
             // Si la sesión actual en localStorage es de un usuario invitado (modo invitado),
@@ -188,8 +193,8 @@ class FirebaseAuth {
         if (err && err.code && err.code !== 'auth/null-user') {
           setTimeout(() => {
             const msg = this.handleAuthError(err).message;
-            if (window.UI?.showAlert) {
-              window.UI.showAlert('Error de autenticación', msg, { variant: 'error' });
+            if (typeof window.showAlert === 'function') {
+              window.showAlert('Error de autenticación', msg, { variant: 'error' });
             }
           }, 300);
         }
