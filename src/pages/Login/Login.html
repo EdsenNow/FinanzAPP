@@ -54,9 +54,9 @@
   <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore-compat.js" crossorigin="anonymous"></script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 
-  <script src="/__config.js?v=2026091104"></script>
-  <script src="/lib/FirebaseAuth.js?v=2026091104"></script>
-  <script src="/lib/FirestoreDB.js?v=2026091104"></script>
+  <script src="/__config.js?v=2026091105"></script>
+  <script src="/lib/FirebaseAuth.js?v=2026091105"></script>
+  <script src="/lib/FirestoreDB.js?v=2026091105"></script>
 </head>
 <body>
   <!-- Orbes brillantes y animados en el fondo -->
@@ -81,9 +81,8 @@
         </div>
 
         <div class="auth-options">
-          <div class="google-btn-wrapper" id="googleBtnWrapper" style="width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 44px;">
-            <div id="gsiButtonContainer" style="width: 100%; display: flex; justify-content: center;"></div>
-            <button class="btn btn-google" id="googleSignInBtn" type="button" style="width: 100%;">
+          <div class="google-btn-wrapper" id="googleBtnWrapper">
+            <button class="btn btn-google" id="googleSignInBtn" type="button">
               <svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true">
                 <path fill="#EA4335" d="M24 9.5c3.54 0 6.73 1.22 9.23 3.22l6.9-6.9C35.97 1.76 30.34 0 24 0 14.64 0 6.6 5.38 2.7 13.22l8.02 6.23C12.6 13.32 17.9 9.5 24 9.5z"/>
                 <path fill="#4285F4" d="M46.5 24.5c0-1.64-.15-3.22-.43-4.74H24v9.01h12.65c-.55 2.98-2.18 5.5-4.63 7.18l7.12 5.53c4.17-3.85 6.36-9.52 6.36-16.98z"/>
@@ -93,6 +92,7 @@
               </svg>
               Continuar con Google
             </button>
+            <div id="gsiButtonContainer" class="gsi-button-overlay"></div>
           </div>
 
           <div class="auth-divider" role="separator" aria-label="o">
@@ -288,6 +288,6 @@
 
   </script>
 
-  <script src="/pages/Login/Login.js?v=2026091104"></script>
+  <script src="/pages/Login/Login.js?v=2026091105"></script>
 </body>
 </html>

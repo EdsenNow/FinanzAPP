@@ -328,6 +328,30 @@ class FirebaseAuth {
     }
   }
 
+  // Iniciar sesión con Access Token de Google Identity Services (TokenClient)
+  async loginWithGoogleAccessToken(accessToken) {
+    try {
+      if (!this.initialized) await this.init();
+      if (!this.auth) throw new Error('Firebase Auth no está inicializado');
+
+      localStorage.removeItem('logoutTimestamp');
+      try { sessionStorage.removeItem('finanzapp:logged_out'); } catch (e) {}
+
+      const credential = firebase.auth.GoogleAuthProvider.credential(null, accessToken);
+      const userCredential = await this.auth.signInWithCredential(credential);
+      this.saveUserSession(userCredential.user);
+
+      return {
+        success: true,
+        user: userCredential.user,
+        message: 'Inicio de sesión exitoso con Google'
+      };
+    } catch (error) {
+      console.error('[FirebaseAuth] Error en signInWithCredential (accessToken):', error);
+      return this.handleAuthError(error);
+    }
+  }
+
   // Iniciar sesión con Google directa y rápida
   async loginWithGoogle() {
     try {
