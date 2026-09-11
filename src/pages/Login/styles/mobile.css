@@ -86,6 +86,10 @@
     width: 100%;
   }
 
+  .gsi-button-container iframe {
+    border-radius: 14px !important;
+  }
+
   .btn-google {
     background: #e0def4;
   }

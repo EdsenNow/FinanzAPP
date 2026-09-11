@@ -258,11 +258,12 @@
         const gsiContainer = document.getElementById('gsiButtonContainer');
         if (gsiContainer) {
           const renderGsiBtn = () => {
-            const authCard = document.querySelector('.auth-card') || gsiContainer;
-            const containerWidth = Math.min(400, Math.max(240, (authCard ? authCard.clientWidth - 48 : gsiContainer.clientWidth) || 340));
+            const optionsContainer = document.querySelector('.auth-options');
+            const targetWidth = optionsContainer ? optionsContainer.clientWidth : 360;
+            const containerWidth = Math.min(400, Math.max(240, targetWidth || 360));
             window.google.accounts.id.renderButton(gsiContainer, {
               type: 'standard',
-              theme: 'outline',
+              theme: 'filled_black',
               size: 'large',
               text: 'continue_with',
               shape: 'rectangular',
