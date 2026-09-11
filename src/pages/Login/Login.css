@@ -334,7 +334,7 @@ body::-webkit-scrollbar-corner {
 
 .logo-icon {
   background: transparent;
-  background-image: url('/assets/logo-oscuro-square.png?v=2026091112');
+  background-image: url('/assets/logo-oscuro-square.png?v=2026091113');
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
@@ -475,6 +475,26 @@ body::-webkit-scrollbar-corner {
 
 .btn-google:active {
   transform: translateY(-1px) scale(0.99);
+}
+
+.btn:disabled,
+.btn[disabled] {
+  opacity: 0.7;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.btn-google:disabled,
+.btn-google[disabled] {
+  background: #d8d5ec;
+  opacity: 0.8;
+  color: #6e6a86;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+  transform: none !important;
+  box-shadow: 0 4px 14px rgba(224, 222, 244, 0.1) !important;
 }
 
 

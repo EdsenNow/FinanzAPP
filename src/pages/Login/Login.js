@@ -124,20 +124,29 @@
   // --- Integración de Google Identity Services (GIS) ---
   const originalGoogleBtnContent = googleSignInBtn ? googleSignInBtn.innerHTML : '';
   let googleTokenClient = null;
+  let isGoogleAuthInProgress = false;
 
   function showGoogleLoading(isLoading) {
+    const showEmailLogin = document.getElementById('showEmailLogin');
+    const loginAsGuest = document.getElementById('loginAsGuest');
+
     if (isLoading) {
       if (googleSignInBtn) {
         googleSignInBtn.disabled = true;
         googleSignInBtn.innerHTML = '<i data-lucide="loader-2" class="lucide-spin"></i> Iniciando sesión con Google...';
         window.LucideHelper?.refresh(googleSignInBtn);
       }
+      if (showEmailLogin) showEmailLogin.disabled = true;
+      if (loginAsGuest) loginAsGuest.disabled = true;
     } else {
+      isGoogleAuthInProgress = false;
       if (googleSignInBtn) {
         googleSignInBtn.disabled = false;
         googleSignInBtn.innerHTML = originalGoogleBtnContent;
         window.LucideHelper?.refresh(googleSignInBtn);
       }
+      if (showEmailLogin) showEmailLogin.disabled = false;
+      if (loginAsGuest) loginAsGuest.disabled = false;
     }
   }
 
@@ -173,6 +182,7 @@
 
   async function handleGoogleCredential(credential) {
     if (!credential) return;
+    isGoogleAuthInProgress = true;
     showGoogleLoading(true);
 
     try {
@@ -201,7 +211,11 @@
   }
 
   async function handleGoogleAccessToken(accessToken) {
-    if (!accessToken) return;
+    if (!accessToken) {
+      showGoogleLoading(false);
+      return;
+    }
+    isGoogleAuthInProgress = true;
     showGoogleLoading(true);
 
     try {
@@ -262,7 +276,14 @@
           callback: (tokenResponse) => {
             if (tokenResponse && tokenResponse.access_token) {
               handleGoogleAccessToken(tokenResponse.access_token);
+            } else {
+              console.warn('[Login] Respuesta GIS sin token o cancelada:', tokenResponse);
+              showGoogleLoading(false);
             }
+          },
+          error_callback: (error) => {
+            console.warn('[Login] GIS error_callback (popup cerrado o bloqueado):', error);
+            showGoogleLoading(false);
           }
         });
       }
@@ -277,27 +298,50 @@
   // Click handler para el botón personalizado de Google
   if (googleSignInBtn) {
     googleSignInBtn.addEventListener('click', async () => {
+      // Evitar clics múltiples si ya está cargando o deshabilitado
+      if (googleSignInBtn.disabled || isGoogleAuthInProgress) return;
+
+      // Iniciar estado de carga inmediatamente para evitar abrir pestañas duplicadas
+      showGoogleLoading(true);
+
       // Si TokenClient está listo, usarlo para solicitar acceso
       if (googleTokenClient) {
         try {
+          // Salvaguarda: si el usuario cierra el popup y GIS no dispara error_callback, detectar foco
+          const onWindowFocus = () => {
+            setTimeout(() => {
+              window.removeEventListener('focus', onWindowFocus);
+              if (!isGoogleAuthInProgress && googleSignInBtn && googleSignInBtn.disabled) {
+                showGoogleLoading(false);
+              }
+            }, 1200);
+          };
+          window.addEventListener('focus', onWindowFocus, { once: true });
+
           googleTokenClient.requestAccessToken({ prompt: 'select_account' });
           return;
         } catch (e) {
           console.warn('[Login] TokenClient falló, intentando One Tap:', e);
+          showGoogleLoading(false);
         }
       }
 
       // Si One Tap está disponible, mostrar el prompt
       if (window.google?.accounts?.id) {
-        window.google.accounts.id.prompt();
-        return;
+        try {
+          window.google.accounts.id.prompt((notification) => {
+            if (notification.isNotDisplayed() || notification.isSkippedMoment() || notification.isDismissedMoment()) {
+              showGoogleLoading(false);
+            }
+          });
+          return;
+        } catch (e) {
+          console.warn('[Login] One Tap prompt falló:', e);
+          showGoogleLoading(false);
+        }
       }
 
       // Fallback estándar con Firebase Auth si GIS no estuviera disponible
-      googleSignInBtn.disabled = true;
-      googleSignInBtn.innerHTML = '<i data-lucide="loader-2" class="lucide-spin"></i> Iniciando sesión...';
-      window.LucideHelper?.refresh(googleSignInBtn);
-
       try {
         const result = await window.firebaseAuth.loginWithGoogle();
         if (result && result.redirect) return;
@@ -307,6 +351,7 @@
           return;
         }
 
+        showGoogleLoading(false);
         const isCancelled = result?.cancelled || 
                             result?.error === 'auth/popup-closed-by-user' || 
                             result?.error === 'auth/cancelled-popup-request' ||
@@ -319,12 +364,9 @@
           }
         }
       } catch (error) {
+        showGoogleLoading(false);
         console.error('Error en fallback Google:', error);
         showAlert('Error', 'Ocurrió un error inesperado al conectar con Google.', { variant: 'error' });
-      } finally {
-        googleSignInBtn.disabled = false;
-        googleSignInBtn.innerHTML = originalGoogleBtnContent;
-        window.LucideHelper?.refresh(googleSignInBtn);
       }
     });
   }
