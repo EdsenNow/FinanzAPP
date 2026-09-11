@@ -444,6 +444,26 @@ body::-webkit-scrollbar-corner {
 
 
 
+.gsi-button-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: 44px;
+}
+
+.gsi-button-container iframe {
+  margin: 0 auto !important;
+  border-radius: 8px;
+  box-shadow: 0 4px 14px rgba(224, 222, 244, 0.12);
+  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.28s ease;
+}
+
+.gsi-button-container:hover iframe {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(224, 222, 244, 0.22);
+}
+
 .btn-google {
   background: #e0def4;
   color: #6e6a86;

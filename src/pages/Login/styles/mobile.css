@@ -82,6 +82,9 @@
     border-radius: 14px; /* Botones más redondeados, aspecto moderno móvil */
   }
 
+  .gsi-button-container {
+    width: 100%;
+  }
 
   .btn-google {
     background: #e0def4;

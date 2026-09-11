@@ -418,6 +418,6 @@ window.Core.helpers = {
   validateDate:                 (...a) => Helpers.validateDate(...a),
   formatDate:                   (...a) => Helpers.formatDate(...a),
   formatDateForInput:           (...a) => Helpers.formatDateForInput(...a),
-  loadSharedFilters:            ()     => Helpers.loadSharedFilters(),
+  loadSharedFilters:            (...a) => Helpers.loadSharedFilters(...a),
   saveSharedFilters:            (...a) => Helpers.saveSharedFilters(...a)
 };
